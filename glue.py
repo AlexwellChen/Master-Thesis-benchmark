@@ -3,13 +3,21 @@ import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW, get_linear_schedule_with_warmup
 from trainer import ProfilingTrainer
 
+def encode(examples):
+    return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length')
+
 # Load the MRPC dataset and create data loaders for training and validation
 train_dataset, eval_dataset = datasets.load_dataset('glue', 'mrpc', split=['train', 'validation'])
 tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
-train_encodings = tokenizer(train_dataset['sentence1'], train_dataset['sentence2'], truncation=True, padding=True)
-eval_encodings = tokenizer(eval_dataset['sentence1'], eval_dataset['sentence2'], truncation=True, padding=True)
-train_dataset = datasets.Dataset.from_dict({'input_ids': train_encodings['input_ids'], 'attention_mask': train_encodings['attention_mask'], 'labels': train_dataset['label']})
-eval_dataset = datasets.Dataset.from_dict({'input_ids': eval_encodings['input_ids'], 'attention_mask': eval_encodings['attention_mask'], 'labels': eval_dataset['label']})
+
+train_dataset = train_dataset.map(encode, batched=True)
+eval_dataset = eval_dataset.map(encode, batched=True)
+train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+
+train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+
 train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=8, shuffle=True)
 eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=8)
 

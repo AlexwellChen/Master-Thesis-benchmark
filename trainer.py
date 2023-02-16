@@ -10,8 +10,8 @@ class ProfilingTrainer:
         self.model = model
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
-        self.optimizer = optimizers(0)
-        self.scheduler = optimizers(1)
+        self.optimizer = optimizers[0]
+        self.scheduler = optimizers[1]
         self.device = device
         self.n_steps_per_val = n_steps_per_val
         self.target_val_acc = target_val_acc
@@ -29,15 +29,13 @@ class ProfilingTrainer:
             epoch_start_time = time.time()
             self.model.train()
             for step, batch in enumerate(self.train_dataloader):
-                input_ids = batch['input_ids'].to(self.device)
-                attention_mask = batch['attention_mask'].to(self.device)
-                labels = batch['labels'].to(self.device)
+                batch = {k: v.to(self.device) for k, v in batch.items()}
 
                 with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA], record_shapes=True) as prof:
                     with record_function("forward"):
-                        outputs = self.model(input_ids=input_ids, attention_mask=attention_mask)
+                        outputs = self.model(**batch)
                     with record_function("backward"):
-                        loss = outputs.loss(labels)
+                        loss = outputs[0]
                         loss.backward()
                         self.optimizer.step()
                         self.scheduler.step()
