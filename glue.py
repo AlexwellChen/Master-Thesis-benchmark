@@ -2,48 +2,81 @@ import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW, get_linear_schedule_with_warmup
 from trainer import ProfilingTrainer
+import argparse
 
-def encode(examples):
-    return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length')
 
-# Load the MRPC dataset and create data loaders for training and validation
-train_dataset, eval_dataset = datasets.load_dataset('glue', 'mrpc', split=['train', 'validation'])
-tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+def data_process(args):
+    # Define the function to encode the data
+    def encode(examples):
+        return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length')
+    # Load the MRPC dataset and create data loaders for training and validation
+    train_dataset, eval_dataset = datasets.load_dataset('glue', 'mrpc', split=['train', 'validation'])
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
 
-train_dataset = train_dataset.map(encode, batched=True)
-eval_dataset = eval_dataset.map(encode, batched=True)
-train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
-eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    train_dataset = train_dataset.map(encode, batched=True)
+    eval_dataset = eval_dataset.map(encode, batched=True)
+    train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
 
-train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
-eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+    train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+    eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
 
-train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=8, shuffle=True)
-eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=8)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
 
-# Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
-model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
+    return train_loader, eval_loader
 
-# Define the optimizer and learning rate scheduler
-optimizer = AdamW(model.parameters(), lr=5e-5)
-scheduler = get_linear_schedule_with_warmup(optimizer, 
-                                            num_warmup_steps=0, 
-                                            num_training_steps=len(train_loader) * 3
-                                        )
+def model_and_trainer(train_loader, eval_loader, args):
+    # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
+    model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
 
-# Instantiate the ProfilingTrainer class and pass in the required parameters
-trainer = ProfilingTrainer(
-    model=model,
-    train_dataloader=train_loader,
-    val_dataloader=eval_loader,
-    optimizers=[optimizer, scheduler],
-    device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
-    n_steps_per_val=100,
-    target_val_acc=0.85
-)
+    # Define the optimizer and learning rate scheduler
+    if args.optimizer == 'adamw':
+        optimizer = AdamW(model.parameters(), lr=args.lr)
+    elif args.optimizer == 'adan':
+        pass
+    scheduler = get_linear_schedule_with_warmup(optimizer, 
+                                                num_warmup_steps=0, 
+                                                num_training_steps=len(train_loader) * args.n_epochs
+                                            )
 
-# Train the model for 3 epochs
-trainer.train(3)
+    # Instantiate the ProfilingTrainer class and pass in the required parameters
+    trainer = ProfilingTrainer(
+        model=model,
+        train_dataloader=train_loader,
+        val_dataloader=eval_loader,
+        optimizers=[optimizer, scheduler],
+        device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
+        n_steps_per_val=args.n_steps_per_val,
+        target_val_acc=args.target_val_acc,
+        log_file_name=args.log_file_name
+    )
 
-# Print the profiling information
-print(trainer.profiler_log)
+    return trainer
+
+if __name__ == '__main__':
+    # Parse the command line arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--n_epochs', type=int, default=3)
+    # Add the argument for optimizer
+    parser.add_argument('--optimizer', type=str, default='adamw')
+    # Add the argument for learning rate
+    parser.add_argument('--lr', type=float, default=5e-5)
+    # Add the argument for batch size
+    parser.add_argument('--batch_size', type=int, default=8)
+    # Add the argument for number of n_steps_per_val
+    parser.add_argument('--n_steps_per_val', type=int, default=50)
+    # Add the argument for target_val_acc
+    parser.add_argument('--target_val_acc', type=float, default=0.80)
+    # Add the name for log file
+    parser.add_argument('--log_file_name', type=str, default='profiling')
+
+    args = parser.parse_args()
+
+    train_loader, eval_loader = data_process(args)
+    trainer = model_and_trainer(train_loader, eval_loader, args)
+    # Train the model for 3 epochs
+    trainer.train(3)
+
+    # Print the profiling information
+    print(trainer.profiler_log)
