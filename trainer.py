@@ -68,14 +68,18 @@ class ProfilingTrainer:
     
     def evaluate(self):
         self.model.eval()
-        metric = evaluate.load("accuracy")
+        # metric = evaluate.load("accuracy")
+        correct = 0
+        total = 0
         with torch.no_grad():
             for batch in self.val_dataloader:
                 batch = {k: v.to(self.device) for k, v in batch.items()}
                 outputs = self.model(**batch)
                 logits = outputs.logits
                 predictions = torch.argmax(logits, dim=-1)
-                metric.add_batch(predictions=predictions, references=batch["labels"])
+                ground_truth = batch['labels']
+                correct += (predictions == ground_truth).sum().item()
+                total += len(ground_truth)
         self.model.train()
-        return metric.compute()['accuracy']
+        return correct / total
         
