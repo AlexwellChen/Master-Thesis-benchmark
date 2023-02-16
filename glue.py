@@ -57,13 +57,13 @@ def model_and_trainer(train_loader, eval_loader, args):
 if __name__ == '__main__':
     # Parse the command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n_epochs', type=int, default=3)
+    parser.add_argument('--n_epochs', type=int, default=5)
     # Add the argument for optimizer
     parser.add_argument('--optimizer', type=str, default='adamw')
     # Add the argument for learning rate
     parser.add_argument('--lr', type=float, default=5e-5)
     # Add the argument for batch size
-    parser.add_argument('--batch_size', type=int, default=8)
+    parser.add_argument('--batch_size', type=int, default=16)
     # Add the argument for number of n_steps_per_val
     parser.add_argument('--n_steps_per_val', type=int, default=50)
     # Add the argument for target_val_acc
