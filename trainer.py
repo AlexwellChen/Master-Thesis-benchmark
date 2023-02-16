@@ -54,7 +54,7 @@ class ProfilingTrainer:
                         val_acc = self.evaluate()
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
                         print(f"Validation accuracy at step {step+1}: {val_acc:.2f}, loss: {loss.item():.2f}")
-                        if val_acc >= self.target_val_acc:
+                        if self.target_val_acc is not None and val_acc >= self.target_val_acc:
                             print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
                             self.train_time = time.time() - train_start_time
                             # self.profiler_log = prof.key_averages().table(sort_by="cpu_time_total")
