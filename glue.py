@@ -57,7 +57,7 @@ def model_and_trainer(train_loader, eval_loader, args):
 if __name__ == '__main__':
     # Parse the command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n_epochs', type=int, default=5)
+    parser.add_argument('--n_epochs', type=int, default=10)
     # Add the argument for optimizer
     parser.add_argument('--optimizer', type=str, default='adamw')
     # Add the argument for learning rate
@@ -78,14 +78,23 @@ if __name__ == '__main__':
     # Train the model for 3 epochs
     trainer.train(args.n_epochs)
 
-    # print avg sm occupancy and total energy
-    print(trainer.avg_sm_occupancy)
-    print(trainer.total_energy)
+    # print avg sm occupancy in xx.xx% format
+    print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
+    # print total energy consumption in xx.xx kJ format
+    print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
+    # print total time in xx.xx s format
+    print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
 
     # plot the loss curve
     import matplotlib.pyplot as plt
     loss = [item['loss'] for item in trainer.training_logs]
+    # save original loss values in ./loss_val/ folder
+    with open('./loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
+        for item in loss:
+            f.write(str(item))
+            f.write('\n')
+    smooth_loss = [sum(loss[max(0, i-10):i+1])/len(loss[max(0, i-10):i+1]) for i in range(len(loss))]
     # save the loss curve
-    plt.plot(loss)
+    plt.plot(smooth_loss)
     plt.savefig('./loss_fig/'+args.log_file_name+'_loss.png')
     

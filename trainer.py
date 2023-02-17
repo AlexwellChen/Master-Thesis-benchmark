@@ -75,6 +75,8 @@ class ProfilingTrainer:
                             pynvml.nvmlShutdown()
                             # average sm occupancy
                             self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
+                            # total energy in kj
+                            self.total_energy = self.total_energy / 1000
                             
                             return
                     self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
@@ -87,6 +89,7 @@ class ProfilingTrainer:
         pynvml.nvmlShutdown()
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
+        self.total_energy = self.total_energy / 1000
         
     
     def evaluate(self):
