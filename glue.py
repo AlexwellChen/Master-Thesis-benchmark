@@ -76,7 +76,7 @@ if __name__ == '__main__':
     train_loader, eval_loader = data_process(args)
     trainer = model_and_trainer(train_loader, eval_loader, args)
     # Train the model for 3 epochs
-    trainer.train(3)
+    trainer.train(args.n_epochs)
 
     # Print the profiling information
     print(trainer.profiler_log)

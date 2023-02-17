@@ -21,7 +21,7 @@ class ProfilingTrainer:
         self.train_time = 0
         self.profiler_log = None
         self.log_file_name = log_file_name
-        self.deviceCount = pynvml.nvmlDeviceGetCount()
+        self.deviceCount = 0
         self.total_energy = 0
         self.SM_Occupancy = []
         self.avg_SM_Occupancy = 0
@@ -31,7 +31,7 @@ class ProfilingTrainer:
             handle = pynvml.nvmlDeviceGetHandleByIndex(i)
             # Get energy consumption in kj
             energy = pynvml.nvmlDeviceGetTotalEnergyConsumption(handle)
-            self.total_energy += energy / 1000
+            self.total_energy += energy
             # Get SM occupancy
             info = pynvml.nvmlDeviceGetUtilizationRates(handle)
             self.SM_Occupancy.append(info.gpu)
@@ -42,8 +42,7 @@ class ProfilingTrainer:
         self.optimizer.zero_grad()
         train_start_time = time.time()
         pynvml.nvmlInit()
-        
-
+        self.deviceCount = pynvml.nvmlDeviceGetCount()
         progress_bar = tqdm(range(n_epochs * len(self.train_dataloader)), desc="Epoch")
         prof = torch.profiler.profile(
             schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=2),
@@ -66,6 +65,7 @@ class ProfilingTrainer:
                     self.scheduler.step()
                     self.optimizer.zero_grad()
                     prof.step()
+                    self.getGPUinfo()
                     if (step + 1) % self.n_steps_per_val == 0:
                         val_acc = self.evaluate()
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
