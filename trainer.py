@@ -25,16 +25,19 @@ class ProfilingTrainer:
         self.sm_occupancy = []
         self.avg_sm_occupancy = 0
 
-    def getGPUinfo(self):
+    def get_sm_occupancy(self):
         for i in range(self.device_count):
             handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-            # Get energy consumption in kj
-            energy = pynvml.nvmlDeviceGetTotalEnergyConsumption(handle)
-            self.total_energy += energy
             # Get SM occupancy
             info = pynvml.nvmlDeviceGetUtilizationRates(handle)
             self.sm_occupancy.append(info.gpu)
-            
+    
+    def get_energy(self):
+        for i in range(self.device_count):
+            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
+            # Get energy consumption in kJ
+            info = pynvml.nvmlDeviceGetTotalEnergyConsumption(handle)
+            self.total_energy += info / 1000
         
     def train(self, n_epochs):
         self.model.to(self.device)
@@ -86,10 +89,11 @@ class ProfilingTrainer:
                 print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
         
         self.train_time = time.time() - train_start_time
+        self.get_energy()
         pynvml.nvmlShutdown()
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
-        self.total_energy = self.total_energy / 1000
+        
         
     
     def evaluate(self):
