@@ -79,7 +79,7 @@ if __name__ == '__main__':
     trainer.train(args.n_epochs)
 
     # print avg sm occupancy and total energy
-    print(trainer.avg_sm_occupancy)
+    print(trainer.avg_SM_Occupancy)
     print(trainer.total_energy)
 
     # plot the loss curve
