@@ -20,20 +20,20 @@ class ProfilingTrainer:
         self.val_logs = []
         self.train_time = 0
         self.log_file_name = log_file_name
-        self.deviceCount = 0
+        self.device_count = 0
         self.total_energy = 0
-        self.SM_Occupancy = []
-        self.avg_SM_Occupancy = 0
+        self.sm_occupancy = []
+        self.avg_sm_occupancy = 0
 
     def getGPUinfo(self):
-        for i in range(self.deviceCount):
+        for i in range(self.device_count):
             handle = pynvml.nvmlDeviceGetHandleByIndex(i)
             # Get energy consumption in kj
             energy = pynvml.nvmlDeviceGetTotalEnergyConsumption(handle)
             self.total_energy += energy
             # Get SM occupancy
             info = pynvml.nvmlDeviceGetUtilizationRates(handle)
-            self.SM_Occupancy.append(info.gpu)
+            self.sm_occupancy.append(info.gpu)
             
         
     def train(self, n_epochs):
@@ -41,7 +41,7 @@ class ProfilingTrainer:
         self.optimizer.zero_grad()
         train_start_time = time.time()
         pynvml.nvmlInit()
-        self.deviceCount = pynvml.nvmlDeviceGetCount()
+        self.device_count = pynvml.nvmlDeviceGetCount()
         progress_bar = tqdm(range(n_epochs * len(self.train_dataloader)), desc="Epoch")
         prof = torch.profiler.profile(
             schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=2),
@@ -74,7 +74,7 @@ class ProfilingTrainer:
                             self.train_time = time.time() - train_start_time
                             pynvml.nvmlShutdown()
                             # average sm occupancy
-                            self.avg_SM_Occupancy = sum(self.SM_Occupancy) / len(self.SM_Occupancy)
+                            self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
                             
                             return
                     self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
@@ -86,12 +86,11 @@ class ProfilingTrainer:
         self.train_time = time.time() - train_start_time
         pynvml.nvmlShutdown()
         # average sm occupancy
-        self.avg_SM_Occupancy = sum(self.SM_Occupancy) / len(self.SM_Occupancy)
+        self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
         
     
     def evaluate(self):
         self.model.eval()
-        # metric = evaluate.load("accuracy")
         correct = 0
         total = 0
         with torch.no_grad():
