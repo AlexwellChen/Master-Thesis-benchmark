@@ -19,7 +19,6 @@ class ProfilingTrainer:
         self.training_logs = []
         self.val_logs = []
         self.train_time = 0
-        self.profiler_log = None
         self.log_file_name = log_file_name
         self.deviceCount = 0
         self.total_energy = 0
@@ -76,9 +75,7 @@ class ProfilingTrainer:
                             pynvml.nvmlShutdown()
                             # average sm occupancy
                             self.avg_SM_Occupancy = sum(self.SM_Occupancy) / len(self.SM_Occupancy)
-                            # print avg sm occupancy and total energy
-                            print(f"Average SM Occupancy: {self.avg_SM_Occupancy:.2f}")
-                            print(f"Total energy consumption: {self.total_energy:.2f} kj")
+                            
                             return
                     self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
                     progress_bar.update(1)
@@ -90,8 +87,7 @@ class ProfilingTrainer:
         pynvml.nvmlShutdown()
         # average sm occupancy
         self.avg_SM_Occupancy = sum(self.SM_Occupancy) / len(self.SM_Occupancy)
-        print(f"Average SM Occupancy: {self.avg_SM_Occupancy:.2f}")
-        print(f"Total energy consumption: {self.total_energy:.2f} kj")
+        
     
     def evaluate(self):
         self.model.eval()

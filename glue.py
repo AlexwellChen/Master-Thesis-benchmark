@@ -78,5 +78,14 @@ if __name__ == '__main__':
     # Train the model for 3 epochs
     trainer.train(args.n_epochs)
 
-    # Print the profiling information
-    print(trainer.profiler_log)
+    # print avg sm occupancy and total energy
+    print(trainer.avg_sm_occupancy)
+    print(trainer.total_energy)
+
+    # plot the loss curve
+    import matplotlib.pyplot as plt
+    loss = [item['loss'] for item in trainer.training_logs]
+    # save the loss curve
+    plt.plot(loss)
+    plt.savefig('./loss_fig/'+args.log_file_name+'_loss.png')
+    
