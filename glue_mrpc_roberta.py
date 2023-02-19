@@ -2,6 +2,7 @@ import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
 from trainer import ProfilingTrainer
+from transformers import RobertaTokenizer, RobertaModel
 import argparse
 from adan import Adan
 
@@ -12,7 +13,7 @@ def data_process(args):
         return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length')
     # Load the MRPC dataset and create data loaders for training and validation
     train_dataset, eval_dataset = datasets.load_dataset('glue', 'mrpc', split=['train', 'validation'])
-    tokenizer = AutoTokenizer.from_pretrained('roberta-base')
+    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
     train_dataset = train_dataset.map(encode, batched=True)
     eval_dataset = eval_dataset.map(encode, batched=True)
@@ -29,7 +30,7 @@ def data_process(args):
 
 def model_and_trainer(train_loader, eval_loader, args):
     # Load the pre-trained "roberta-base" model and add a linear layer on top for classification
-    model = AutoModelForSequenceClassification.from_pretrained('roberta-base', num_labels=2)
+    model = RobertaModel.from_pretrained('roberta-base', num_labels=2)
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
