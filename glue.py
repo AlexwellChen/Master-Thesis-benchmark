@@ -44,13 +44,13 @@ def model_and_trainer(train_loader, eval_loader, args):
     elif args.optimizer == 'adan':
         betas = (0.98, 0.92, 0.9)
         if args.fused_optimizer and args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr*5, weight_decay=0.02, fused=True, foreach=True, betas=betas)
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True, betas=betas)
         elif args.fused_optimizer and not args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr*5, weight_decay=0.02, fused=True, foreach=False, betas=betas)
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=False, betas=betas)
         elif not args.fused_optimizer and args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr*5, weight_decay=0.02, fused=False, foreach=True, betas=betas)
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True, betas=betas)
         else:
-            optimizer = Adan(model.parameters(), lr=args.lr*5, weight_decay=0.02, fused=False, foreach=False, betas=betas)
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False, betas=betas)
     scheduler = get_linear_schedule_with_warmup(optimizer, 
                                                 num_warmup_steps=0, 
                                                 num_training_steps=len(train_loader) * args.n_epochs
