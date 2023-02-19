@@ -37,7 +37,7 @@ def data_process(args):
 
 def model_and_trainer(train_loader, eval_loader, args):
     # Load the pre-trained "roberta-base" model and add a linear layer on top for classification
-    model = AutoModelForSequenceClassification.from_pretrained('roberta-base', num_labels=2, dropout=0.1, attention_dropout=0.1)
+    model = AutoModelForSequenceClassification.from_pretrained('roberta-base', num_labels=2)
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
