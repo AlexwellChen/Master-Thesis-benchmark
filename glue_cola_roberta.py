@@ -15,20 +15,20 @@ def data_process(args):
     train_dataset = train_dataset.map(lambda data: tokenizer(data["sentence"],
                                                         padding="max_length",
                                                         truncation=True,
-                                                        max_length=10),
+                                                        max_length=512),
                                                         batched=True,
                                                         batch_size=args.batch_size,
                                                         drop_last_batch=False)
     eval_dataset = eval_dataset.map(lambda data: tokenizer(data["sentence"],
                                                         padding="max_length",
                                                         truncation=True,
-                                                        max_length=10),
+                                                        max_length=512),
                                                         batched=True,
                                                         batch_size=args.batch_size,
                                                         drop_last_batch=False)
 
-    train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
-    eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+    train_dataset.set_format(type='torch', columns=['label', 'idx', 'input_ids', 'attention_mask'])
+    eval_dataset.set_format(type='torch', columns=['label', 'idx', 'input_ids', 'attention_mask'])
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
