@@ -32,7 +32,14 @@ def model_and_trainer(train_loader, eval_loader, args):
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adamw':
-        optimizer = AdamW(model.parameters(), lr=args.lr)
+        if args.fused_optimizer and args.foreach:
+            optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True)
+        elif args.fused_optimizer and not args.foreach:
+            optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=False)
+        elif not args.fused_optimizer and args.foreach:
+            optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True)
+        else:
+            optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False)
     elif args.optimizer == 'adan':
         pass
     scheduler = get_linear_schedule_with_warmup(optimizer, 
@@ -70,6 +77,10 @@ if __name__ == '__main__':
     parser.add_argument('--target_val_acc', type=float, default=None)
     # Add the name for log file
     parser.add_argument('--log_file_name', type=str, default='profiling')
+    # Wether to use fused optimizer
+    parser.add_argument('--fused_optimizer', type=bool, default=False)
+    # Wether to use foreach
+    parser.add_argument('--foreach', type=bool, default=False)
 
     args = parser.parse_args()
 
