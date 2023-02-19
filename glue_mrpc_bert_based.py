@@ -130,7 +130,7 @@ if __name__ == '__main__':
     plt.savefig('./loss_fig/'+args.log_file_name+'_loss.png')
 
     # plot the accuracy curve
-    accuracy = [item['val_acc'] for item in trainer.val_logs]
+    accuracy = [item['accuracy'] for item in trainer.val_logs]
     # save original accuracy values in ./acc_val/ folder
     with open('./acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
         for item in accuracy:
