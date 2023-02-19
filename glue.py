@@ -78,11 +78,14 @@ if __name__ == '__main__':
     # Add the name for log file
     parser.add_argument('--log_file_name', type=str, default='profiling')
     # Wether to use fused optimizer
-    parser.add_argument('--fused_optimizer', type=bool, default=False)
+    parser.add_argument('--fused_optimizer', type=str, default='False')
     # Wether to use foreach
-    parser.add_argument('--foreach', type=bool, default=False)
+    parser.add_argument('--foreach', type=str, default='False')
 
     args = parser.parse_args()
+
+    args.fused_optimizer = True if args.fused_optimizer == 'True' else False
+    args.foreach = True if args.foreach == 'True' else False
 
     train_loader, eval_loader = data_process(args)
     trainer = model_and_trainer(train_loader, eval_loader, args)
