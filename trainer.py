@@ -111,7 +111,7 @@ class ProfilingTrainer:
         self.model.train()
         return correct / total
 
-    def __del__ (self):
-        print("Destroying trainer, shutting down pynvml")
-        pynvml.nvmlShutdown()
+    # def __del__ (self):
+    #     print("Destroying trainer, shutting down pynvml")
+    #     pynvml.nvmlShutdown()
         
