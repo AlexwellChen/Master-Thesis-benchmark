@@ -25,3 +25,4 @@ df = pd.DataFrame.from_dict(loss_dict, orient="index").T
 
 # 使用seaborn绘制线图
 sns.lineplot(data=df)
+

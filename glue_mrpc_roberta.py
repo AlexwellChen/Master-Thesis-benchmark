@@ -8,30 +8,19 @@ from adan import Adan
 
 def data_process(args):
     # Define the function to encode the data
-    # Load the CoLa dataset and create data loaders for training and validation
-    train_dataset, eval_dataset = datasets.load_dataset('glue', 'cola', split=['train', 'validation'])
+    def encode(examples):
+        return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length')
+    # Load the MRPC dataset and create data loaders for training and validation
+    train_dataset, eval_dataset = datasets.load_dataset('glue', 'mrpc', split=['train', 'validation'])
     tokenizer = AutoTokenizer.from_pretrained('roberta-base')
 
-    train_dataset = train_dataset.map(lambda data: tokenizer(data["sentence"],
-                                                        padding="max_length",
-                                                        truncation=True,
-                                                        max_length=512),
-                                                        batched=True,
-                                                        batch_size=args.batch_size,
-                                                        drop_last_batch=False)
-    eval_dataset = eval_dataset.map(lambda data: tokenizer(data["sentence"],
-                                                        padding="max_length",
-                                                        truncation=True,
-                                                        max_length=512),
-                                                        batched=True,
-                                                        batch_size=args.batch_size,
-                                                        drop_last_batch=False)
-
+    train_dataset = train_dataset.map(encode, batched=True)
+    eval_dataset = eval_dataset.map(encode, batched=True)
     train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
     eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
 
-    train_dataset.set_format(type='torch', columns=['labels', 'idx', 'input_ids', 'attention_mask'])
-    eval_dataset.set_format(type='torch', columns=['labels', 'idx', 'input_ids', 'attention_mask'])
+    train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+    eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
@@ -87,11 +76,11 @@ def model_and_trainer(train_loader, eval_loader, args):
 if __name__ == '__main__':
     # Parse the command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n_epochs', type=int, default=10)
+    parser.add_argument('--n_epochs', type=int, default=5)
     # Add the argument for optimizer
     parser.add_argument('--optimizer', type=str, default='adam')
     # Add the argument for learning rate
-    parser.add_argument('--lr', type=float, default=1e-5) # Adam: 1e-5, Adan: 4e-5
+    parser.add_argument('--lr', type=float, default=5e-5)
     # Add the argument for batch size
     parser.add_argument('--batch_size', type=int, default=16)
     # Add the argument for number of n_steps_per_val
