@@ -1,5 +1,6 @@
 datasets==2.9.0
 matplotlib==3.5.2
+pyJoules==0.5.1
 pynvml==11.5.0
 torch==1.13.1
 tqdm==4.64.1
