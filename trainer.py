@@ -2,6 +2,9 @@ import time
 import torch
 from tqdm import tqdm
 import pynvml
+from pyJoules.energy_meter import measure_energy
+from pyJoules.device.rapl_device import RaplPackageDomain
+
 
 class ProfilingTrainer:
     def __init__(
@@ -38,7 +41,10 @@ class ProfilingTrainer:
             # Get energy consumption in kJ
             info = pynvml.nvmlDeviceGetTotalEnergyConsumption(handle)
             self.total_energy += info / 1000
-        
+
+
+
+    @measure_energy(domains=[RaplPackageDomain(0)])
     def train(self, n_epochs):
         self.model.to(self.device)
         self.optimizer.zero_grad()
