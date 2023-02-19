@@ -33,16 +33,17 @@ def model_and_trainer(train_loader, eval_loader, args):
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
+        betas = (0.9,0.98)
         if args.fused_optimizer and args.foreach:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True, betas=betas)
         elif args.fused_optimizer and not args.foreach:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=False)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=False, betas=betas)
         elif not args.fused_optimizer and args.foreach:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True, betas=betas)
         else:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False, betas=betas)
     elif args.optimizer == 'adan':
-        betas = (0.98, 0.92, 0.9)
+        betas = (0.98, 0.99, 0.99)
         if args.fused_optimizer and args.foreach:
             optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True, betas=betas)
         elif args.fused_optimizer and not args.foreach:

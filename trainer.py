@@ -47,7 +47,7 @@ class ProfilingTrainer:
     def train(self, n_epochs):
         self.model.to(self.device)
         self.optimizer.zero_grad()
-        train_start_time = time.time()
+        
         progress_bar = tqdm(range(n_epochs * len(self.train_dataloader)), desc="Epoch")
         prof = torch.profiler.profile(
             schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=2),
@@ -56,6 +56,7 @@ class ProfilingTrainer:
             profile_memory=True,
             with_stack=True
         )
+        train_start_time = time.time()
         with prof:
             for epoch in range(n_epochs):
                 epoch_start_time = time.time()
@@ -89,7 +90,6 @@ class ProfilingTrainer:
                 epoch_end_time = time.time()
                 epoch_time = epoch_end_time - epoch_start_time
                 print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
-        
         self.train_time = time.time() - train_start_time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
