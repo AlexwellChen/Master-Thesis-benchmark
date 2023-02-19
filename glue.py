@@ -1,6 +1,6 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, AdamW, get_linear_schedule_with_warmup
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
 from trainer import ProfilingTrainer
 import argparse
 
@@ -31,15 +31,15 @@ def model_and_trainer(train_loader, eval_loader, args):
     model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
 
     # Define the optimizer and learning rate scheduler
-    if args.optimizer == 'adamw':
+    if args.optimizer == 'adam':
         if args.fused_optimizer and args.foreach:
-            optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True)
         elif args.fused_optimizer and not args.foreach:
-            optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=False)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=False)
         elif not args.fused_optimizer and args.foreach:
-            optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True)
         else:
-            optimizer = AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False)
     elif args.optimizer == 'adan':
         pass
     scheduler = get_linear_schedule_with_warmup(optimizer, 
