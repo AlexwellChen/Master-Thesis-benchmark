@@ -27,8 +27,11 @@ def data_process(args):
                                                         batch_size=args.batch_size,
                                                         drop_last_batch=False)
 
-    train_dataset.set_format(type='torch', columns=['label', 'idx', 'input_ids', 'attention_mask'])
-    eval_dataset.set_format(type='torch', columns=['label', 'idx', 'input_ids', 'attention_mask'])
+    train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+
+    train_dataset.set_format(type='torch', columns=['labels', 'idx', 'input_ids', 'attention_mask'])
+    eval_dataset.set_format(type='torch', columns=['labels', 'idx', 'input_ids', 'attention_mask'])
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
     eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
