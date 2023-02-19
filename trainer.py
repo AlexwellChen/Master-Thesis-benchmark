@@ -27,6 +27,9 @@ class ProfilingTrainer:
         self.total_energy = 0
         self.sm_occupancy = []
         self.avg_sm_occupancy = 0
+        
+        pynvml.nvmlInit()
+        self.device_count = pynvml.nvmlDeviceGetCount()
 
     def get_sm_occupancy(self):
         for i in range(self.device_count):
@@ -36,12 +39,8 @@ class ProfilingTrainer:
             self.sm_occupancy.append(info.gpu)
     
     def get_energy(self):
-        for i in range(self.device_count):
-            handle = pynvml.nvmlDeviceGetHandleByIndex(i)
-            # Get energy consumption in kJ
-            info = pynvml.nvmlDeviceGetTotalEnergyConsumption(handle)
-            self.total_energy += info / 1000
-
+        # Use this func for AMDs GPU, TPUs, etc
+        pass
 
 
     @measure_energy(domains=[RaplPackageDomain(0)])
@@ -49,8 +48,6 @@ class ProfilingTrainer:
         self.model.to(self.device)
         self.optimizer.zero_grad()
         train_start_time = time.time()
-        pynvml.nvmlInit()
-        self.device_count = pynvml.nvmlDeviceGetCount()
         progress_bar = tqdm(range(n_epochs * len(self.train_dataloader)), desc="Epoch")
         prof = torch.profiler.profile(
             schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=2),
@@ -73,7 +70,7 @@ class ProfilingTrainer:
                     self.scheduler.step()
                     self.optimizer.zero_grad()
                     prof.step()
-                    self.getGPUinfo()
+                    self.get_sm_occupancy()
                     if (step + 1) % self.n_steps_per_val == 0:
                         val_acc = self.evaluate()
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
@@ -81,7 +78,6 @@ class ProfilingTrainer:
                         if self.target_val_acc is not None and val_acc >= self.target_val_acc:
                             print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
                             self.train_time = time.time() - train_start_time
-                            pynvml.nvmlShutdown()
                             # average sm occupancy
                             self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
                             # total energy in kj
@@ -95,8 +91,6 @@ class ProfilingTrainer:
                 print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
         
         self.train_time = time.time() - train_start_time
-        self.get_energy()
-        pynvml.nvmlShutdown()
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
         
@@ -117,4 +111,8 @@ class ProfilingTrainer:
                 total += len(ground_truth)
         self.model.train()
         return correct / total
+
+    def __del__ (self):
+        print("Destroying trainer, shutting down pynvml")
+        pynvml.nvmlShutdown()
         
