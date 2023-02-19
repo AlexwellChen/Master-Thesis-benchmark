@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # Wether to use fused optimizer
     parser.add_argument('--fused_optimizer', type=str, default='False')
     # Wether to use foreach
-    parser.add_argument('--foreach', type=str, default='False')
+    parser.add_argument('--foreach', type=str, default='True')
 
     args = parser.parse_args()
 
