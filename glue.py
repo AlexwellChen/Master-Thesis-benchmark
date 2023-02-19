@@ -81,7 +81,7 @@ if __name__ == '__main__':
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
     # print total energy consumption in xx.xx kJ format
-    print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
+    # print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
     # print total time in xx.xx s format
     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
 
