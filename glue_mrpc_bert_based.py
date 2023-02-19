@@ -33,13 +33,13 @@ def model_and_trainer(train_loader, eval_loader, args):
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
-        # betas = (0.9,0.98)
+        # betas = (0.9, 0.999) #default
         if args.foreach:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, foreach=True, eps=1e-6)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, foreach=True, eps=1e-8)
         else:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, foreach=False, eps=1e-6)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.01, foreach=False, eps=1e-8)
     elif args.optimizer == 'adan':
-        betas = (0.98, 0.99, 0.99)
+        betas = (0.98, 0.92, 0.99)
         if args.fused_optimizer and args.foreach:
             optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True, betas=betas, eps=1e-8)
         elif args.fused_optimizer and not args.foreach:
@@ -50,13 +50,14 @@ def model_and_trainer(train_loader, eval_loader, args):
             optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False, betas=betas, eps=1e-8)
     # adamw
     elif args.optimizer == 'adamw':
+        betas=(0.9, 0.999)
         if args.fused_optimizer:
             # runtime error: Not supported: FusedAdamW
             print('Not supported: Fused AdamW')
         if args.foreach:
-            optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.1, foreach=True, eps=1e-6)
+            optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, foreach=True, betas=betas, eps=1e-8)
         else:
-            optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.1, foreach=False, eps=1e-6)
+            optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=0.01, foreach=False, betas=betas, eps=1e-8)
 
     scheduler = get_linear_schedule_with_warmup(optimizer, 
                                                 num_warmup_steps=0, 
