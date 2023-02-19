@@ -66,7 +66,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--n_epochs', type=int, default=5)
     # Add the argument for optimizer
-    parser.add_argument('--optimizer', type=str, default='adamw')
+    parser.add_argument('--optimizer', type=str, default='adam')
     # Add the argument for learning rate
     parser.add_argument('--lr', type=float, default=5e-5)
     # Add the argument for batch size
