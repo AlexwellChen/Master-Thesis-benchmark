@@ -52,6 +52,8 @@ def model_and_trainer(train_loader, eval_loader, args):
             optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True, betas=betas, eps=1e-8)
         else:
             optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False, betas=betas, eps=1e-8)
+    
+    # polynomial_decay, warmup_updates: 320
     scheduler = get_linear_schedule_with_warmup(optimizer, 
                                                 num_warmup_steps=0, 
                                                 num_training_steps=len(train_loader) * args.n_epochs
