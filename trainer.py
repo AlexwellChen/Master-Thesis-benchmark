@@ -56,6 +56,7 @@ class ProfilingTrainer:
             profile_memory=True,
             with_stack=True
         )
+        acc_achieved = 0
         train_start_time = time.time()
         with prof:
             for epoch in range(n_epochs):
@@ -77,14 +78,16 @@ class ProfilingTrainer:
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
                         print(f"Validation accuracy at step {step+1}: {val_acc:.2f}, loss: {loss.item():.2f}")
                         if self.target_val_acc is not None and val_acc >= self.target_val_acc:
-                            print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
-                            self.train_time = time.time() - train_start_time
-                            # average sm occupancy
-                            self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
-                            # total energy in kj
-                            # self.total_energy = self.total_energy / 1000
-                            
-                            return
+                            if acc_achieved == 2: 
+                                print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
+                                self.train_time = time.time() - train_start_time
+                                # average sm occupancy
+                                self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
+                                # total energy in kj
+                                # self.total_energy = self.total_energy / 1000
+                                return
+                            else:
+                                acc_achieved += 1
                     self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
                     progress_bar.update(1)
                 epoch_end_time = time.time()
