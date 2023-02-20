@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 loss_dict = {}
-f=plt.figure(figsize=(30,10))
+fig, axes = plt.subplots(1, 2, figsize=(10, 5))
 
 # 遍历文件夹中的所有文件
 for file_path in glob.glob("./loss_val/*"):
@@ -28,8 +28,8 @@ for file_path in glob.glob("./loss_val/*"):
 df = pd.DataFrame.from_dict(loss_dict, orient="index").T
 
 # 使用seaborn绘制线图
-f.add_subplot(2,1,1)
-sns.lineplot(data=df)
+
+sns.lineplot(data=df, ax=axes[0])
 
 acc_dict = {}
 
@@ -52,8 +52,12 @@ for file_path in glob.glob("./acc_val/*"):
 df = pd.DataFrame.from_dict(loss_dict, orient="index").T
 
 # 使用seaborn绘制线图
-f.add_subplot(2,1,2)
-sns.lineplot(data=df)
+
+sns.lineplot(data=df, ax=axes[1])
+
+axes[0].set_title("Loss Curve")
+axes[1].set_title("Accuracy Curve")
+
 # 保存图像
 plt.savefig("acc_loss_curve.png")
 
