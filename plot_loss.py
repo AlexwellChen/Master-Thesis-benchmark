@@ -49,7 +49,7 @@ for file_path in glob.glob("./acc_val/*"):
     acc_dict[file_name] = acc_values
 
 # 将字典转换为DataFrame，便于绘图
-df = pd.DataFrame.from_dict(loss_dict, orient="index").T
+df = pd.DataFrame.from_dict(acc_dict, orient="index").T
 
 # 使用seaborn绘制线图
 
