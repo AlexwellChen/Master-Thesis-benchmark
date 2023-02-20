@@ -91,7 +91,7 @@ if __name__ == '__main__':
     # Add the argument for number of n_steps_per_val
     parser.add_argument('--n_steps_per_val', type=int, default=50)
     # Add the argument for target_val_acc
-    parser.add_argument('--target_val_acc', type=float, default=None)
+    parser.add_argument('--target_val_acc', type=float, default=0.84)
     # Add the name for log file
     parser.add_argument('--log_file_name', type=str, default='profiling')
     # Wether to use fused optimizer
