@@ -40,8 +40,6 @@ for file_path in glob.glob("./acc_val/*"):
         lines = f.readlines()
     # 将每行acc值转换为float类型，并存储到list中
     acc_values = [float(line.strip()) for line in lines]
-    # smooth the loss values
-    acc_values = [sum(acc_values[max(0, i-10):i+1])/len(acc_values[max(0, i-10):i+1]) for i in range(len(acc_values))]
     # 将文件名和loss值组成的list存储到字典中
     acc_dict[file_name] = acc_values
 
