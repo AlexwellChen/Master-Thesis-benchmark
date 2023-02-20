@@ -106,6 +106,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.target_val_acc is not None:
         print("Target accuracy: ", args.target_val_acc)
+    print("lr: ", args.lr)
+    print("wd: ", args.wd)
+    
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
