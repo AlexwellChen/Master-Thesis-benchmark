@@ -11,6 +11,9 @@ f=plt.figure(figsize=(30,10))
 for file_path in glob.glob("./loss_val/*"):
     # 从文件路径中获取文件名
     file_name = os.path.basename(file_path)
+    # Skip markdown files
+    if file_name.endswith(".md"):
+        continue
     # 读取文件中的所有行
     with open(file_path, "r") as f:
         lines = f.readlines()
@@ -34,6 +37,9 @@ acc_dict = {}
 for file_path in glob.glob("./acc_val/*"):
     # 从文件路径中获取文件名
     file_name = os.path.basename(file_path)
+    # Skip markdown files
+    if file_name.endswith(".md"):
+        continue
     # 读取文件中的所有行
     with open(file_path, "r") as f:
         lines = f.readlines()
