@@ -49,11 +49,11 @@ for file_path in glob.glob("./acc_val/*"):
     acc_dict[file_name] = acc_values
 
 # 将字典转换为DataFrame，便于绘图
-df = pd.DataFrame.from_dict(acc_dict, orient="index").T
+acc_df = pd.DataFrame.from_dict(acc_dict, orient="index").T
 
 # 使用seaborn绘制线图
 
-sns.lineplot(data=df, ax=axes[1])
+sns.lineplot(data=acc_df, ax=axes[1])
 
 axes[0].set_title("Loss Curve")
 axes[1].set_title("Accuracy Curve")
