@@ -91,7 +91,7 @@ if __name__ == '__main__':
     # Add the argument for number of n_steps_per_val
     parser.add_argument('--n_steps_per_val', type=int, default=50)
     # Add the argument for target_val_acc
-    parser.add_argument('--target_val_acc', type=float, default=0.84)
+    parser.add_argument('--target_val_acc', type=float, default=None)
     # Add the name for log file
     parser.add_argument('--log_file_name', type=str, default='profiling')
     # Wether to use fused optimizer
@@ -106,9 +106,11 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.target_val_acc is not None:
         print("Target accuracy: ", args.target_val_acc)
+    else:
+        print("Target accuracy: None")
     print("lr: ", args.lr)
     print("wd: ", args.wd)
-    
+
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
