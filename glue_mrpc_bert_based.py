@@ -91,7 +91,7 @@ if __name__ == '__main__':
     # Add the argument for number of n_steps_per_val
     parser.add_argument('--n_steps_per_val', type=int, default=50)
     # Add the argument for target_val_acc
-    parser.add_argument('--target_val_acc', type=float, default=None)
+    parser.add_argument('--target_val_acc', type=float, default=0.84)
     # Add the name for log file
     parser.add_argument('--log_file_name', type=str, default='profiling')
     # Wether to use fused optimizer
@@ -112,7 +112,7 @@ if __name__ == '__main__':
     trainer = model_and_trainer(train_loader, eval_loader, args)
     # Train the model for 3 epochs
     trainer.train(args.n_epochs)
-    
+
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
     # print total energy consumption in xx.xx kJ format
