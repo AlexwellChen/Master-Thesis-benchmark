@@ -112,7 +112,7 @@ if __name__ == '__main__':
     trainer = model_and_trainer(train_loader, eval_loader, args)
     # Train the model for 3 epochs
     trainer.train(args.n_epochs)
-
+    
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
     # print total energy consumption in xx.xx kJ format
@@ -128,10 +128,6 @@ if __name__ == '__main__':
         for item in loss:
             f.write(str(item))
             f.write('\n')
-    smooth_loss = [sum(loss[max(0, i-10):i+1])/len(loss[max(0, i-10):i+1]) for i in range(len(loss))]
-    # save the loss curve
-    plt.plot(smooth_loss)
-    plt.savefig('./loss_fig/'+args.log_file_name+'_loss.png')
 
     # plot the accuracy curve
     accuracy = [item['accuracy'] for item in trainer.val_logs]
@@ -140,7 +136,4 @@ if __name__ == '__main__':
         for item in accuracy:
             f.write(str(item))
             f.write('\n')
-    # save the accuracy curve
-    plt.plot(accuracy)
-    plt.savefig('./acc_fig/'+args.log_file_name+'_acc.png')
     
