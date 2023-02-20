@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 loss_dict = {}
-fig, axes = plt.subplots(1, 2, figsize=(30, 15))
+fig, axes = plt.subplots(1, 2, figsize=(20, 10))
 
 # 遍历文件夹中的所有文件
 for file_path in glob.glob("./loss_val/*"):
