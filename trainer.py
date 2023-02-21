@@ -1,9 +1,11 @@
+import csv
 import time
 import torch
 from tqdm import tqdm
 import pynvml
 from pyJoules.energy_meter import measure_energy
-from pyJoules.device.rapl_device import RaplPackageDomain
+from pyJoules.handler.csv_handler import CSVHandler
+
 
 
 class ProfilingTrainer:
@@ -42,8 +44,9 @@ class ProfilingTrainer:
         # Use this func for AMDs GPU, TPUs, etc
         pass
 
+    csv_handler = CSVHandler('energy_results.csv')
 
-    @measure_energy(domains=[RaplPackageDomain(0)])
+    @measure_energy(handler=csv_handler)
     def train(self, n_epochs):
         self.model.to(self.device)
         self.optimizer.zero_grad()
@@ -94,7 +97,7 @@ class ProfilingTrainer:
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
         
-        
+    csv_handler.save_data()
     
     def evaluate(self):
         self.model.eval()
