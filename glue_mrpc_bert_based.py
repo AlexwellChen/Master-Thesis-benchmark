@@ -1,9 +1,14 @@
+from cgitb import handler
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
 from trainer import ProfilingTrainer
 import argparse
 from adan import Adan
+
+from pyJoules.energy_meter import EnergyMeter
+from pyJoules.handler.csv_handler import CSVHandler
+from pyJoules.device.device_factory import DeviceFactory
 
 
 def data_process(args):
@@ -118,7 +123,18 @@ if __name__ == '__main__':
     train_loader, eval_loader = data_process(args)
     trainer = model_and_trainer(train_loader, eval_loader, args)
     # Train the model for 3 epochs
+
+    device_to_measure = DeviceFactory.create_devices()
+    meter = EnergyMeter(device_to_measure)
+
+
+    meter.start()
     trainer.train(args.n_epochs)
+    meter.stop()
+    trace = meter.get_trace()
+    handler = CSVHandler('Energy_Results.csv')
+    handler.process(trace)
+    handler.save_data()
     
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")

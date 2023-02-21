@@ -43,7 +43,7 @@ class ProfilingTrainer:
         pass
 
 
-    @measure_energy()
+    #@measure_energy()
     def train(self, n_epochs):
         self.model.to(self.device)
         self.optimizer.zero_grad()
