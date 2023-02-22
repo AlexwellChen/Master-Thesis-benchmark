@@ -1,22 +1,24 @@
 echo "-----------------------Benchmark start------------------------"
-python glue_mrpc_bert_based.py \
+python imdb_mrpc_bert_based.py \
         --n_epochs 10 --warmup 160 \
         --lr 1e-5 --wd 0.01 \
         --optimizer adamw \
         --log_file_name adamw_lr1e-5_wd1e-2_wm160_ep10
 echo "--------------------------adamw done--------------------------"
-python glue_mrpc_bert_based.py \
+python imdb_mrpc_bert_based.py \
         --n_epochs 10 --warmup 160 \
         --lr 1e-5 --wd 0.01 \
         --optimizer adam \
         --log_file_name adam_lr1e-5_wd1e-2_wm160_ep10
 echo "--------------------------adam done--------------------------"
-python glue_mrpc_bert_based.py \
+python imdb_mrpc_bert_based.py \
         --n_epochs 10 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
         --log_file_name adan_lr1e-4_wd1e-2_wm50_ep10
 echo "--------------------------adan done--------------------------"
+# Plot the results
+python plot_loss_accuracy.py
 
 # adamw:
 #     lr=1e-5, wd=0.01, warmup=160
