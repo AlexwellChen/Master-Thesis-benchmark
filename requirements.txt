@@ -4,3 +4,4 @@ pyJoules==0.5.1
 pynvml==11.5.0
 tqdm==4.64.1
 transformers==4.26.1
+seaborn

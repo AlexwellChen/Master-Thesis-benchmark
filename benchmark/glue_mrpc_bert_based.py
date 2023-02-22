@@ -2,7 +2,7 @@ from cgitb import handler
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-from trainer.trainer import ProfilingTrainer
+from benchmark.trainer import ProfilingTrainer
 import argparse
 from adan import Adan
 
