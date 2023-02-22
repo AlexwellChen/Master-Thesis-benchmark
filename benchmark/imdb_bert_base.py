@@ -122,7 +122,7 @@ if __name__ == '__main__':
     args.foreach = True if args.foreach == 'True' else False
 
     train_loader, test_loader, eval_loader = data_process(args)
-    trainer = model_and_trainer(train_loader, test_loader, args)
+    trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
 
     # Init energy meter
     device_to_measure = DeviceFactory.create_devices()
@@ -136,6 +136,8 @@ if __name__ == '__main__':
     handler = CSVHandler(args.log_file_name + '_Energy_Results.csv')
     handler.process(trace)
     handler.save_data()
+
+    test_acc = trainer.test()
     
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
@@ -143,6 +145,7 @@ if __name__ == '__main__':
     # print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
     # print total time in xx.xx s format
     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
+    print("Test accuracy: ", "{:.2f}".format(test_acc), "%")
 
     # save loss values in ./loss_val/ folder
     loss = [item['loss'] for item in trainer.training_logs]
