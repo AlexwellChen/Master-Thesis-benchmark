@@ -17,16 +17,16 @@ def data_process(args):
     
     # Load the IMDB dataset and create data loaders for training, validation and test
     train_dataset, test_dataset = datasets.load_dataset('imdb', split=['train', 'test'])
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
-
-    train_dataset = train_dataset.map(encode, batched=True)
-    test_dataset = test_dataset.map(encode, batched=True)
-    train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
-    test_dataset = test_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
-
-    # split a eval set from train set
     train_dataset, eval_dataset = train_dataset.train_test_split(test_size=0.1)
 
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+    train_dataset = train_dataset.map(encode, batched=True)
+    test_dataset = test_dataset.map(encode, batched=True)
+    eval_dataset = eval_dataset.map(encode, batched=True)
+    train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    test_dataset = test_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    
     train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
     test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
     eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
