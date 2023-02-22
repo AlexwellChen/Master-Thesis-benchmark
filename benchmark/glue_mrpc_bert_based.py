@@ -1,10 +1,14 @@
+from cgitb import handler
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-from trainer import ProfilingTrainer
-from transformers import RobertaTokenizer, RobertaModel
+from trainer.trainer import ProfilingTrainer
 import argparse
 from adan import Adan
+
+from pyJoules.energy_meter import EnergyMeter
+from pyJoules.handler.csv_handler import CSVHandler
+from pyJoules.device.device_factory import DeviceFactory
 
 
 def data_process(args):
@@ -13,7 +17,7 @@ def data_process(args):
         return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length')
     # Load the MRPC dataset and create data loaders for training and validation
     train_dataset, eval_dataset = datasets.load_dataset('glue', 'mrpc', split=['train', 'validation'])
-    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
 
     train_dataset = train_dataset.map(encode, batched=True)
     eval_dataset = eval_dataset.map(encode, batched=True)
@@ -29,34 +33,39 @@ def data_process(args):
     return train_loader, eval_loader
 
 def model_and_trainer(train_loader, eval_loader, args):
-    # Load the pre-trained "roberta-base" model and add a linear layer on top for classification
-    model = RobertaModel.from_pretrained('roberta-base', num_labels=2)
+    # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
+    model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
-        betas = (0.9,0.98)
-        if args.fused_optimizer and args.foreach:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, fused=True, foreach=True, betas=betas, eps=1e-6)
-        elif args.fused_optimizer and not args.foreach:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, fused=True, foreach=False, betas=betas, eps=1e-6)
-        elif not args.fused_optimizer and args.foreach:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, fused=False, foreach=True, betas=betas, eps=1e-6)
+        # betas = (0.9, 0.999) #default
+        if args.foreach:
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=True, eps=1e-8)
         else:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, fused=False, foreach=False, betas=betas, eps=1e-6)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=False, eps=1e-8)
     elif args.optimizer == 'adan':
-        betas = (0.98, 0.99, 0.99)
+        betas = (0.98, 0.92, 0.99)
         if args.fused_optimizer and args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True, betas=betas, eps=1e-8)
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args, fused=True, foreach=True, betas=betas, eps=1e-8)
         elif args.fused_optimizer and not args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=False, betas=betas, eps=1e-8)
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=True, foreach=False, betas=betas, eps=1e-8)
         elif not args.fused_optimizer and args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True, betas=betas, eps=1e-8)
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=False, foreach=True, betas=betas, eps=1e-8)
         else:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False, betas=betas, eps=1e-8)
-    
-    # polynomial_decay, warmup_updates: 320
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=False, foreach=False, betas=betas, eps=1e-8)
+    # adamw
+    elif args.optimizer == 'adamw':
+        betas=(0.9, 0.999)
+        if args.fused_optimizer:
+            # runtime error: Not supported: FusedAdamW
+            print('Not supported: Fused AdamW')
+        if args.foreach:
+            optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=True, betas=betas, eps=1e-8)
+        else:
+            optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=False, betas=betas, eps=1e-8)
+
     scheduler = get_linear_schedule_with_warmup(optimizer, 
-                                                num_warmup_steps=0, 
+                                                num_warmup_steps=args.warmup, 
                                                 num_training_steps=len(train_loader) * args.n_epochs
                                             )
 
@@ -94,8 +103,19 @@ if __name__ == '__main__':
     parser.add_argument('--fused_optimizer', type=str, default='False')
     # Wether to use foreach
     parser.add_argument('--foreach', type=str, default='True')
+    # Weight decay
+    parser.add_argument('--wd', type=float, default=0.01)
+    # Warmup steps
+    parser.add_argument('--warmup', type=int, default=320)
 
     args = parser.parse_args()
+    if args.target_val_acc is not None:
+        print("Target accuracy: ", args.target_val_acc)
+    else:
+        print("Target accuracy: None")
+    print("lr: ", args.lr)
+    print("wd: ", args.wd)
+
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
@@ -103,8 +123,19 @@ if __name__ == '__main__':
     train_loader, eval_loader = data_process(args)
     trainer = model_and_trainer(train_loader, eval_loader, args)
     # Train the model for 3 epochs
-    trainer.train(args.n_epochs)
 
+    device_to_measure = DeviceFactory.create_devices()
+    meter = EnergyMeter(device_to_measure)
+
+
+    meter.start()
+    trainer.train(args.n_epochs)
+    meter.stop()
+    trace = meter.get_trace()
+    handler = CSVHandler('Energy_Results.csv')
+    handler.process(trace)
+    handler.save_data()
+    
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
     # print total energy consumption in xx.xx kJ format
@@ -120,8 +151,12 @@ if __name__ == '__main__':
         for item in loss:
             f.write(str(item))
             f.write('\n')
-    smooth_loss = [sum(loss[max(0, i-10):i+1])/len(loss[max(0, i-10):i+1]) for i in range(len(loss))]
-    # save the loss curve
-    plt.plot(smooth_loss)
-    plt.savefig('./loss_fig/'+args.log_file_name+'_loss.png')
+
+    # plot the accuracy curve
+    accuracy = [item['accuracy'] for item in trainer.val_logs]
+    # save original accuracy values in ./acc_val/ folder
+    with open('./acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
+        for item in accuracy:
+            f.write(str(item))
+            f.write('\n')
     

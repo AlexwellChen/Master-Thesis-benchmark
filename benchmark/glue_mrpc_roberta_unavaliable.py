@@ -1,7 +1,8 @@
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-from trainer import ProfilingTrainer
+from trainer.trainer import ProfilingTrainer
+from transformers import RobertaTokenizer, RobertaModel
 import argparse
 from adan import Adan
 
@@ -9,64 +10,53 @@ from adan import Adan
 def data_process(args):
     # Define the function to encode the data
     def encode(examples):
-        return tokenizer(examples['text'], truncation=True, padding='max_length')
-    
-    # Load the IMDB dataset and create data loaders for training, validation and test
-    train_dataset, test_dataset = datasets.load_dataset('imdb', split=['train', 'test'])
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+        return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length')
+    # Load the MRPC dataset and create data loaders for training and validation
+    train_dataset, eval_dataset = datasets.load_dataset('glue', 'mrpc', split=['train', 'validation'])
+    tokenizer = RobertaTokenizer.from_pretrained('roberta-base')
 
     train_dataset = train_dataset.map(encode, batched=True)
-    test_dataset = test_dataset.map(encode, batched=True)
+    eval_dataset = eval_dataset.map(encode, batched=True)
     train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
-    test_dataset = test_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
-
-    # split a eval set from train set
-    train_dataset, eval_dataset = train_dataset.train_test_split(test_size=0.1)
+    eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
 
     train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
-    test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
     eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size)
     eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
 
-    return train_loader, test_loader, eval_loader
+    return train_loader, eval_loader
 
-def model_and_trainer(train_loader, test_loader, eval_loader, args):
-    # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
-    model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
+def model_and_trainer(train_loader, eval_loader, args):
+    # Load the pre-trained "roberta-base" model and add a linear layer on top for classification
+    model = RobertaModel.from_pretrained('roberta-base', num_labels=2)
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
-        # betas = (0.9, 0.999) #default
-        if args.foreach:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=True, eps=1e-8)
-        else:
-            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=False, eps=1e-8)
-    elif args.optimizer == 'adan':
-        betas = (0.98, 0.92, 0.99)
+        betas = (0.9,0.98)
         if args.fused_optimizer and args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args, fused=True, foreach=True, betas=betas, eps=1e-8)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, fused=True, foreach=True, betas=betas, eps=1e-6)
         elif args.fused_optimizer and not args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=True, foreach=False, betas=betas, eps=1e-8)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, fused=True, foreach=False, betas=betas, eps=1e-6)
         elif not args.fused_optimizer and args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=False, foreach=True, betas=betas, eps=1e-8)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, fused=False, foreach=True, betas=betas, eps=1e-6)
         else:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=False, foreach=False, betas=betas, eps=1e-8)
-    # adamw
-    elif args.optimizer == 'adamw':
-        betas=(0.9, 0.999)
-        if args.fused_optimizer:
-            # runtime error: Not supported: FusedAdamW
-            print('Not supported: Fused AdamW')
-        if args.foreach:
-            optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=True, betas=betas, eps=1e-8)
+            optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=0.1, fused=False, foreach=False, betas=betas, eps=1e-6)
+    elif args.optimizer == 'adan':
+        betas = (0.98, 0.99, 0.99)
+        if args.fused_optimizer and args.foreach:
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=True, betas=betas, eps=1e-8)
+        elif args.fused_optimizer and not args.foreach:
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=True, foreach=False, betas=betas, eps=1e-8)
+        elif not args.fused_optimizer and args.foreach:
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=True, betas=betas, eps=1e-8)
         else:
-            optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=False, betas=betas, eps=1e-8)
-
+            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=0.01, fused=False, foreach=False, betas=betas, eps=1e-8)
+    
+    # polynomial_decay, warmup_updates: 320
     scheduler = get_linear_schedule_with_warmup(optimizer, 
-                                                num_warmup_steps=args.warmup, 
+                                                num_warmup_steps=0, 
                                                 num_training_steps=len(train_loader) * args.n_epochs
                                             )
 
@@ -75,7 +65,6 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
         model=model,
         train_dataloader=train_loader,
         val_dataloader=eval_loader,
-        test_dataloader=test_loader,
         optimizers=[optimizer, scheduler],
         device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
         n_steps_per_val=args.n_steps_per_val,
@@ -105,21 +94,17 @@ if __name__ == '__main__':
     parser.add_argument('--fused_optimizer', type=str, default='False')
     # Wether to use foreach
     parser.add_argument('--foreach', type=str, default='True')
-    # Weight decay
-    parser.add_argument('--wd', type=float, default=0.01)
-    # Warmup steps
-    parser.add_argument('--warmup', type=int, default=320)
 
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
 
-    train_loader, test_loader, eval_loader = data_process(args)
-    trainer = model_and_trainer(train_loader, test_loader, args)
+    train_loader, eval_loader = data_process(args)
+    trainer = model_and_trainer(train_loader, eval_loader, args)
     # Train the model for 3 epochs
     trainer.train(args.n_epochs)
-    
+
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
     # print total energy consumption in xx.xx kJ format
@@ -127,19 +112,16 @@ if __name__ == '__main__':
     # print total time in xx.xx s format
     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
 
-    # save loss values in ./loss_val/ folder
+    # plot the loss curve
+    import matplotlib.pyplot as plt
     loss = [item['loss'] for item in trainer.training_logs]
     # save original loss values in ./loss_val/ folder
     with open('./loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
         for item in loss:
             f.write(str(item))
             f.write('\n')
-
-    # save accuracy values in ./acc_val/ folder
-    accuracy = [item['accuracy'] for item in trainer.val_logs]
-    # save original accuracy values in ./acc_val/ folder
-    with open('./acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
-        for item in accuracy:
-            f.write(str(item))
-            f.write('\n')
+    smooth_loss = [sum(loss[max(0, i-10):i+1])/len(loss[max(0, i-10):i+1]) for i in range(len(loss))]
+    # save the loss curve
+    plt.plot(smooth_loss)
+    plt.savefig('./loss_fig/'+args.log_file_name+'_loss.png')
     

@@ -1,38 +1,39 @@
-from cgitb import handler
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-from trainer import ProfilingTrainer
+from trainer.trainer import ProfilingTrainer
 import argparse
 from adan import Adan
-
-from pyJoules.energy_meter import EnergyMeter
-from pyJoules.handler.csv_handler import CSVHandler
-from pyJoules.device.device_factory import DeviceFactory
 
 
 def data_process(args):
     # Define the function to encode the data
     def encode(examples):
-        return tokenizer(examples['sentence1'], examples['sentence2'], truncation=True, padding='max_length')
-    # Load the MRPC dataset and create data loaders for training and validation
-    train_dataset, eval_dataset = datasets.load_dataset('glue', 'mrpc', split=['train', 'validation'])
+        return tokenizer(examples['text'], truncation=True, padding='max_length')
+    
+    # Load the IMDB dataset and create data loaders for training, validation and test
+    train_dataset, test_dataset = datasets.load_dataset('imdb', split=['train', 'test'])
     tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
 
     train_dataset = train_dataset.map(encode, batched=True)
-    eval_dataset = eval_dataset.map(encode, batched=True)
+    test_dataset = test_dataset.map(encode, batched=True)
     train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
-    eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    test_dataset = test_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+
+    # split a eval set from train set
+    train_dataset, eval_dataset = train_dataset.train_test_split(test_size=0.1)
 
     train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+    test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
     eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size)
     eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
 
-    return train_loader, eval_loader
+    return train_loader, test_loader, eval_loader
 
-def model_and_trainer(train_loader, eval_loader, args):
+def model_and_trainer(train_loader, test_loader, eval_loader, args):
     # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
     model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
 
@@ -74,6 +75,7 @@ def model_and_trainer(train_loader, eval_loader, args):
         model=model,
         train_dataloader=train_loader,
         val_dataloader=eval_loader,
+        test_dataloader=test_loader,
         optimizers=[optimizer, scheduler],
         device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
         n_steps_per_val=args.n_steps_per_val,
@@ -109,32 +111,14 @@ if __name__ == '__main__':
     parser.add_argument('--warmup', type=int, default=320)
 
     args = parser.parse_args()
-    if args.target_val_acc is not None:
-        print("Target accuracy: ", args.target_val_acc)
-    else:
-        print("Target accuracy: None")
-    print("lr: ", args.lr)
-    print("wd: ", args.wd)
-
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
 
-    train_loader, eval_loader = data_process(args)
-    trainer = model_and_trainer(train_loader, eval_loader, args)
+    train_loader, test_loader, eval_loader = data_process(args)
+    trainer = model_and_trainer(train_loader, test_loader, args)
     # Train the model for 3 epochs
-
-    device_to_measure = DeviceFactory.create_devices()
-    meter = EnergyMeter(device_to_measure)
-
-
-    meter.start()
     trainer.train(args.n_epochs)
-    meter.stop()
-    trace = meter.get_trace()
-    handler = CSVHandler('Energy_Results.csv')
-    handler.process(trace)
-    handler.save_data()
     
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
@@ -143,8 +127,7 @@ if __name__ == '__main__':
     # print total time in xx.xx s format
     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
 
-    # plot the loss curve
-    import matplotlib.pyplot as plt
+    # save loss values in ./loss_val/ folder
     loss = [item['loss'] for item in trainer.training_logs]
     # save original loss values in ./loss_val/ folder
     with open('./loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
@@ -152,7 +135,7 @@ if __name__ == '__main__':
             f.write(str(item))
             f.write('\n')
 
-    # plot the accuracy curve
+    # save accuracy values in ./acc_val/ folder
     accuracy = [item['accuracy'] for item in trainer.val_logs]
     # save original accuracy values in ./acc_val/ folder
     with open('./acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
