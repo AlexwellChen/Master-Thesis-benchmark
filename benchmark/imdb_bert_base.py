@@ -130,10 +130,12 @@ if __name__ == '__main__':
     device_to_measure = DeviceFactory.create_devices()
     meter = EnergyMeter(device_to_measure)
 
-    # Train the model for 3 epochs
+    # Train the model for n epochs
     meter.start()
     trainer.train(args.n_epochs)
     meter.stop()
+
+    # Save energy trace
     trace = meter.get_trace()
     handler = CSVHandler(args.log_file_name + '_Energy_Results.csv')
     handler.process(trace)
@@ -152,7 +154,7 @@ if __name__ == '__main__':
     # save loss values in ./loss_val/ folder
     loss = [item['loss'] for item in trainer.training_logs]
     # save original loss values in ./loss_val/ folder
-    with open('./loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
+    with open('./benchmark/loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
         for item in loss:
             f.write(str(item))
             f.write('\n')
@@ -160,7 +162,7 @@ if __name__ == '__main__':
     # save accuracy values in ./acc_val/ folder
     accuracy = [item['accuracy'] for item in trainer.val_logs]
     # save original accuracy values in ./acc_val/ folder
-    with open('./acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
+    with open('./benchmark/acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
         for item in accuracy:
             f.write(str(item))
             f.write('\n')

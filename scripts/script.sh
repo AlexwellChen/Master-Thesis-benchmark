@@ -3,19 +3,19 @@ python ./benchmark/imdb_bert_base.py \
         --n_epochs 1 --warmup 160 \
         --lr 1e-5 --wd 0.01 \
         --optimizer adamw \
-        --log_file_name adamw_lr1e-5_wd1e-2_wm160_ep10
+        --log_file_name adamw_lr1e-5_wd1e-2_wm160_ep1
 echo "--------------------------adamw done--------------------------"
 python ./benchmark/imdb_bert_base.py \
         --n_epochs 1 --warmup 160 \
         --lr 1e-5 --wd 0.01 \
         --optimizer adam \
-        --log_file_name adam_lr1e-5_wd1e-2_wm160_ep10
+        --log_file_name adam_lr1e-5_wd1e-2_wm160_ep1
 echo "--------------------------adam done--------------------------"
 python ./benchmark/imdb_bert_base.py \
         --n_epochs 1 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name adan_lr1e-4_wd1e-2_wm50_ep10
+        --log_file_name adan_lr1e-4_wd1e-2_wm50_ep1
 echo "--------------------------adan done--------------------------"
 # Plot the results
 python ./benchmark/plot_loss_accuracy.py

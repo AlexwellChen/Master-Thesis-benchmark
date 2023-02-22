@@ -146,7 +146,7 @@ if __name__ == '__main__':
     # plot the loss curve
     loss = [item['loss'] for item in trainer.training_logs]
     # save original loss values in ./loss_val/ folder
-    with open('./loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
+    with open('./benchmark/loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
         for item in loss:
             f.write(str(item))
             f.write('\n')
@@ -154,8 +154,25 @@ if __name__ == '__main__':
     # plot the accuracy curve
     accuracy = [item['accuracy'] for item in trainer.val_logs]
     # save original accuracy values in ./acc_val/ folder
-    with open('./acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
+    with open('./benchmark/acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
         for item in accuracy:
             f.write(str(item))
             f.write('\n')
     
+    # plot loss values and accuracy values
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import pandas as pd
+
+    fig, axes = plt.subplots(1, 2, figsize=(20, 10))
+
+    loss_df = pd.DataFrame(loss, columns=['loss'])
+    acc_df = pd.DataFrame(accuracy, columns=['accuracy'])
+
+    sns.lineplot(data=loss_df, ax=axes[0])
+    sns.lineplot(data=acc_df, ax=axes[1])
+
+    axes[0].set_title("Loss Curve")
+    axes[1].set_title("Accuracy Curve")
+
+    plt.savefig("./figure/"+args.log_file_name+".png")
