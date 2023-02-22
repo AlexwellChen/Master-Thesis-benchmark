@@ -17,7 +17,9 @@ def data_process(args):
     
     # Load the IMDB dataset and create data loaders for training, validation and test
     train_dataset, test_dataset = datasets.load_dataset('imdb', split=['train', 'test'])
-    train_dataset, eval_dataset = train_dataset.train_test_split(test_size=0.1)
+    split_set = train_dataset.train_test_split(test_size=0.1)
+    train_dataset = split_set['train']
+    eval_dataset = split_set['test']
 
     tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
     train_dataset = train_dataset.map(encode, batched=True)
