@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 def get_loss_val():
     loss_dict = {}
-    for file_path in glob.glob("./loss_val/*"):
+    for file_path in glob.glob("../loss_val/*"):
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
@@ -19,10 +19,9 @@ def get_loss_val():
     loss_df = pd.DataFrame.from_dict(loss_dict, orient="index").T
     return loss_df
 
-
 def get_acc_val():
     acc_dict = {}
-    for file_path in glob.glob("./acc_val/*"):
+    for file_path in glob.glob("../acc_val/*"):
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
@@ -47,5 +46,5 @@ if __name__ == "__main__":
     axes[0].set_title("Loss Curve")
     axes[1].set_title("Accuracy Curve")
 
-    plt.savefig("./figure/acc_loss_curve.png")
+    plt.savefig("../figure/acc_loss_curve.png")
 

@@ -1,9 +1,13 @@
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-from benchmark.trainer import ProfilingTrainer
+from trainer import ProfilingTrainer
 import argparse
 from adan import Adan
+
+from pyJoules.energy_meter import EnergyMeter
+from pyJoules.handler.csv_handler import CSVHandler
+from pyJoules.device.device_factory import DeviceFactory
 
 
 def data_process(args):
@@ -117,8 +121,19 @@ if __name__ == '__main__':
 
     train_loader, test_loader, eval_loader = data_process(args)
     trainer = model_and_trainer(train_loader, test_loader, args)
+
+    # Init energy meter
+    device_to_measure = DeviceFactory.create_devices()
+    meter = EnergyMeter(device_to_measure)
+
     # Train the model for 3 epochs
+    meter.start()
     trainer.train(args.n_epochs)
+    meter.stop()
+    trace = meter.get_trace()
+    handler = CSVHandler(args.log_file_name + '_Energy_Results.csv')
+    handler.process(trace)
+    handler.save_data()
     
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
@@ -130,7 +145,7 @@ if __name__ == '__main__':
     # save loss values in ./loss_val/ folder
     loss = [item['loss'] for item in trainer.training_logs]
     # save original loss values in ./loss_val/ folder
-    with open('./loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
+    with open('../loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
         for item in loss:
             f.write(str(item))
             f.write('\n')
@@ -138,7 +153,7 @@ if __name__ == '__main__':
     # save accuracy values in ./acc_val/ folder
     accuracy = [item['accuracy'] for item in trainer.val_logs]
     # save original accuracy values in ./acc_val/ folder
-    with open('./acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
+    with open('../acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
         for item in accuracy:
             f.write(str(item))
             f.write('\n')

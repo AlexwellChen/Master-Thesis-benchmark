@@ -1,7 +1,7 @@
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-from benchmark.trainer import ProfilingTrainer
+from trainer import ProfilingTrainer
 from transformers import RobertaTokenizer, RobertaModel
 import argparse
 from adan import Adan

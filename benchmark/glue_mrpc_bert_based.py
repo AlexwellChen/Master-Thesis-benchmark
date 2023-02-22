@@ -2,7 +2,7 @@ from cgitb import handler
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-from benchmark.trainer import ProfilingTrainer
+from trainer import ProfilingTrainer
 import argparse
 from adan import Adan
 
@@ -144,7 +144,6 @@ if __name__ == '__main__':
     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
 
     # plot the loss curve
-    import matplotlib.pyplot as plt
     loss = [item['loss'] for item in trainer.training_logs]
     # save original loss values in ./loss_val/ folder
     with open('./loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
