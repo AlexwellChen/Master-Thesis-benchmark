@@ -8,12 +8,13 @@ from pyJoules.device.rapl_device import RaplPackageDomain
 
 class ProfilingTrainer:
     def __init__(
-            self, model, train_dataloader, val_dataloader, optimizers, 
+            self, model, train_dataloader, val_dataloader, test_dataloader, optimizers, 
             device, n_steps_per_val, target_val_acc, log_file_name='default_log'
         ):
         self.model = model
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
+        self.test_dataloader = test_dataloader
         self.optimizer = optimizers[0]
         self.scheduler = optimizers[1]
         self.device = device
@@ -114,7 +115,19 @@ class ProfilingTrainer:
         self.model.train()
         return correct / total
 
-    # def __del__ (self):
-    #     print("Destroying trainer, shutting down pynvml")
-    #     pynvml.nvmlShutdown()
+    def test(self):
+        self.model.eval()
+        correct = 0
+        total = 0
+        with torch.no_grad():
+            for batch in self.test_dataloader:
+                batch = {k: v.to(self.device) for k, v in batch.items()}
+                outputs = self.model(**batch)
+                logits = outputs.logits
+                predictions = torch.argmax(logits, dim=-1)
+                ground_truth = batch['labels']
+                correct += (predictions == ground_truth).sum().item()
+                total += len(ground_truth)
+        self.model.train()
+        return correct / total
         
