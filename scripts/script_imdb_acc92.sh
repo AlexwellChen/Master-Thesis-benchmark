@@ -21,7 +21,7 @@ python ./benchmark/imdb_bert_base.py \
         --target_val_acc 0.92
 echo "--------------------------adan done--------------------------"
 # Plot the results
-python ./benchmark/plot_loss_accuracy.py
+python ./benchmark/plot_loss_accuracy.py IMDB_acc92
 
 # adamw:
 #     lr=1e-5, wd=0.01, warmup=160

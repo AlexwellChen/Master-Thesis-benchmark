@@ -3,6 +3,7 @@ import glob
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import sys
 
 def get_loss_val():
     loss_dict = {}
@@ -35,6 +36,8 @@ def get_acc_val():
     return acc_df
 
 if __name__ == "__main__":
+    # get file name from os.argv
+    file_name = sys.argv[1]
     fig, axes = plt.subplots(1, 2, figsize=(20, 10))
 
     loss_df = get_loss_val()
@@ -46,5 +49,5 @@ if __name__ == "__main__":
     axes[0].set_title("Loss Curve")
     axes[1].set_title("Accuracy Curve")
 
-    plt.savefig("./benchmark/figure/acc_loss_curve.png")
+    plt.savefig("./benchmark/figure/"+file_name+"_acc_loss_curve.png")
 

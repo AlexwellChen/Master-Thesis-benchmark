@@ -18,7 +18,7 @@ python ./benchmark/imdb_bert_base.py \
         --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2
 echo "--------------------------adan done--------------------------"
 # Plot the results
-python ./benchmark/plot_loss_accuracy.py
+python ./benchmark/plot_loss_accuracy.py IMDB_ep2
 
 # adamw:
 #     lr=1e-5, wd=0.01, warmup=160

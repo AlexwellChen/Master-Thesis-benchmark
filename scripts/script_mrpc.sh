@@ -18,7 +18,7 @@ python ./benchmark/glue_mrpc_bert_base.py \
         --log_file_name mrpc_adan_lr1e-4_wd1e-2_wm50_ep1
 echo "--------------------------adan done--------------------------"
 # Plot the results
-python ./benchmark/plot_loss_accuracy.py
+python ./benchmark/plot_loss_accuracy.py MRPC_ep1
 
 # adamw:
 #     lr=1e-5, wd=0.01, warmup=160
