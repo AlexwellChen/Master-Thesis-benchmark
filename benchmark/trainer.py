@@ -116,6 +116,8 @@ class ProfilingTrainer:
         return correct / total
 
     def test(self):
+        if self.test_dataloader is None:
+            raise ValueError("No test dataloader provided.")
         self.model.eval()
         correct = 0
         total = 0

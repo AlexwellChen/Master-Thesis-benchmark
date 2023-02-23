@@ -74,6 +74,7 @@ def model_and_trainer(train_loader, eval_loader, args):
         model=model,
         train_dataloader=train_loader,
         val_dataloader=eval_loader,
+        test_dataloader=None,
         optimizers=[optimizer, scheduler],
         device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
         n_steps_per_val=args.n_steps_per_val,
@@ -175,4 +176,4 @@ if __name__ == '__main__':
     axes[0].set_title("Loss Curve")
     axes[1].set_title("Accuracy Curve")
 
-    plt.savefig("./figure/"+args.log_file_name+".png")
+    plt.savefig("./benchmark/figure/"+args.log_file_name+".png")

@@ -183,6 +183,6 @@ if __name__ == '__main__':
     axes[0].set_title("Loss Curve")
     axes[1].set_title("Accuracy Curve")
 
-    plt.savefig("./figure/"+args.log_file_name+".png")
+    plt.savefig("./benchmark/figure/"+args.log_file_name+".png")
 
     
