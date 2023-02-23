@@ -84,11 +84,10 @@ class ProfilingTrainer:
                                 self.train_time = time.time() - train_start_time
                                 # average sm occupancy
                                 self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
-                                # total energy in kj
-                                # self.total_energy = self.total_energy / 1000
                                 return
                             else:
                                 acc_achieved += 1
+                                print("Target validation accuracy reached," + 3 - acc_achieved, "more times to stop training")
                     self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
                     progress_bar.update(1)
                 epoch_end_time = time.time()
