@@ -77,7 +77,7 @@ class ProfilingTrainer:
                     if (step + 1) % self.n_steps_per_val == 0:
                         val_acc = self.evaluate()
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
-                        print(f"Validation accuracy at step {step+1}: {val_acc:.2f}, loss: {loss.item():.2f}, target: {self.target_val_acc:.2f}")
+                        print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}, target: {self.target_val_acc:.2f}")
                         if self.target_val_acc is not None and val_acc >= self.target_val_acc:
                             if acc_achieved == 2: 
                                 print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
