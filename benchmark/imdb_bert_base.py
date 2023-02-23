@@ -137,7 +137,7 @@ if __name__ == '__main__':
 
     # Save energy trace
     trace = meter.get_trace()
-    handler = CSVHandler(args.log_file_name + '_Energy_Results.csv')
+    handler = CSVHandler("./benchmark/energy/"+args.log_file_name + '_Energy_Results.csv')
     handler.process(trace)
     handler.save_data()
 
