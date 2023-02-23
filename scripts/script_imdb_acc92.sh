@@ -1,3 +1,4 @@
+clear
 echo "-----------------------Benchmark start------------------------"
 python ./benchmark/imdb_bert_base.py \
         --n_epochs 2 --warmup 160 \

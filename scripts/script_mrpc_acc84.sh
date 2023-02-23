@@ -1,3 +1,4 @@
+clear
 echo "-----------------------Benchmark start------------------------"
 python glue_mrpc_bert_based.py \
         --n_epochs 10 --warmup 160 \
