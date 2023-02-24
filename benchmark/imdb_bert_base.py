@@ -57,13 +57,13 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     elif args.optimizer == 'adan':
         betas = (0.98, 0.92, 0.99)
         if args.fused_optimizer and args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args, fused=True, foreach=True, betas=betas, eps=1e-8)
+            optimizer = Adan(params=model.parameters(), lr=args.lr, weight_decay=args, fused=True, foreach=True, betas=betas, eps=1e-8)
         elif args.fused_optimizer and not args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=True, foreach=False, betas=betas, eps=1e-8)
+            optimizer = Adan(params=model.parameters(), lr=args.lr, weight_decay=args.wd, fused=True, foreach=False, betas=betas, eps=1e-8)
         elif not args.fused_optimizer and args.foreach:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=False, foreach=True, betas=betas, eps=1e-8)
+            optimizer = Adan(params=model.parameters(), lr=args.lr, weight_decay=args.wd, fused=False, foreach=True, betas=betas, eps=1e-8)
         else:
-            optimizer = Adan(model.parameters(), lr=args.lr, weight_decay=args.wd, fused=False, foreach=False, betas=betas, eps=1e-8)
+            optimizer = Adan(params=model.parameters(), lr=args.lr, weight_decay=args.wd, fused=False, foreach=False, betas=betas, eps=1e-8)
     # adamw
     elif args.optimizer == 'adamw':
         betas=(0.9, 0.999)
