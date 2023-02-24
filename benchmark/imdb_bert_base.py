@@ -8,7 +8,7 @@ from adan import Adan
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
-from pyJoules.device.rapl_device import RaplPackageDomain, RaplDramDomain, RaplDevice
+# from pyJoules.device.rapl_device import RaplPackageDomain, RaplDramDomain, RaplDevice
 from pyJoules.device.nvidia_device import NvidiaGPUDevice, NvidiaGPUDomain
 
 
@@ -135,7 +135,7 @@ if __name__ == '__main__':
     trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
 
     # Init energy meter, add CPU, RAM and GPU
-    domains = [RaplPackageDomain(0), RaplDramDomain(0), NvidiaGPUDomain(0)]
+    domains = [NvidiaGPUDomain(0)]
     device_to_measure = DeviceFactory.create_devices(domains=domains)
     meter = EnergyMeter(device_to_measure)
 
