@@ -12,6 +12,9 @@ def get_loss_val():
         # Skip markdown files
         if file_name.endswith(".md"):
             continue
+        # skip directory
+        if os.path.isdir(file_path):
+            continue
         with open(file_path, "r") as f:
             lines = f.readlines()
         loss_values = [float(line.strip()) for line in lines]
@@ -26,6 +29,9 @@ def get_acc_val():
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
+            continue
+        # skip directory
+        if os.path.isdir(file_path):
             continue
         with open(file_path, "r") as f:
             lines = f.readlines()

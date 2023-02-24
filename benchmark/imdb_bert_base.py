@@ -8,6 +8,8 @@ from adan import Adan
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
+from pyJoules.device.rapl_device import RaplPackageDomain, RaplDramDomain, RaplDevice
+from pyJoules.device.nvidia_device import NvidiaGPUDevice, NvidiaGPUDomain
 
 
 def data_process(args):
@@ -132,8 +134,9 @@ if __name__ == '__main__':
     train_loader, test_loader, eval_loader = data_process(args)
     trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
 
-    # Init energy meter
-    device_to_measure = DeviceFactory.create_devices()
+    # Init energy meter, add CPU, RAM and GPU
+    domains = [RaplPackageDomain(0), RaplDramDomain(0), NvidiaGPUDomain(0)]
+    device_to_measure = DeviceFactory.create_devices(domains=domains)
     meter = EnergyMeter(device_to_measure)
 
     # Train the model for n epochs
@@ -156,6 +159,15 @@ if __name__ == '__main__':
     # print total time in xx.xx s format
     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
     print("Test accuracy: ", "{:.2f}".format(test_acc), "%")
+    # write avg sm occupancy, time in ./benchmark/metrics/log_file_name.txt
+    with open('./benchmark/metrics/'+args.log_file_name+'.txt', 'w') as f:
+        f.write("Avg SM occupancy: ")
+        f.write("{:.2f}".format(trainer.avg_sm_occupancy))
+        f.write("%")
+        f.write('\n')
+        f.write("Total time: ")
+        f.write("{:.2f}".format(trainer.train_time))
+        
 
     # save loss values in ./loss_val/ folder
     loss = [item['loss'] for item in trainer.training_logs]
