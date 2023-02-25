@@ -8,8 +8,7 @@ from adan import Adan
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
-# from pyJoules.device.rapl_device import RaplPackageDomain, RaplDramDomain, RaplDevice
-from pyJoules.device.nvidia_device import NvidiaGPUDevice, NvidiaGPUDomain
+from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
 
 def data_process(args):
