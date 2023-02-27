@@ -10,7 +10,7 @@ from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
-torch.manual_seed(38)
+torch.manual_seed(42)
 
 def data_process(args):
     # Define the function to encode the data
