@@ -5,7 +5,7 @@ import pynvml
 from pyJoules.energy_meter import measure_energy
 from pyJoules.device.rapl_device import RaplPackageDomain
 
-torch.manual_seed(42)
+torch.manual_seed(38)
 
 class ProfilingTrainer:
     def __init__(

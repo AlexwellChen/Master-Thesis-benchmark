@@ -10,7 +10,7 @@ from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
 
-torch.manual_seed(42)
+torch.manual_seed(38)
 
 def data_process(args):
     # Define the function to encode the data
