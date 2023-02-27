@@ -15,7 +15,8 @@ python ./benchmark/imdb_bert_base.py \
         --target_val_acc 0.90 \
         --fused_optimizer True
 echo "-----------------------fused adan done------------------------"
-
+# Plot the results
+python ./benchmark/plot_loss_accuracy.py IMDB_acc92
 # adamw:
 #     lr=1e-5, wd=0.01, warmup=160
 #     betas=(0.9, 0.999), eps=1e-8
