@@ -4,6 +4,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_
 from trainer import ProfilingTrainer
 import argparse
 from adan import Adan
+import transformers
 
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
@@ -11,6 +12,8 @@ from pyJoules.device.device_factory import DeviceFactory
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
 torch.manual_seed(42)
+transformers.set_seed(42)
+
 
 def data_process(args):
     # Define the function to encode the data
@@ -207,6 +210,8 @@ if __name__ == '__main__':
     adan_trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
     args.log_file_name = "imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90"
     process(args.log_file_name, adan_trainer, args)
+
+    torch.cuda.empty_cache()
     
     print("=========================fused============================")
     args.fused_optimizer = True

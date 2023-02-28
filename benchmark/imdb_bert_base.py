@@ -4,6 +4,7 @@ from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_
 from trainer import ProfilingTrainer
 import argparse
 from adan import Adan
+import transformers
 
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
@@ -11,6 +12,7 @@ from pyJoules.device.device_factory import DeviceFactory
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
 torch.manual_seed(42)
+transformers.set_seed(42)
 
 def data_process(args):
     # Define the function to encode the data
