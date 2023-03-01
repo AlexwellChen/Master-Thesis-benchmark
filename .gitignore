@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+.DS_Store
+log/.DS_Store
+log/imdb_adam_lr1e-5_wd1e-2_wm160_ep2_acc90/.DS_Store
+log/imdb_adamw_lr1e-5_wd1e-2_wm160_ep2_acc90/.DS_Store
+log/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90/.DS_Store
+log/imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90/.DS_Store
