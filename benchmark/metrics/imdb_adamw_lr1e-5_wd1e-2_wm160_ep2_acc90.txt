@@ -1,2 +1,2 @@
-Avg SM occupancy: 99.23%
-Total time: 510.71
+Avg SM occupancy: 99.29%
+Total time: 472.53
