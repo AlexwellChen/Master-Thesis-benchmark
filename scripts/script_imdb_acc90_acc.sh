@@ -1,6 +1,6 @@
 clear
 echo "-----------------------Benchmark start------------------------"
-accelerate launch --config_file {./accelerate_config/imdb_bert_base_acc.yaml} \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base.py \
         --n_epochs 2 --warmup 160 \
         --lr 1e-5 --wd 0.01 \
@@ -8,7 +8,7 @@ accelerate launch --config_file {./accelerate_config/imdb_bert_base_acc.yaml} \
         --log_file_name imdb_adamw_lr1e-5_wd1e-2_wm160_ep2_acc90 \
         --target_val_acc 0.90
 echo "--------------------------adamw done--------------------------"
-accelerate launch --config_file {./accelerate_config/imdb_bert_base_acc.yaml} \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base.py \
         --n_epochs 2 --warmup 160 \
         --lr 1e-5 --wd 0.01 \
@@ -16,7 +16,7 @@ accelerate launch --config_file {./accelerate_config/imdb_bert_base_acc.yaml} \
         --log_file_name imdb_adam_lr1e-5_wd1e-2_wm160_ep2_acc90 \
         --target_val_acc 0.90
 echo "--------------------------adam done--------------------------"
-accelerate launch --config_file {./accelerate_config/imdb_bert_base_acc.yaml} \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
@@ -24,7 +24,7 @@ accelerate launch --config_file {./accelerate_config/imdb_bert_base_acc.yaml} \
         --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90 \
         --target_val_acc 0.90
 echo "--------------------------adan done--------------------------"
-accelerate launch --config_file {./accelerate_config/imdb_bert_base_acc.yaml} \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
