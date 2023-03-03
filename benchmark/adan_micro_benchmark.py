@@ -7,7 +7,7 @@ def get_fake_parameters(n_params=10, size=512):
     for i in range(n_params):
         tensor = torch.randn(size, size, requires_grad=True)
         tensor.grad = torch.randn(size, size)
-        tensor.to('cuda')
+        tensor = tensor.to('cuda')
         params.append(tensor)
     return params
 
