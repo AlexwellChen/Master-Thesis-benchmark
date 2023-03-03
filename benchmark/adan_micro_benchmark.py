@@ -5,9 +5,8 @@ import argparse
 def get_fake_parameters(n_params=10, size=512):
     params = []
     for i in range(n_params):
-        tensor = torch.randn(size, size, requires_grad=True)
-        tensor.grad = torch.randn(size, size)
-        tensor = tensor.to('cuda')
+        tensor = torch.randn(size, size, requires_grad=True, device='cuda')
+        tensor.grad = torch.randn(size, size, device='cuda')
         params.append(tensor)
     return params
 
