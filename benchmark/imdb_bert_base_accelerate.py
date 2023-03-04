@@ -144,7 +144,7 @@ if __name__ == '__main__':
     trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
 
     # Init energy meter, add CPU, RAM and GPU
-    domains = [NvidiaGPUDomain(0)]
+    domains = [NvidiaGPUDomain()]
     device_to_measure = DeviceFactory.create_devices(domains=domains)
     meter = EnergyMeter(device_to_measure)
 
