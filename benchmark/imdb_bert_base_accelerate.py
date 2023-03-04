@@ -145,7 +145,7 @@ if __name__ == '__main__':
 
     # Init energy meter, add CPU, RAM and GPU
     # Get GPU number
-    gpu_num = torch.cuda.device_count()
+    gpu_num = trainer.accelerator.num_processes
     domains = []
     for i in range(gpu_num):
         domains.append(NvidiaGPUDomain(i))
