@@ -29,7 +29,7 @@ class AcceleratorTrainer:
         self.total_energy = 0
         self.sm_occupancy = []
         self.avg_sm_occupancy = 0
-        self.rank = accelerator.get_rank()
+        self.rank = accelerator.process_index
         self.printable = self.rank == 0
 
         pynvml.nvmlInit()

@@ -1,6 +1,6 @@
 clear
 echo "-----------------------Benchmark start------------------------"
-accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_2gpu.yaml \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_2gpu.yaml --mixed_precision no\
          ./benchmark/imdb_bert_base_accelerate.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
