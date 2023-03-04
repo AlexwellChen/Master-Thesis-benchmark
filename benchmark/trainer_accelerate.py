@@ -31,6 +31,8 @@ class AcceleratorTrainer:
         self.avg_sm_occupancy = 0
         self.rank = accelerator.process_index
         self.printable = self.rank == 0
+        if self.printable:
+            print("Mixed precision: ", self.accelerator.mixed_precision)
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
