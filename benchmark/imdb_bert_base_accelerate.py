@@ -1,7 +1,7 @@
 import torch
 import datasets
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
-from trainer_acc import AcceleratorTrainer
+from trainer_accelerate import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
 from adan import Adan
