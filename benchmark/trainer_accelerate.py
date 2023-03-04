@@ -29,10 +29,6 @@ class AcceleratorTrainer:
         self.total_energy = 0
         self.sm_occupancy = []
         self.avg_sm_occupancy = 0
-        self.rank = accelerator.process_index
-        self.printable = self.rank == 0
-        if self.printable:
-            print("Mixed precision: ", self.accelerator.mixed_precision)
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
@@ -82,26 +78,22 @@ class AcceleratorTrainer:
                     if (step + 1) % self.n_steps_per_val == 0:
                         val_acc = self.evaluate()
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
-                        if self.printable:
-                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}, target: {self.target_val_acc:.2f}")
+                        print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}, target: {self.target_val_acc:.2f}")
                         if self.target_val_acc is not None and val_acc >= self.target_val_acc:
                             if acc_achieved == 2: 
-                                if self.printable:
-                                    print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
+                                print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
                                 self.train_time = time.time() - train_start_time
                                 # average sm occupancy
                                 self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
                                 return
                             else:
                                 acc_achieved += 1
-                                if self.printable:
-                                    print("Target validation accuracy reached, " + str(3-acc_achieved), " more times to stop training")
+                                print("Target validation accuracy reached, " + str(3-acc_achieved), " more times to stop training")
                     self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
                     progress_bar.update(1)
                 epoch_end_time = time.time()
                 epoch_time = epoch_end_time - epoch_start_time
-                if self.printable:
-                    print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
+                print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
         self.train_time = time.time() - train_start_time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)

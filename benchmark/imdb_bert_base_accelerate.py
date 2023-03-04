@@ -133,7 +133,6 @@ if __name__ == '__main__':
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
-    
 
     if args.target_val_acc is None:
         print('No target_val_acc specified')
@@ -162,56 +161,56 @@ if __name__ == '__main__':
 
     test_acc = trainer.test()
     
-    if trainer.printable:
-        # print avg sm occupancy in xx.xx% format
-        print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
-        # print total energy consumption in xx.xx kJ format
-        # print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
-        # print total time in xx.xx s format
-        print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
-        print("Test accuracy: ", "{:.2f}".format(test_acc), "%")
-        # write avg sm occupancy, time in ./benchmark/metrics/log_file_name.txt
-        with open('./benchmark/metrics/'+args.log_file_name+'.txt', 'w') as f:
-            f.write("Avg SM occupancy: ")
-            f.write("{:.2f}".format(trainer.avg_sm_occupancy))
-            f.write("%")
-            f.write('\n')
-            f.write("Total time: ")
-            f.write("{:.2f}".format(trainer.train_time))
-            
-
-        # save loss values in ./loss_val/ folder
-        loss = [item['loss'] for item in trainer.training_logs]
-        # save original loss values in ./loss_val/ folder
-        with open('./benchmark/loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
-            for item in loss:
-                f.write(str(item))
-                f.write('\n')
-
-        # save accuracy values in ./acc_val/ folder
-        accuracy = [item['accuracy'] for item in trainer.val_logs]
-        # save original accuracy values in ./acc_val/ folder
-        with open('./benchmark/acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
-            for item in accuracy:
-                f.write(str(item))
-                f.write('\n')
     
-        # plot loss values and accuracy values
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-        import pandas as pd
+    # print avg sm occupancy in xx.xx% format
+    print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
+    # print total energy consumption in xx.xx kJ format
+    # print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
+    # print total time in xx.xx s format
+    print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
+    print("Test accuracy: ", "{:.2f}".format(test_acc), "%")
+    # write avg sm occupancy, time in ./benchmark/metrics/log_file_name.txt
+    with open('./benchmark/metrics/'+args.log_file_name+'.txt', 'w') as f:
+        f.write("Avg SM occupancy: ")
+        f.write("{:.2f}".format(trainer.avg_sm_occupancy))
+        f.write("%")
+        f.write('\n')
+        f.write("Total time: ")
+        f.write("{:.2f}".format(trainer.train_time))
+        
 
-        fig, axes = plt.subplots(1, 2, figsize=(20, 10))
+    # save loss values in ./loss_val/ folder
+    loss = [item['loss'] for item in trainer.training_logs]
+    # save original loss values in ./loss_val/ folder
+    with open('./benchmark/loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
+        for item in loss:
+            f.write(str(item))
+            f.write('\n')
 
-        loss_df = pd.DataFrame(loss, columns=['loss'])
-        acc_df = pd.DataFrame(accuracy, columns=['accuracy'])
+    # save accuracy values in ./acc_val/ folder
+    accuracy = [item['accuracy'] for item in trainer.val_logs]
+    # save original accuracy values in ./acc_val/ folder
+    with open('./benchmark/acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
+        for item in accuracy:
+            f.write(str(item))
+            f.write('\n')
+    
+    # plot loss values and accuracy values
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import pandas as pd
 
-        sns.lineplot(data=loss_df, ax=axes[0])
-        sns.lineplot(data=acc_df, ax=axes[1])
+    fig, axes = plt.subplots(1, 2, figsize=(20, 10))
 
-        axes[0].set_title("Loss Curve")
-        axes[1].set_title("Accuracy Curve")
+    loss_df = pd.DataFrame(loss, columns=['loss'])
+    acc_df = pd.DataFrame(accuracy, columns=['accuracy'])
 
-        plt.savefig("./benchmark/figure/"+args.log_file_name+".png")
+    sns.lineplot(data=loss_df, ax=axes[0])
+    sns.lineplot(data=acc_df, ax=axes[1])
+
+    axes[0].set_title("Loss Curve")
+    axes[1].set_title("Accuracy Curve")
+
+    plt.savefig("./benchmark/figure/"+args.log_file_name+".png")
 
     
