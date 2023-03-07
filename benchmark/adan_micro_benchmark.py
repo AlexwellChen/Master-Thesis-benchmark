@@ -5,12 +5,14 @@ import argparse
 def get_fake_parameters(n_params=10, size=512, fp16=False):
     params = []
     for i in range(n_params):
-        tensor = torch.randn(size, size, requires_grad=True)   
-        tensor.grad = torch.randn(size, size)
-        if fp16:
-            tensor.grad = tensor.grad.half() # Only grad is fp16
-        tensor = tensor.to('cuda')
-        params.append(tensor)
+        if not fp16:
+            tensor = torch.randn(size, size, requires_grad=True, device='cuda')   
+            tensor.grad = torch.randn(size, size, device='cuda')
+            params.append(tensor)
+        else:
+            tensor = torch.randn(size, size, requires_grad=True, device='cuda')   
+            tensor.grad = torch.randn(size, size, device='cuda', dtype=torch.float16)
+            params.append(tensor)
     return params
 
 if __name__ == "__main__":
