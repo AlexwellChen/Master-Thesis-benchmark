@@ -20,5 +20,7 @@ if __name__ == "__main__":
 
     params = get_fake_parameters(size=args.size, n_params=args.n_params)
     optimizer = Adan(params=params, foreach=args.foreach, fused=args.fused)
+    torch.cuda.cudart().cudaProfilerStart()
     for i in range(10):
         optimizer.step()
+    torch.cuda.cudart().cudaProfilerStop()
