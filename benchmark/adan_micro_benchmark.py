@@ -10,7 +10,7 @@ def get_fake_parameters(n_params=10, size=512, fp16=False):
             tensor.grad = torch.randn(size, size, device='cuda')
             params.append(tensor)
         else:
-            tensor = torch.randn(size, size, requires_grad=True, device='cuda')   
+            tensor = torch.randn(size, size, requires_grad=True, device='cuda', dtype=torch.float16)   
             tensor.grad = torch.randn(size, size, device='cuda', dtype=torch.float16)
             params.append(tensor)
     return params
