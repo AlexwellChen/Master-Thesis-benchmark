@@ -1,0 +1,6 @@
+Add:
+from lightseq.training.huggingface.bert import (
+    ls_hf_transformer_layer
+)
+
+to the init file under LightSeq -> Training in the Site-package folder.
