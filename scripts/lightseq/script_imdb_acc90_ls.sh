@@ -7,7 +7,8 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --optimizer adan \
         --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90_lightseq \
         --target_val_acc 0.90 \
-        --fused_optimizer True
+        --fused_optimizer True \
+        --batch_size 8
 echo "-----------------------lightseq done------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base_accelerate.py \
@@ -16,7 +17,8 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --optimizer adan \
         --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90_huggingface \
         --target_val_acc 0.90 \
-        --fused_optimizer True
+        --fused_optimizer True \
+        --batch_size 8
 # Plot the results
 # python ./benchmark/plot_loss_accuracy.py IMDB_acc90
 
