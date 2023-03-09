@@ -306,7 +306,7 @@ def main():
     if data_args.task_name is not None:
         # Downloading and loading a dataset from the hub.
         datasets = load_dataset(
-            "imdb", data_args.task_name, cache_dir=model_args.cache_dir
+            "imdb", cache_dir=model_args.cache_dir
         )
     elif data_args.dataset_name is not None:
         # Downloading and loading a dataset from the hub.
@@ -513,18 +513,13 @@ def main():
         if "train" not in datasets:
             raise ValueError("--do_train requires a train dataset")
         train_dataset = datasets["train"]
-        if data_args.max_train_samples is not None:
-            train_dataset = train_dataset.select(range(data_args.max_train_samples))
+        
 
     if training_args.do_eval:
-        if "validation" not in datasets and "validation_matched" not in datasets:
-            raise ValueError("--do_eval requires a validation dataset")
-        eval_dataset = datasets[
-            "validation_matched" if data_args.task_name == "mnli" else "validation"
-        ]
-        if data_args.max_eval_samples is not None:
-            eval_dataset = eval_dataset.select(range(data_args.max_eval_samples))
-
+        temp_dataset = datasets["train"].train_test_split(test_size=0.1, seed=38)
+        train_dataset = temp_dataset['train']
+        eval_dataset = temp_dataset['test']
+        
     if (
         training_args.do_predict
         or data_args.task_name is not None
@@ -532,24 +527,15 @@ def main():
     ):
         if "test" not in datasets and "test_matched" not in datasets:
             raise ValueError("--do_predict requires a test dataset")
-        predict_dataset = datasets[
-            "test_matched" if data_args.task_name == "mnli" else "test"
-        ]
-        if data_args.max_predict_samples is not None:
-            predict_dataset = predict_dataset.select(
-                range(data_args.max_predict_samples)
-            )
+        predict_dataset = datasets["test"]
 
-    # Log a few random samples from the training set:
-    if training_args.do_train:
-        for index in random.sample(range(len(train_dataset)), 3):
-            logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
+    # # Log a few random samples from the training set:
+    # if training_args.do_train:
+    #     for index in random.sample(range(len(train_dataset)), 3):
+    #         logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
 
     # Get the metric function
-    if data_args.task_name is not None:
-        metric = load_metric("glue", data_args.task_name)
-    else:
-        metric = load_metric("accuracy")
+    metric = load_metric("accuracy")
 
     # You can define your custom compute_metrics function. It takes an `EvalPrediction` object (a namedtuple with a
     # predictions and label_ids field) and has to return a dictionary string to float.
@@ -666,20 +652,6 @@ def main():
                         else:
                             item = label_list[item]
                             writer.write(f"{index}\t{item}\n")
-
-    if training_args.push_to_hub:
-        kwargs = {
-            "finetuned_from": model_args.model_name_or_path,
-            "tasks": "text-classification",
-        }
-        if data_args.task_name is not None:
-            kwargs["language"] = "en"
-            kwargs["dataset_tags"] = "glue"
-            kwargs["dataset_args"] = data_args.task_name
-            kwargs["dataset"] = f"GLUE {data_args.task_name.upper()}"
-
-        trainer.push_to_hub(**kwargs)
-
 
 def _mp_fn(index):
     # For xla_spawn (TPUs)
