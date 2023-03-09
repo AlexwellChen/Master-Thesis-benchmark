@@ -1,12 +1,14 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup, TrainingArguments
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
 from trainer_accelerate import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
 from adan import Adan
 import transformers
-from replace_module import inject_ls_enc_layer
+import sys
+sys.path.append('../')
+from Misc.huggingface.bert.ls_hf_transformer_layer import inject_ls_layer, LSBertForSequenceClassification
 
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
@@ -49,13 +51,11 @@ def data_process(args):
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     accelerator = Accelerator()
-    # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
-    model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
-    config = model.config
     train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
-    inject_ls_enc_layer(model, train_args, config)
+    config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2)
+    model = LSBertForSequenceClassification.from_pretrained('bert-base-cased', config=config)
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
