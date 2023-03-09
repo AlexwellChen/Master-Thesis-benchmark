@@ -8,7 +8,7 @@ from adan import Adan
 import transformers
 import sys
 sys.path.append('../')
-from Misc.huggingface.bert.ls_hf_transformer_layer import inject_ls_layer, LSBertForSequenceClassification
+from replace_module import inject_ls_enc_layer
 
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
@@ -21,7 +21,7 @@ transformers.set_seed(42)
 def data_process(args):
     # Define the function to encode the data
     def encode(examples):
-        return tokenizer(examples['text'], truncation=True, padding='max_length')
+        return tokenizer(examples['text'], truncation=True)
     
     # Load the IMDB dataset and create data loaders for training, validation and test
     train_dataset, test_dataset = datasets.load_dataset('imdb', split=['train', 'test'])
@@ -55,7 +55,9 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
     config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2)
-    model = LSBertForSequenceClassification.from_pretrained('bert-base-cased', config=config)
+    model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', config=config)
+    inject_ls_enc_layer(model, train_args, config)
+
 
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
