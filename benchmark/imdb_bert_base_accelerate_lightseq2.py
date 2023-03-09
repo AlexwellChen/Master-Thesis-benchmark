@@ -52,7 +52,7 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
     model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
     config = model.config
-    train_args = TrainingArguments()
+    train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
     inject_ls_enc_layer(model, train_args, config)
