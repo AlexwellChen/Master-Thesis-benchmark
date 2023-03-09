@@ -52,9 +52,9 @@ def data_process(args):
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
-    model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
+    #model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
 
-    #model = LSBertForSequenceClassification.from_pretrained('bert-base-cased')
+    model = LSBertForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
 
 
     # Define the optimizer and learning rate scheduler
