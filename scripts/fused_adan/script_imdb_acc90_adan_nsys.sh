@@ -7,7 +7,6 @@ nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu  --capture-range=cuda
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
         --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90_nvtx \
-        --batch_size 8 \
         --target_val_acc 0.90
 echo "--------------------------adan done--------------------------"
 nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu  --capture-range=cudaProfilerApi  --cudabacktrace=true -x true \
@@ -18,7 +17,6 @@ nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu  --capture-range=cuda
         --optimizer adan \
         --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90_nvtx \
         --target_val_acc 0.90 \
-        --batch_size 8 \
         --fused_optimizer True
 echo "-----------------------fused adan done------------------------"
 nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu  --capture-range=cudaProfilerApi  --cudabacktrace=true -x true \
@@ -29,7 +27,6 @@ nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu  --capture-range=cuda
         --optimizer adan \
         --log_file_name imdb_adan_single_lr1e-4_wd1e-2_wm50_ep2_acc90_nvtx \
         --target_val_acc 0.90 \
-        --batch_size 8 \
         --foreach False
 echo "------------------------single adan done--------------------------"
 nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu  --capture-range=cudaProfilerApi  --cudabacktrace=true -x true \
@@ -41,7 +38,6 @@ nsys profile -w true -t cuda,nvtx,osrt,cudnn,cublas -s cpu  --capture-range=cuda
         --log_file_name imdb_adan_single_fused_lr1e-4_wd1e-2_wm50_ep2_acc90_nvtx \
         --target_val_acc 0.90 \
         --fused_optimizer True \
-        --batch_size 8 \
         --foreach False
 echo "-----------------------fused single adan done------------------------"
 # Plot the results
