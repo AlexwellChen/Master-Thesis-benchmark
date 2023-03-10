@@ -1,4 +1,6 @@
 clear
+pip uninstall adan
+pip install git+https://github.com/AlexwellChen/Adan.git
 echo "Adan Micro Benchmark with nsys, size=4096, n_params=20"
 echo "===================="
 echo "foreach=False, fused=False"
