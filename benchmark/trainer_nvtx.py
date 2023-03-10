@@ -93,9 +93,11 @@ class ProfilingTrainer:
                             print("Target validation accuracy reached, " + str(3-acc_achieved), " more times to stop training")
                 self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
                 progress_bar.update(1)
+                break # only 1 step
             epoch_end_time = time.time()
             epoch_time = epoch_end_time - epoch_start_time
             print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
+            break # only 1 step
         self.train_time = time.time() - train_start_time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
