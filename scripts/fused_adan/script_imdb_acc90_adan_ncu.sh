@@ -1,27 +1,35 @@
 clear
+pip install git+https://github.com/AlexwellChen/Adan.git
 echo "-----------------------Benchmark start------------------------"
-ncu -o ./ncu_log/imdb_acc90_adan_fp32 --target-processes all -k "adan_cuda_kernel" --nvtx --set full --replay-mode application \
-        accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
-         ./benchmark/imdb_bert_base_accelerate.py \
-        --n_epochs 1 --warmup 50 \
+ncu -o ./ncu_log/imdb_acc90_adan_vector --target-processes all -k "adan_cuda_kernel" --nvtx --set full --replay-mode application \
+        python ./benchmark/imdb_bert_base_nvtx.py \
+        --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90 \
+        --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90_nvtx \
         --target_val_acc 0.90 \
-        --fused_optimizer True \
         --foreach False
-echo "--------------------------fp32 done--------------------------"
-ncu -o ./ncu_log/imdb_acc90_adan_fp16 --target-processes all -k "adan_cuda_kernel" --nvtx --set full -f --replay-mode application \
-        accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
-         ./benchmark/imdb_bert_base_accelerate.py \
-        --n_epochs 1 --warmup 50 \
+echo "--------------------------vector done--------------------------"
+ncu -o ./ncu_log/imdb_acc90_adan_vector --target-processes all -k "adan_cuda_kernel" --nvtx --set full --replay-mode application \
+        python ./benchmark/imdb_bert_base_nvtx.py \
+        --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90_mix \
+        --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90_nvtx \
         --target_val_acc 0.90 \
-        --fused_optimizer True \
+        --foreach True
+echo "--------------------------ILP done--------------------------"
+pip uninstall adan
+pip install git+https://github.com/AlexwellChen/Adan.git@warp
+ncu -o ./ncu_log/imdb_acc90_adan_warp --target-processes all -k "adan_cuda_kernel" --nvtx --set full -f --replay-mode application \
+        python ./benchmark/imdb_bert_base_nvtx.py \
+        --n_epochs 2 --warmup 50 \
+        --lr 1e-4 --wd 0.01 \
+        --optimizer adan \
+        --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90_ncu \
+        --target_val_acc 0.90 \ 
         --foreach False
-echo "-----------------------fp16 done------------------------"
+echo "----------------------------warp done---------------------------"
 # Plot the results
 # python ./benchmark/plot_loss_accuracy.py IMDB_acc92
 # adamw:
