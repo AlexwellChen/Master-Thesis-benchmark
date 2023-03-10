@@ -59,7 +59,7 @@ class ProfilingTrainer:
             epoch_start_time = time.time()
             self.model.train()
             for step, batch in enumerate(self.train_dataloader):  
-                nvtx.range_push("Training step", step)
+                nvtx.range_push("Training step")
                 batch = {k: v.to(self.device) for k, v in batch.items()}
                 self.model.zero_grad()
                 nvtx.range_push("Forward") 
