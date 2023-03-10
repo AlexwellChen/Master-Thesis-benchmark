@@ -142,9 +142,11 @@ if __name__ == '__main__':
     meter = EnergyMeter(device_to_measure)
 
     # Train the model for n epochs
+    torch.cuda.cudart().cudaProfilerStart()
     meter.start()
     trainer.train(args.n_epochs)
     meter.stop()
+    torch.cuda.cudart().cudaProfilerStop()
 
     # Save energy trace
     trace = meter.get_trace()
