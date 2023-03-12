@@ -171,7 +171,9 @@ if __name__ == '__main__':
         f.write('\n')
         f.write("Total time: ")
         f.write("{:.2f}".format(trainer.train_time))
-        
+        f.write('\n')
+        f.write("Test accuracy: ")
+        f.write("{:.2f}".format(test_acc))
 
     # save loss values in ./loss_val/ folder
     loss = [item['loss'] for item in trainer.training_logs]

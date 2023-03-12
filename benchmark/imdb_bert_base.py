@@ -172,7 +172,6 @@ if __name__ == '__main__':
         f.write('\n')
         f.write("Test accuracy: ")
         f.write("{:.2f}".format(test_acc))
-        f.write("%")
 
         
 
