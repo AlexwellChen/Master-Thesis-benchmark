@@ -9,15 +9,6 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --target_val_acc 0.93 \
         --fused_optimizer True
 echo "-----------------------adan done------------------------"
-accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
-         ./benchmark/imdb_bert_base_accelerate.py \
-        --n_epochs 2 --warmup 50 \
-        --lr 1e-5 --wd 0.01 \
-        --optimizer adamw \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc93_mix \
-        --target_val_acc 0.93 \
-        --fused_optimizer False
-echo "-----------------------adamw done------------------------"
 # accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
 #          ./benchmark/imdb_bert_base_accelerate.py \
 #         --n_epochs 2 --warmup 50 \
