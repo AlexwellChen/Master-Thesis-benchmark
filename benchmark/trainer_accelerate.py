@@ -4,12 +4,10 @@ from tqdm import tqdm
 import pynvml
 
 
-torch.manual_seed(42)
-
 class AcceleratorTrainer:
     def __init__(
             self, model, accelerator, train_dataloader, val_dataloader, test_dataloader, optimizers, 
-            device, n_steps_per_val, target_val_acc, log_file_name='default_log'
+            device, n_steps_per_val, target_val_acc, log_file_name='default_log', seed=42
         ):
         self.model = model
         self.accelerator = accelerator
@@ -32,6 +30,7 @@ class AcceleratorTrainer:
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
+        torch.manual_seed(seed)
 
     def get_sm_occupancy(self):
         for i in range(self.device_count):

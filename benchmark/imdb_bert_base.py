@@ -11,8 +11,6 @@ from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
-torch.manual_seed(42)
-transformers.set_seed(42)
 
 def data_process(args):
     # Define the function to encode the data
@@ -92,7 +90,8 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
         device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
         n_steps_per_val=args.n_steps_per_val,
         target_val_acc=args.target_val_acc,
-        log_file_name=args.log_file_name
+        log_file_name=args.log_file_name,
+        seed=args.seed
     )
 
     return trainer
@@ -121,11 +120,16 @@ if __name__ == '__main__':
     parser.add_argument('--wd', type=float, default=0.01)
     # Warmup steps
     parser.add_argument('--warmup', type=int, default=320)
+    # Seed
+    parser.add_argument('--seed', type=int, default=38)
 
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
+
+    torch.manual_seed(args.seed)
+    transformers.set_seed(args.seed)
 
     if args.target_val_acc is None:
         print('No target_val_acc specified')

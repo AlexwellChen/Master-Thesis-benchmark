@@ -6,12 +6,10 @@ from pyJoules.energy_meter import measure_energy
 from pyJoules.device.rapl_device import RaplPackageDomain
 import torch.cuda.nvtx as nvtx
 
-torch.manual_seed(42)
-
 class ProfilingTrainer:
     def __init__(
             self, model, train_dataloader, val_dataloader, test_dataloader, optimizers, 
-            device, n_steps_per_val, target_val_acc, log_file_name='default_log'
+            device, n_steps_per_val, target_val_acc, log_file_name='default_log', seed=42
         ):
         self.model = model
         self.train_dataloader = train_dataloader
@@ -33,6 +31,7 @@ class ProfilingTrainer:
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
+        torch.manual_seed(seed)
 
     def get_sm_occupancy(self):
         for i in range(self.device_count):
