@@ -5,8 +5,15 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90_mix \
-        --target_val_acc 0.90 \
+        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_mix \
+        --fused_optimizer True
+echo "-----------------------Mix percision done------------------------"
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
+         ./benchmark/imdb_bert_base_accelerate.py \
+        --n_epochs 2 --warmup 50 \
+        --lr 1e-4 --wd 0.01 \
+        --optimizer adan \
+        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_unmix \
         --fused_optimizer True
 echo "-----------------------Mix percision done------------------------"
 # Plot the results
