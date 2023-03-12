@@ -4,7 +4,7 @@ from tqdm import tqdm
 import pynvml
 
 
-# torch.manual_seed(38)
+torch.manual_seed(42)
 
 class AcceleratorTrainer:
     def __init__(
