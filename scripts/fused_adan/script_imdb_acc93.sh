@@ -1,26 +1,19 @@
 clear
 echo "-----------------------Benchmark start------------------------"
-python ./benchmark/imdb_bert_base.py \
-        --n_epochs 2 --warmup 160 \
-        --lr 1e-5 --wd 0.01 \
-        --optimizer adamw \
-        --log_file_name imdb_adamw_lr1e-5_wd1e-2_wm160_ep2_acc93 \
-        --target_val_acc 0.93
-echo "--------------------------adamw done--------------------------"
-python ./benchmark/imdb_bert_base.py \
-        --n_epochs 2 --warmup 160 \
-        --lr 1e-5 --wd 0.01 \
-        --optimizer adam \
-        --log_file_name imdb_adam_lr1e-5_wd1e-2_wm160_ep2_acc93 \
-        --target_val_acc 0.93
-echo "--------------------------adam done--------------------------"
-python ./benchmark/imdb_bert_base.py \
-        --n_epochs 2 --warmup 50 \
-        --lr 1e-4 --wd 0.01 \
-        --optimizer adan \
-        --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc93 \
-        --target_val_acc 0.93
-echo "--------------------------adan done--------------------------"
+# python ./benchmark/imdb_bert_base.py \
+#         --n_epochs 2 --warmup 160 \
+#         --lr 1e-5 --wd 0.01 \
+#         --optimizer adam \
+#         --log_file_name imdb_adam_lr1e-5_wd1e-2_wm160_ep2_acc93 \
+#         --target_val_acc 0.93
+# echo "--------------------------adam done--------------------------"
+# python ./benchmark/imdb_bert_base.py \
+#         --n_epochs 2 --warmup 50 \
+#         --lr 1e-4 --wd 0.01 \
+#         --optimizer adan \
+#         --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc93 \
+#         --target_val_acc 0.93
+# echo "--------------------------adan done--------------------------"
 python ./benchmark/imdb_bert_base.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
