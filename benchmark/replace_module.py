@@ -1,14 +1,17 @@
 from lightseq.training.ops.pytorch.transformer_encoder_layer import (
     LSTransformerEncoderLayer,
 )
+
 class LSHFTransformerEncoderLayer(LSTransformerEncoderLayer):
     def __init__(self, *args, **kwargs):
         super(LSHFTransformerEncoderLayer, self).__init__(*args, **kwargs)
+
     def forward(self, hidden_states, encoder_padding_mask, *args, **kwargs):
         ls_encoder_padding_mask = encoder_padding_mask / -10000.0
         ls_encoder_padding_mask = ls_encoder_padding_mask.squeeze()
         output = super().forward(hidden_states, ls_encoder_padding_mask)
         return (output, None, None, None)
+    
 def gen_ls_bert_config(training_args, config):
     bert_config = LSTransformerEncoderLayer.get_config(
         max_batch_tokens=8192,
@@ -25,6 +28,7 @@ def gen_ls_bert_config(training_args, config):
         activation_fn="gelu",
     )
     return bert_config
+
 def get_hf_bert_enc_layer_params(layer):
     init_ws = []
     init_bs = []
