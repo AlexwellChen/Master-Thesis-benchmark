@@ -321,7 +321,7 @@ def main():
         use_auth_token=True if model_args.use_auth_token else None,
     )
 
-
+    training_args.fp16 = False
     # Replace with lightseq encoder layers and save the huggingface model
     model = LSBertForSequenceClassification.from_pretrained(
         model_args.model_name_or_path,
