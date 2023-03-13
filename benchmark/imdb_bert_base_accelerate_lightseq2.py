@@ -55,8 +55,7 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
     config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2)
-    model_args = ModelArguments()
-    model_args.model_name_or_path = 'bert-base-cased'
+    model_args = ModelArguments(model_name_or_path='bert-base-cased')
     model_args.module_type = args.module_type
     print(config)
     model = LSBertForSequenceClassification.from_pretrained(
