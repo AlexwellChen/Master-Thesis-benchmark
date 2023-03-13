@@ -31,7 +31,7 @@ class ProfilingTrainer:
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
-        torch.manual_seed(seed)
+        torch.manual_seed(38)
 
     def get_sm_occupancy(self):
         for i in range(self.device_count):
