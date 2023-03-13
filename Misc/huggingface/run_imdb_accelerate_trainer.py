@@ -430,108 +430,130 @@ def main():
         use_auth_token=True if model_args.use_auth_token else None,
     )
 
-    # Preprocessing the datasets
-    if data_args.task_name is not None:
-        sentence1_key, sentence2_key = task_to_keys[data_args.task_name]
-    else:
-        # Again, we try to have some nice defaults but don't hesitate to tweak to your use case.
-        non_label_column_names = [
-            name for name in datasets["train"].column_names if name != "label"
-        ]
-        if (
-            "sentence1" in non_label_column_names
-            and "sentence2" in non_label_column_names
-        ):
-            sentence1_key, sentence2_key = "sentence1", "sentence2"
-        else:
-            if len(non_label_column_names) >= 2:
-                sentence1_key, sentence2_key = non_label_column_names[:2]
-            else:
-                sentence1_key, sentence2_key = non_label_column_names[0], None
+    # # Preprocessing the datasets
+    # if data_args.task_name is not None:
+    #     sentence1_key, sentence2_key = task_to_keys[data_args.task_name]
+    # else:
+    #     # Again, we try to have some nice defaults but don't hesitate to tweak to your use case.
+    #     non_label_column_names = [
+    #         name for name in datasets["train"].column_names if name != "label"
+    #     ]
+    #     if (
+    #         "sentence1" in non_label_column_names
+    #         and "sentence2" in non_label_column_names
+    #     ):
+    #         sentence1_key, sentence2_key = "sentence1", "sentence2"
+    #     else:
+    #         if len(non_label_column_names) >= 2:
+    #             sentence1_key, sentence2_key = non_label_column_names[:2]
+    #         else:
+    #             sentence1_key, sentence2_key = non_label_column_names[0], None
 
-    # Padding strategy
-    if data_args.pad_to_max_length:
-        padding = "max_length"
-    else:
-        # We will pad later, dynamically at batch creation, to the max sequence length in each batch
-        padding = False
+    # # Padding strategy
+    # if data_args.pad_to_max_length:
+    #     padding = "max_length"
+    # else:
+    #     # We will pad later, dynamically at batch creation, to the max sequence length in each batch
+    #     padding = False
 
-    # Some models have set the order of the labels to use, so let's make sure we do use it.
-    label_to_id = None
-    if (
-        model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
-        and data_args.task_name is not None
-        and not is_regression
-    ):
-        # Some have all caps in their config, some don't.
-        label_name_to_id = {k.lower(): v for k, v in model.config.label2id.items()}
-        if list(sorted(label_name_to_id.keys())) == list(sorted(label_list)):
-            label_to_id = {
-                i: int(label_name_to_id[label_list[i]]) for i in range(num_labels)
-            }
-        else:
-            logger.warning(
-                "Your model seems to have been trained with labels, but they don't match the dataset: ",
-                f"model labels: {list(sorted(label_name_to_id.keys()))}, dataset labels: {list(sorted(label_list))}."
-                "\nIgnoring the model labels as a result.",
-            )
-    elif data_args.task_name is None and not is_regression:
-        label_to_id = {v: i for i, v in enumerate(label_list)}
+    # # Some models have set the order of the labels to use, so let's make sure we do use it.
+    # label_to_id = None
+    # if (
+    #     model.config.label2id != PretrainedConfig(num_labels=num_labels).label2id
+    #     and data_args.task_name is not None
+    #     and not is_regression
+    # ):
+    #     # Some have all caps in their config, some don't.
+    #     label_name_to_id = {k.lower(): v for k, v in model.config.label2id.items()}
+    #     if list(sorted(label_name_to_id.keys())) == list(sorted(label_list)):
+    #         label_to_id = {
+    #             i: int(label_name_to_id[label_list[i]]) for i in range(num_labels)
+    #         }
+    #     else:
+    #         logger.warning(
+    #             "Your model seems to have been trained with labels, but they don't match the dataset: ",
+    #             f"model labels: {list(sorted(label_name_to_id.keys()))}, dataset labels: {list(sorted(label_list))}."
+    #             "\nIgnoring the model labels as a result.",
+    #         )
+    # elif data_args.task_name is None and not is_regression:
+    #     label_to_id = {v: i for i, v in enumerate(label_list)}
 
-    if label_to_id is not None:
-        model.config.label2id = label_to_id
-        model.config.id2label = {id: label for label, id in config.label2id.items()}
+    # if label_to_id is not None:
+    #     model.config.label2id = label_to_id
+    #     model.config.id2label = {id: label for label, id in config.label2id.items()}
 
-    if data_args.max_seq_length > tokenizer.model_max_length:
-        logger.warning(
-            f"The max_seq_length passed ({data_args.max_seq_length}) is larger than the maximum length for the"
-            f"model ({tokenizer.model_max_length}). Using max_seq_length={tokenizer.model_max_length}."
-        )
-    max_seq_length = min(data_args.max_seq_length, tokenizer.model_max_length)
+    # if data_args.max_seq_length > tokenizer.model_max_length:
+    #     logger.warning(
+    #         f"The max_seq_length passed ({data_args.max_seq_length}) is larger than the maximum length for the"
+    #         f"model ({tokenizer.model_max_length}). Using max_seq_length={tokenizer.model_max_length}."
+    #     )
+    # max_seq_length = min(data_args.max_seq_length, tokenizer.model_max_length)
 
-    def preprocess_function(examples):
-        # Tokenize the texts
-        args = (
-            (examples[sentence1_key],)
-            if sentence2_key is None
-            else (examples[sentence1_key], examples[sentence2_key])
-        )
-        result = tokenizer(
-            *args, padding=padding, max_length=max_seq_length, truncation=True
-        )
+    # def preprocess_function(examples):
+    #     # Tokenize the texts
+    #     args = (
+    #         (examples[sentence1_key],)
+    #         if sentence2_key is None
+    #         else (examples[sentence1_key], examples[sentence2_key])
+    #     )
+    #     result = tokenizer(
+    #         *args, padding=padding, max_length=max_seq_length, truncation=True
+    #     )
 
-        # Map labels to IDs (not necessary for GLUE tasks)
-        if label_to_id is not None and "label" in examples:
-            result["label"] = [
-                (label_to_id[l] if l != -1 else -1) for l in examples["label"]
-            ]
-        return result
+    #     # Map labels to IDs (not necessary for GLUE tasks)
+    #     if label_to_id is not None and "label" in examples:
+    #         result["label"] = [
+    #             (label_to_id[l] if l != -1 else -1) for l in examples["label"]
+    #         ]
+    #     return result
 
-    datasets = datasets.map(
-        preprocess_function,
-        batched=True,
-        load_from_cache_file=not data_args.overwrite_cache,
-        desc="Running tokenizer on dataset",
-    )
-    if training_args.do_train:
-        if "train" not in datasets:
-            raise ValueError("--do_train requires a train dataset")
-        train_dataset = datasets["train"]
+    # datasets = datasets.map(
+    #     preprocess_function,
+    #     batched=True,
+    #     load_from_cache_file=not data_args.overwrite_cache,
+    #     desc="Running tokenizer on dataset",
+    # )
+    # if training_args.do_train:
+    #     if "train" not in datasets:
+    #         raise ValueError("--do_train requires a train dataset")
+    #     train_dataset = datasets["train"]
         
 
-    if training_args.do_eval:
-        temp_dataset = datasets["train"].train_test_split(test_size=0.1, seed=38)
-        train_dataset = temp_dataset['train']
-        eval_dataset = temp_dataset['test']
+    # if training_args.do_eval:
+    #     temp_dataset = datasets["train"].train_test_split(test_size=0.1, seed=38)
+    #     train_dataset = temp_dataset['train']
+    #     eval_dataset = temp_dataset['test']
         
-    if (
-        training_args.do_predict
-        or data_args.task_name is not None
-        or data_args.test_file is not None
-    ):
-        if "test" not in datasets and "test_matched" not in datasets:
-            raise ValueError("--do_predict requires a test dataset")
-        test_dataset = datasets["test"]
+    # if (
+    #     training_args.do_predict
+    #     or data_args.task_name is not None
+    #     or data_args.test_file is not None
+    # ):
+    #     if "test" not in datasets and "test_matched" not in datasets:
+    #         raise ValueError("--do_predict requires a test dataset")
+    #     test_dataset = datasets["test"]
+    def encode(examples):
+        return tokenizer(examples['text'], truncation=True, padding='max_length')
+    
+    # Load the IMDB dataset and create data loaders for training, validation and test
+    train_dataset, test_dataset = datasets.load_dataset('imdb', split=['train', 'test'])
+    # reduce test dataset size to original size*0.2
+    test_dataset = test_dataset.select(range(int(len(test_dataset)*0.2)))
+    split_set = train_dataset.train_test_split(test_size=0.1, seed=38)
+    train_dataset = split_set['train']
+    eval_dataset = split_set['test']
+
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+    train_dataset = train_dataset.map(encode, batched=True)
+    test_dataset = test_dataset.map(encode, batched=True)
+    eval_dataset = eval_dataset.map(encode, batched=True)
+    train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    test_dataset = test_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    
+    train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+    test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
+    eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
 
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=16)
