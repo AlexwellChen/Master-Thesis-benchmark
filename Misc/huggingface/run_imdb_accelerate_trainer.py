@@ -28,6 +28,8 @@ import torch
 import numpy as np
 from datasets import load_dataset, load_metric
 from trainer_accelerate import AcceleratorTrainer
+from adan import Adan
+from accelerate import Accelerator
 
 import transformers
 from transformers import (
@@ -44,6 +46,7 @@ from transformers import (
     set_seed,
     BertForSequenceClassification,
     BertLayer,
+    get_linear_schedule_with_warmup,
 )
 from transformers.trainer_utils import get_last_checkpoint
 from transformers.utils import check_min_version
@@ -528,132 +531,44 @@ def main():
     ):
         if "test" not in datasets and "test_matched" not in datasets:
             raise ValueError("--do_predict requires a test dataset")
-        predict_dataset = datasets["test"]
+        test_dataset = datasets["test"]
 
-    # # Log a few random samples from the training set:
-    # if training_args.do_train:
-    #     for index in random.sample(range(len(train_dataset)), 3):
-    #         logger.info(f"Sample {index} of the training set: {train_dataset[index]}.")
-
-    # Get the metric function
-    metric = load_metric("accuracy")
-
-    # You can define your custom compute_metrics function. It takes an `EvalPrediction` object (a namedtuple with a
-    # predictions and label_ids field) and has to return a dictionary string to float.
-    def compute_metrics(p: EvalPrediction):
-        preds = p.predictions[0] if isinstance(p.predictions, tuple) else p.predictions
-        preds = np.squeeze(preds) if is_regression else np.argmax(preds, axis=1)
-        if data_args.task_name is not None:
-            result = metric.compute(predictions=preds, references=p.label_ids)
-            if len(result) > 1:
-                result["combined_score"] = np.mean(list(result.values())).item()
-            return result
-        elif is_regression:
-            return {"mse": ((preds - p.label_ids) ** 2).mean().item()}
-        else:
-            return {"accuracy": (preds == p.label_ids).astype(np.float32).mean().item()}
-
-    # Data collator will default to DataCollatorWithPadding, so we change it if we already did the padding.
-    if data_args.pad_to_max_length:
-        data_collator = default_data_collator
-    elif training_args.fp16:
-        data_collator = DataCollatorWithPadding(tokenizer, pad_to_multiple_of=8)
-    else:
-        data_collator = None
-
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=16, shuffle=True)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=16)
+    eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=16)
     
-    # Initialize our Trainer
-    trainer = Trainer(
+    lr = 1e-4
+    betas = (0.98, 0.92, 0.99)
+    wd = 0.01
+
+    accelerator = Accelerator()
+    optimizer = Adan(params=model.parameters(), lr=lr, weight_decay=wd, fused=True, foreach=True, betas=betas, eps=1e-8)
+    
+    scheduler = get_linear_schedule_with_warmup(optimizer, 
+                                                num_warmup_steps=50, 
+                                                num_training_steps=len(train_loader) * 2
+                                            )
+    
+    model, optimizer, train_loader, scheduler = accelerator.prepare(
+            model, optimizer, train_loader, scheduler
+        )
+
+    # Instantiate the ProfilingTrainer class and pass in the required parameters
+    trainer = AcceleratorTrainer(
         model=model,
-        args=training_args,
-        train_dataset=train_dataset if training_args.do_train else None,
-        eval_dataset=eval_dataset if training_args.do_eval else None,
-        compute_metrics=compute_metrics,
-        tokenizer=tokenizer,
-        data_collator=data_collator,
+        accelerator=accelerator,
+        train_dataloader=train_loader,
+        val_dataloader=eval_loader,
+        test_dataloader=test_loader,
+        optimizers=[optimizer, scheduler],
+        device=accelerator.device,
+        n_steps_per_val=50,
+        target_val_acc=0.93,
+        log_file_name="imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc93_ls",
+        seed=38,
     )
 
-    # Training
-    if training_args.do_train:
-        checkpoint = None
-        if training_args.resume_from_checkpoint is not None:
-            checkpoint = training_args.resume_from_checkpoint
-        elif last_checkpoint is not None:
-            checkpoint = last_checkpoint
-        train_result = trainer.train(resume_from_checkpoint=checkpoint)
-        metrics = train_result.metrics
-        max_train_samples = (
-            data_args.max_train_samples
-            if data_args.max_train_samples is not None
-            else len(train_dataset)
-        )
-        metrics["train_samples"] = min(max_train_samples, len(train_dataset))
-
-        trainer.save_model()  # Saves the tokenizer too for easy upload
-
-        trainer.log_metrics("train", metrics)
-        trainer.save_metrics("train", metrics)
-        trainer.save_state()
-
-    # Evaluation
-    if training_args.do_eval:
-        logger.info("*** Evaluate ***")
-
-        # Loop to handle MNLI double evaluation (matched, mis-matched)
-        tasks = [data_args.task_name]
-        eval_datasets = [eval_dataset]
-        if data_args.task_name == "mnli":
-            tasks.append("mnli-mm")
-            eval_datasets.append(datasets["validation_mismatched"])
-
-        for eval_dataset, task in zip(eval_datasets, tasks):
-            metrics = trainer.evaluate(eval_dataset=eval_dataset)
-
-            max_eval_samples = (
-                data_args.max_eval_samples
-                if data_args.max_eval_samples is not None
-                else len(eval_dataset)
-            )
-            metrics["eval_samples"] = min(max_eval_samples, len(eval_dataset))
-
-            trainer.log_metrics("eval", metrics)
-            trainer.save_metrics("eval", metrics)
-
-    if training_args.do_predict:
-        logger.info("*** Predict ***")
-
-        # Loop to handle MNLI double evaluation (matched, mis-matched)
-        tasks = [data_args.task_name]
-        predict_datasets = [predict_dataset]
-        if data_args.task_name == "mnli":
-            tasks.append("mnli-mm")
-            predict_datasets.append(datasets["test_mismatched"])
-
-        for predict_dataset, task in zip(predict_datasets, tasks):
-            # Removing the `label` columns because it contains -1 and Trainer won't like that.
-            predict_dataset.remove_columns_("label")
-            predictions = trainer.predict(
-                predict_dataset, metric_key_prefix="predict"
-            ).predictions
-            predictions = (
-                np.squeeze(predictions)
-                if is_regression
-                else np.argmax(predictions, axis=1)
-            )
-
-            output_predict_file = os.path.join(
-                training_args.output_dir, f"predict_results_{task}.txt"
-            )
-            if trainer.is_world_process_zero():
-                with open(output_predict_file, "w") as writer:
-                    logger.info(f"***** Predict results {task} *****")
-                    writer.write("index\tprediction\n")
-                    for index, item in enumerate(predictions):
-                        if is_regression:
-                            writer.write(f"{index}\t{item:3.3f}\n")
-                        else:
-                            item = label_list[item]
-                            writer.write(f"{index}\t{item}\n")
+    trainer.train(2)
 
 def _mp_fn(index):
     # For xla_spawn (TPUs)

@@ -15,7 +15,7 @@ python ./benchmark/imdb_bert_base.py \
         --log_file_name imdb_adam_lr1e-5_wd1e-2_wm160_ep2_acc93 \
         --target_val_acc 0.93 \
         --seed 57
-echo "--------------------------adam done--------------------------"
+echo "--------------------------adamw done--------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
          ./benchmark/imdb_bert_base_accelerate.py \
         --n_epochs 2 --warmup 50 \
