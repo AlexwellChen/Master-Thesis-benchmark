@@ -1,16 +1,22 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
 from trainer_accelerate import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
 from adan import Adan
 import transformers
+import sys
+sys.path.append('../')
 
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
+
+from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
+from ls_module.hf_args import ModelArguments
+
 
 def data_process(args):
     # Define the function to encode the data
@@ -45,9 +51,20 @@ def data_process(args):
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     accelerator = Accelerator()
-    # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
-    model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
-
+    train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
+    train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
+    train_args.local_rank = accelerator.process_index
+    config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2)
+    model_args = ModelArguments(model_name_or_path='bert-base-cased')
+    model_args.module_type = args.module_type
+    print(config)
+    model = LSBertForSequenceClassification.from_pretrained(
+        model_args.model_name_or_path,
+        training_args=train_args,
+        model_args=model_args,
+        config=config,
+    )
+        
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
         # betas = (0.9, 0.999) #default
@@ -127,6 +144,7 @@ if __name__ == '__main__':
     # Warmup steps
     parser.add_argument('--warmup', type=int, default=320)
     parser.add_argument('--seed', type=int, default=38)
+    parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
 
     args = parser.parse_args()
 

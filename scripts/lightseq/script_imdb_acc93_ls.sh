@@ -1,24 +1,27 @@
 clear
 echo "-----------------------Benchmark start------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
-         ./benchmark/imdb_bert_base_accelerate_lightseq2.py \
+         ./benchmark/imdb_bert_base_accelerate.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90_lightseq \
-        --target_val_acc 0.90 \
+        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc93_lightseq \
+        --target_val_acc 0.93 \
         --fused_optimizer True \
-        --batch_size 16
+        --batch_size 16 \
+        --module_type 1
 echo "-----------------------lightseq done------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base_accelerate.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90_huggingface \
-        --target_val_acc 0.90 \
+        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc93_huggingface \
+        --target_val_acc 0.93 \
         --fused_optimizer True \
-        --batch_size 16
+        --batch_size 16 \
+        --module_type 0
+echo "-----------------------huggingface done------------------------"
 # Plot the results
 # python ./benchmark/plot_loss_accuracy.py IMDB_acc90
 
