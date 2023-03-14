@@ -15,7 +15,7 @@ def get_loss_val():
         # skip directory
 
         optmizer_name = file_name.split("_")[1] # get the optimizer name
-        is_fused = True if file_name.split("_")[2] else False # get the fused status
+        is_fused = True if file_name.split("_")[2] == "fused" else False # get the fused status
         if is_fused:
             file_name = optmizer_name + "_fused"
         else:
@@ -39,9 +39,9 @@ def get_acc_val():
         if file_name.endswith(".md"):
             continue
         # skip directory
-        
+
         optmizer_name = file_name.split("_")[1] # get the optimizer name
-        is_fused = True if file_name.split("_")[2] else False # get the fused status
+        is_fused = True if file_name.split("_")[2] == "fused" else False # get the fused status
         if is_fused:
             file_name = optmizer_name + "_fused"
         else:
@@ -62,8 +62,9 @@ if __name__ == "__main__":
     file_name = sys.argv[1]
     fig, axes = plt.subplots(1, 2, figsize=(20, 10))
 
-    loss_df = get_loss_val()
-    acc_df = get_acc_val()
+    loss_df = get_loss_val().sort_index(axis=1)
+    acc_df = get_acc_val().sort_index(axis=1)
+
 
     sns.lineplot(data=loss_df, ax=axes[0])
     sns.lineplot(data=acc_df, ax=axes[1])
