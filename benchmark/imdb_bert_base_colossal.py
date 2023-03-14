@@ -88,7 +88,9 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
         else:
             optimizer = torch.optim.AdamW(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=False, betas=betas, eps=1e-8)
 
-    lr_scheduler = LinearWarmupLR(optimizer, warmup_steps=50, total_steps=gpc.config.NUM_EPOCHS)
+    lr_scheduler = LinearWarmupLR(optimizer, num_warmup_steps=args.warmup, 
+                                            num_training_steps=len(train_loader) * args.n_epochs)
+    
     criterion = torch.nn.CrossEntropyLoss()
     engine, train_dataloader, test_dataloader, _ = colossalai.initialize(model,
                                                                     optimizer,
@@ -102,6 +104,7 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
         train_dataloader=train_loader,
         val_dataloader=eval_loader,
         test_dataloader=test_loader,
+        lr_scheduler=lr_scheduler,
         device=torch.device('cuda' if torch.cuda.is_available() else 'cpu'),
         n_steps_per_val=args.n_steps_per_val,
         target_val_acc=args.target_val_acc,

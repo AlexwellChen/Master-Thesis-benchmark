@@ -97,36 +97,36 @@ class ColossalTrainer:
         
         
     def evaluate(self):
-        self.model.eval()
+        self.engine.eval()
         correct = 0
         total = 0
         with torch.no_grad():
             for batch in self.val_dataloader:
                 batch = {k: v.to(self.device) for k, v in batch.items()}
-                outputs = self.model(**batch)
+                outputs = self.engine(**batch)
                 logits = outputs.logits
                 predictions = torch.argmax(logits, dim=-1)
                 ground_truth = batch['labels']
                 correct += (predictions == ground_truth).sum().item()
                 total += len(ground_truth)
-        self.model.train()
+        self.engine.train()
         return correct / total
 
     def test(self):
         if self.test_dataloader is None:
             raise ValueError("No test dataloader provided.")
-        self.model.eval()
+        self.engine.eval()
         correct = 0
         total = 0
         with torch.no_grad():
             for batch in self.test_dataloader:
                 batch = {k: v.to(self.device) for k, v in batch.items()}
-                outputs = self.model(**batch)
+                outputs = self.engine(**batch)
                 logits = outputs.logits
                 predictions = torch.argmax(logits, dim=-1)
                 ground_truth = batch['labels']
                 correct += (predictions == ground_truth).sum().item()
                 total += len(ground_truth)
-        self.model.train()
+        self.engine.train()
         return correct / total
         
