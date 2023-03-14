@@ -135,9 +135,9 @@ if __name__ == '__main__':
     parser.add_argument('--target_val_acc', type=str, default=None)
     # Add the name for log file
     parser.add_argument('--log_file_name', type=str, default='profiling')
-    # Wether to use fused optimizer
+    # Whether to use fused optimizer
     parser.add_argument('--fused_optimizer', type=str, default='False')
-    # Wether to use foreach
+    # Whether to use foreach
     parser.add_argument('--foreach', type=str, default='True')
     # Weight decay
     parser.add_argument('--wd', type=float, default=0.01)
@@ -145,7 +145,6 @@ if __name__ == '__main__':
     parser.add_argument('--warmup', type=int, default=320)
     parser.add_argument('--seed', type=int, default=38)
     parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
-
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
