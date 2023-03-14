@@ -7,19 +7,14 @@ import sys
 
 def get_loss_val():
     loss_dict = {}
-    for file_path in glob.glob("./benchmark/loss_val/imdb_acc90/*"):
+    for file_path in glob.glob("./benchmark/loss_val/lightseq/*"):
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
             continue
         # skip directory
 
-        optmizer_name = file_name.split("_")[1] # get the optimizer name
-        is_fused = True if file_name.split("_")[2] == "fused" else False # get the fused status
-        if is_fused:
-            file_name = optmizer_name + "_fused"
-        else:
-            file_name = optmizer_name
+        file_name = file_name.split("_")[-2] # get the model type
 
         if os.path.isdir(file_path):
             continue
@@ -33,19 +28,14 @@ def get_loss_val():
 
 def get_acc_val():
     acc_dict = {}
-    for file_path in glob.glob("./benchmark/acc_val/imdb_acc90/*"):
+    for file_path in glob.glob("./benchmark/acc_val/lightseq/*"):
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
             continue
         # skip directory
 
-        optmizer_name = file_name.split("_")[1] # get the optimizer name
-        is_fused = True if file_name.split("_")[2] == "fused" else False # get the fused status
-        if is_fused:
-            file_name = optmizer_name + "_fused"
-        else:
-            file_name = optmizer_name
+        file_name = file_name.split("_")[-2] # get the model type
 
         if os.path.isdir(file_path):
             continue

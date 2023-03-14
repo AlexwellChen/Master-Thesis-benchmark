@@ -122,6 +122,8 @@ if __name__ == '__main__':
     parser.add_argument('--warmup', type=int, default=320)
     # Seed
     parser.add_argument('--seed', type=int, default=38)
+    parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
+    
 
     args = parser.parse_args()
 
