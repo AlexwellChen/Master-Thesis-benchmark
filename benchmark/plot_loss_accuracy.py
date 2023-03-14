@@ -13,6 +13,14 @@ def get_loss_val():
         if file_name.endswith(".md"):
             continue
         # skip directory
+
+        optmizer_name = file_name.split("_")[1] # get the optimizer name
+        is_fused = True if file_name.split("_")[2] else False # get the fused status
+        if is_fused:
+            file_name = optmizer_name + "_fused"
+        else:
+            file_name = optmizer_name
+
         if os.path.isdir(file_path):
             continue
         with open(file_path, "r") as f:
@@ -31,6 +39,14 @@ def get_acc_val():
         if file_name.endswith(".md"):
             continue
         # skip directory
+        
+        optmizer_name = file_name.split("_")[1] # get the optimizer name
+        is_fused = True if file_name.split("_")[2] else False # get the fused status
+        if is_fused:
+            file_name = optmizer_name + "_fused"
+        else:
+            file_name = optmizer_name
+
         if os.path.isdir(file_path):
             continue
         with open(file_path, "r") as f:
