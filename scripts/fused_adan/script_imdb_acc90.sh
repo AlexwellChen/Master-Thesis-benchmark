@@ -6,7 +6,7 @@ python ./benchmark/imdb_bert_base.py \
         --optimizer adam \
         --log_file_name imdb_adam_lr1e-5_wd1e-2_wm160_ep2_acc90 \
         --target_val_acc 0.90 \
-        --seed 42
+        --seed 38
 echo "--------------------------adam done--------------------------"
 python ./benchmark/imdb_bert_base.py \
         --n_epochs 2 --warmup 160 \
@@ -14,7 +14,7 @@ python ./benchmark/imdb_bert_base.py \
         --optimizer adamw \
         --log_file_name imdb_adamw_lr1e-5_wd1e-2_wm160_ep2_acc90 \
         --target_val_acc 0.90 \
-        --seed 42
+        --seed 38
 echo "--------------------------adamw done--------------------------"
 
 python ./benchmark/imdb_bert_base.py \
@@ -23,7 +23,7 @@ python ./benchmark/imdb_bert_base.py \
         --optimizer adan \
         --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90 \
         --target_val_acc 0.90 \
-        --seed 42
+        --seed 38
 echo "--------------------------adan done--------------------------"
 python ./benchmark/imdb_bert_base.py \
         --n_epochs 2 --warmup 50 \
@@ -32,7 +32,7 @@ python ./benchmark/imdb_bert_base.py \
         --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90 \
         --target_val_acc 0.90 \
         --fused_optimizer True \
-        --seed 42
+        --seed 38
 echo "-----------------------fused adan done------------------------"
 
 # Plot the results

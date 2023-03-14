@@ -7,7 +7,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --optimizer adan \
         --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_mix \
         --fused_optimizer True \
-        --seed 42
+        --seed 38
 echo "-----------------------adan done------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base_accelerate.py \
@@ -16,7 +16,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --optimizer adan \
         --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_unmix \
         --fused_optimizer True \
-        --seed 42
+        --seed 38
 echo "-----------------------Mix percision done------------------------"
 # Plot the results
 # python ./benchmark/plot_loss_accuracy.py IMDB_acc90
