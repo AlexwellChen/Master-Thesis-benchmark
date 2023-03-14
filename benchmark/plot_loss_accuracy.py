@@ -7,14 +7,18 @@ import sys
 
 def get_loss_val():
     loss_dict = {}
-    for file_path in glob.glob("./benchmark/loss_val/lightseq/*"):
+    for file_path in glob.glob("./benchmark/loss_val/mix_precision/*"):
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
             continue
         # skip directory
 
-        file_name = file_name.split("_")[-2] # get the model type
+        mix_type = file_name.split("_")[-2] # get the model type
+        if mix_type == "mixed":
+            file_name = "FP32_IMDb_BERT_Adan"
+        else:
+            file_name = "Mixed_precision_IMDb_BERT_Adan"
 
         if os.path.isdir(file_path):
             continue
@@ -28,14 +32,18 @@ def get_loss_val():
 
 def get_acc_val():
     acc_dict = {}
-    for file_path in glob.glob("./benchmark/acc_val/lightseq/*"):
+    for file_path in glob.glob("./benchmark/acc_val/mix_precision/*"):
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
             continue
         # skip directory
 
-        file_name = file_name.split("_")[-2] # get the model type
+        mix_type = file_name.split("_")[-2] # get the model type
+        if mix_type == "mixed":
+            file_name = "FP32_IMDb_BERT_Adan"
+        else:
+            file_name = "Mixed_precision_IMDb_BERT_Adan"
 
         if os.path.isdir(file_path):
             continue
