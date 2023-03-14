@@ -9,7 +9,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --fp16 True
         --fused_optimizer True \
         --batch_size 16 \
-        --seed 42
+        --seed 38
         --module_type 1
 echo "-----------------------lightseq done------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
@@ -21,7 +21,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --fp16 True
         --fused_optimizer True \
         --batch_size 16 \
-        --seed 42
+        --seed 38
         --module_type 0
 echo "-----------------------huggingface done------------------------"
 # Plot the results
