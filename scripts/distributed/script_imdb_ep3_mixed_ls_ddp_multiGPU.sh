@@ -9,7 +9,8 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix_DDP_2
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 
+        --module_type 1 \
+        --num_workers 12
 echo "-----------------------2GPU data parallel done------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix_DDP_4gpu.yaml \
          ./benchmark/imdb_bert_base_accelerate.py \
@@ -20,7 +21,8 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix_DDP_4
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 
+        --module_type 1 \
+        --num_workers 24
 echo "-----------------------4GPU data parallel done------------------------"
 # Plot the results
 # python ./benchmark/plot_loss_accuracy.py IMDB_acc90

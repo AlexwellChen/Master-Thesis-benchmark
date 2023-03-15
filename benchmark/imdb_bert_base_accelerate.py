@@ -45,7 +45,7 @@ def data_process(args):
     test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
     eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=6)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size)
     eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
 
@@ -146,6 +146,8 @@ if __name__ == '__main__':
     parser.add_argument('--wd', type=float, default=0.01)
     # Warmup steps
     parser.add_argument('--warmup', type=int, default=320)
+    # num_workers
+    parser.add_argument('--num_workers', type=int, default=6)
     parser.add_argument('--seed', type=int, default=38)
     parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
     args = parser.parse_args()
