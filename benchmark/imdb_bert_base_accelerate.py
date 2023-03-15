@@ -17,6 +17,8 @@ from pyJoules.device.nvidia_device import NvidiaGPUDomain
 from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
 from ls_module.hf_args import ModelArguments
 
+from accelerate import DistributedDataParallelKwargs
+
 
 def data_process(args):
     # Define the function to encode the data
@@ -50,7 +52,8 @@ def data_process(args):
     return train_loader, test_loader, eval_loader
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
-    accelerator = Accelerator()
+    ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
+    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
     train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
