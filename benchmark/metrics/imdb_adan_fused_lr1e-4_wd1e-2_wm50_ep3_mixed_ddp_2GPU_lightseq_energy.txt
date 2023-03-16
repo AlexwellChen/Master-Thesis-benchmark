@@ -1,0 +1,3 @@
+Avg SM occupancy: 0.00%
+Total time: 2.01
+Test accuracy: 0.00
