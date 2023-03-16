@@ -88,6 +88,7 @@ class AcceleratorTrainer:
                             self.train_time = time.time() - train_start_time
                             # average sm occupancy
                             self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
+                            nvtx.range_pop() # Training
                             return
                         else:
                             acc_achieved += 1
@@ -102,7 +103,7 @@ class AcceleratorTrainer:
         self.train_time = time.time() - train_start_time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
-        
+        nvtx.range_pop() # Training
         
     def evaluate(self):
         self.model.eval()
