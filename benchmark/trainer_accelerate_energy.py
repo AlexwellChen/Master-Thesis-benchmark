@@ -77,18 +77,15 @@ class AcceleratorTrainer:
                 epoch_start_time = time.time()
                 self.model.train()
                 for step, batch in enumerate(self.train_dataloader):
-                    self.meter.record("Start Dataloader")
+                    self.meter.record("Dataloader")
                     batch = {k: v.to(self.device) for k, v in batch.items()}
-                    self.meter.record("End Dataloader")
                     self.model.zero_grad()
-                    self.meter.record("Start Forward")
+                    self.meter.record("Forward")
                     outputs = self.model(**batch)
-                    self.meter.record("End Forward")
                     loss = outputs.loss
-                    self.meter.record("Start Backward")
+                    self.meter.record("Backward")
                     self.accelerator.backward(loss)
-                    self.meter.record("End Backward")
-                    self.meter.record("Start Optimizer")
+                    self.meter.record("Optimizer")
                     self.optimizer.step()
                     self.meter.record("End Optimizer")
                     self.scheduler.step()
