@@ -119,6 +119,11 @@ class AcceleratorTrainer:
                 epoch_time = epoch_end_time - epoch_start_time
                 print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
                 break # only 1 step
+        self.meter.stop()
+        trace = self.meter.get_trace()
+        handler = CSVHandler("./benchmark/energy/"+"2_GPU_Distributed" + '_Energy_breakdown_Results.csv')
+        handler.process(trace)
+        handler.save_data()
         self.train_time = time.time() - train_start_time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
