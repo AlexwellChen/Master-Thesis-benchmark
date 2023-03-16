@@ -163,4 +163,6 @@ if __name__ == '__main__':
     trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
 
     # Train the model for n epochs
+    torch.cuda.cudart().cudaProfilerStart()
     trainer.train(args.n_epochs)
+    torch.cuda.cudart().cudaProfilerStop()
