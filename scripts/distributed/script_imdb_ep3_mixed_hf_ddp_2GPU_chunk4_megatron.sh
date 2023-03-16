@@ -5,11 +5,11 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix_megat
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_megatron_chunk2_2gpu_lightseq \
+        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_megatron_chunk4_2gpu_huggingface \
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 \
+        --module_type 0 \
         --num_workers 12
 echo "-----------------------2GPU pipeline parallel done------------------------"
 # Plot the results
