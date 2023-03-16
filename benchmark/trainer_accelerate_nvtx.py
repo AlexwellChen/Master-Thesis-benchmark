@@ -51,63 +51,54 @@ class AcceleratorTrainer:
         self.optimizer.zero_grad()
         
         progress_bar = tqdm(range(n_epochs * len(self.train_dataloader)), desc="Epoch")
-        prof = torch.profiler.profile(
-            schedule=torch.profiler.schedule(wait=1, warmup=1, active=3, repeat=2),
-            on_trace_ready=torch.profiler.tensorboard_trace_handler('./log/'+self.log_file_name),
-            record_shapes=True,
-            profile_memory=True,
-            with_stack=True
-        )
         acc_achieved = 0
         train_start_time = time.time()
-        with prof:
-            nvtx.range_push("Training")
-            for epoch in range(n_epochs):
-                epoch_start_time = time.time()
-                self.model.train()
-                for step, batch in enumerate(self.train_dataloader):
-                    nvtx.range_push("Training step")
-                    batch = {k: v.to(self.device) for k, v in batch.items()}
-                    self.model.zero_grad()
-                    nvtx.range_push("Forward")
-                    outputs = self.model(**batch)
-                    nvtx.range_pop() # Forward
-                    loss = outputs.loss
-                    nvtx.range_push("Backward")
-                    self.accelerator.backward(loss)
-                    nvtx.range_pop() # Backward
-                    nvtx.range_push("Optimizer")
-                    self.optimizer.step()
-                    nvtx.range_pop() # Optimizer
-                    nvtx.range_pop() # Training step
-                    self.scheduler.step()
-                    self.optimizer.zero_grad()
-                    prof.step()
-                    self.get_sm_occupancy()
-                    if (step + 1) % self.n_steps_per_val == 0:
-                        val_acc = self.evaluate()
-                        self.val_logs.append({'step': step, 'accuracy': val_acc})
-                        if self.target_val_acc is not None:
-                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}, target: {self.target_val_acc:.2f}")
+        nvtx.range_push("Training")
+        for epoch in range(n_epochs):
+            epoch_start_time = time.time()
+            self.model.train()
+            for step, batch in enumerate(self.train_dataloader):
+                nvtx.range_push("Training step")
+                batch = {k: v.to(self.device) for k, v in batch.items()}
+                self.model.zero_grad()
+                nvtx.range_push("Forward")
+                outputs = self.model(**batch)
+                nvtx.range_pop() # Forward
+                loss = outputs.loss
+                nvtx.range_push("Backward")
+                self.accelerator.backward(loss)
+                nvtx.range_pop() # Backward
+                nvtx.range_push("Optimizer")
+                self.optimizer.step()
+                nvtx.range_pop() # Optimizer
+                nvtx.range_pop() # Training step
+                self.scheduler.step()
+                self.optimizer.zero_grad()
+                self.get_sm_occupancy()
+                if (step + 1) % self.n_steps_per_val == 0:
+                    val_acc = self.evaluate()
+                    self.val_logs.append({'step': step, 'accuracy': val_acc})
+                    if self.target_val_acc is not None:
+                        print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}, target: {self.target_val_acc:.2f}")
+                    else:
+                        print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}")
+                    if self.target_val_acc is not None and val_acc >= self.target_val_acc:
+                        if acc_achieved == 2: 
+                            print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
+                            self.train_time = time.time() - train_start_time
+                            # average sm occupancy
+                            self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
+                            return
                         else:
-                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}")
-                        if self.target_val_acc is not None and val_acc >= self.target_val_acc:
-                            if acc_achieved == 2: 
-                                print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
-                                self.train_time = time.time() - train_start_time
-                                # average sm occupancy
-                                self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
-                                return
-                            else:
-                                acc_achieved += 1
-                                print("Target validation accuracy reached, " + str(3-acc_achieved), " more times to stop training")
-                    self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
-                    progress_bar.update(1)
-                    break # only 1 step
-                epoch_end_time = time.time()
-                epoch_time = epoch_end_time - epoch_start_time
-                print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
+                            acc_achieved += 1
+                            print("Target validation accuracy reached, " + str(3-acc_achieved), " more times to stop training")
+                self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
+                progress_bar.update(1)
                 break # only 1 step
+            epoch_end_time = time.time()
+            epoch_time = epoch_end_time - epoch_start_time
+            print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
+            break # only 1 step
         self.train_time = time.time() - train_start_time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
