@@ -1,6 +1,6 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
 from trainer_accelerate_energy import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
@@ -178,5 +178,9 @@ if __name__ == '__main__':
 
     # Train the model for n epochs
     trainer.train(args.n_epochs)
+
+    handler = CSVHandler("./benchmark/energy/"+args.log_file_name+ '_Energy_breakdown_Results.csv')
+    handler.process(trainer.trace)
+    handler.save_data()
 
     

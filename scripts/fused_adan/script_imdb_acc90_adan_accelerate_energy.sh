@@ -1,36 +1,44 @@
 clear
 echo "-----------------------Benchmark start------------------------"
-python ./benchmark/imdb_bert_base.py \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
+         ./benchmark/imdb_bert_base_accelerate_energy.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90 \
-        --target_val_acc 0.90
+        --log_file_name multi_unfused_adan \
+        --batch_size 16 \
+        --seed 38 \
+        --module_type 0 
 echo "--------------------------adan done--------------------------"
-python ./benchmark/imdb_bert_base.py \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
+         ./benchmark/imdb_bert_base_accelerate_energy.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90 \
-        --target_val_acc 0.90 \
-        --fused_optimizer True
-echo "-----------------------fused adan done------------------------"
-python ./benchmark/imdb_bert_base.py \
-        --n_epochs 2 --warmup 50 \
-        --lr 1e-4 --wd 0.01 \
-        --optimizer adan \
-        --log_file_name imdb_adan_single_lr1e-4_wd1e-2_wm50_ep2_acc90 \
-        --target_val_acc 0.90 \
-        --foreach False
-echo "------------------------single adan done--------------------------"
-python ./benchmark/imdb_bert_base.py \
-        --n_epochs 2 --warmup 50 \
-        --lr 1e-4 --wd 0.01 \
-        --optimizer adan \
-        --log_file_name imdb_adan_single_fused_lr1e-4_wd1e-2_wm50_ep2_acc90 \
+        --log_file_name multi_fused_adan \
         --target_val_acc 0.90 \
         --fused_optimizer True \
-        --foreach False
+        --module_type 0 
+echo "-----------------------fused adan done------------------------"
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
+         ./benchmark/imdb_bert_base_accelerate_energy.py \
+        --n_epochs 2 --warmup 50 \
+        --lr 1e-4 --wd 0.01 \
+        --optimizer adan \
+        --log_file_name single_unfused \
+        --target_val_acc 0.90 \
+        --foreach False \
+        --module_type 0 
+echo "------------------------single adan done--------------------------"
+python ./benchmark/imdb_bert_base_energy.py \
+        --n_epochs 2 --warmup 50 \
+        --lr 1e-4 --wd 0.01 \
+        --optimizer adan \
+        --log_file_name single_fused \
+        --target_val_acc 0.90 \
+        --fused_optimizer True \
+        --foreach False \
+        --module_type 0 
 echo "-----------------------fused single adan done------------------------"
 # Plot the results
 # python ./benchmark/plot_loss_accuracy.py IMDB_acc90

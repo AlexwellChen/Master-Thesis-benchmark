@@ -32,6 +32,7 @@ class AcceleratorTrainer:
         self.total_energy = 0
         self.sm_occupancy = []
         self.avg_sm_occupancy = 0
+        self.trace = None
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
@@ -72,22 +73,19 @@ class AcceleratorTrainer:
         acc_achieved = 0
         train_start_time = time.time()
         with prof:
-            self.meter.start("Start Training")
+            
             for epoch in range(n_epochs):
                 epoch_start_time = time.time()
                 self.model.train()
                 for step, batch in enumerate(self.train_dataloader):
-                    self.meter.record("Dataloader")
                     batch = {k: v.to(self.device) for k, v in batch.items()}
                     self.model.zero_grad()
-                    self.meter.record("Forward")
                     outputs = self.model(**batch)
                     loss = outputs.loss
-                    self.meter.record("Backward")
                     self.accelerator.backward(loss)
-                    self.meter.record("Optimizer")
+                    self.meter.start("Start Optimizer")
                     self.optimizer.step()
-                    self.meter.record("End Optimizer")
+                    self.meter.stop()
                     self.scheduler.step()
                     self.optimizer.zero_grad()
                     prof.step()
@@ -116,11 +114,7 @@ class AcceleratorTrainer:
                 epoch_time = epoch_end_time - epoch_start_time
                 print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
                 break # only 1 step
-        self.meter.stop()
-        trace = self.meter.get_trace()
-        handler = CSVHandler("./benchmark/energy/"+"2_GPU_Distributed" + '_Energy_breakdown_Results.csv')
-        handler.process(trace)
-        handler.save_data()
+        self.trace = self.meter.get_trace()
         self.train_time = time.time() - train_start_time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
