@@ -33,11 +33,12 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --foreach False \
         --module_type 0 
 echo "------------------------single adan done--------------------------"
-python ./benchmark/imdb_bert_base_energy.py \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
+         ./benchmark/imdb_bert_base_accelerate_energy.py \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name single_fused \
+        --log_file_name single_unfused \
         --target_val_acc 0.90 \
         --fused_optimizer True \
         --foreach False \
