@@ -38,7 +38,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --n_epochs 2 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name single_unfused \
+        --log_file_name single_fused \
         --target_val_acc 0.90 \
         --fused_optimizer True \
         --foreach False \
