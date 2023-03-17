@@ -5,7 +5,6 @@ import pynvml
 import torch.cuda.nvtx as nvtx
 
 from pyJoules.energy_meter import EnergyMeter
-from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
