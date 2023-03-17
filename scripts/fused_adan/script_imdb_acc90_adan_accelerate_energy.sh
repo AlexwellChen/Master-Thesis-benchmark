@@ -6,8 +6,9 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
         --log_file_name multi_unfused_adan \
-        --batch_size 16 \
-        --seed 38 \
+        --target_val_acc 0.90 \
+        --fused_optimizer False \
+        --foreach True \
         --module_type 0 
 echo "--------------------------adan done--------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
@@ -18,6 +19,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --log_file_name multi_fused_adan \
         --target_val_acc 0.90 \
         --fused_optimizer True \
+        --foreach True \
         --module_type 0 
 echo "-----------------------fused adan done------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
@@ -27,6 +29,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --optimizer adan \
         --log_file_name single_unfused \
         --target_val_acc 0.90 \
+        --fused_optimizer False \
         --foreach False \
         --module_type 0 
 echo "------------------------single adan done--------------------------"
