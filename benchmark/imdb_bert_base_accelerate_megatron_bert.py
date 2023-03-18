@@ -31,8 +31,8 @@ def data_process(args):
     train_dataset = split_set['train']
     eval_dataset = split_set['test']
 
-    # tokenizer = BertTokenizer.from_pretrained('nvidia/megatron-bert-cased-345m')
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+    tokenizer = BertTokenizer.from_pretrained('nvidia/megatron-bert-cased-345m')
+    # tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
     train_dataset = train_dataset.map(encode, batched=True)
     test_dataset = test_dataset.map(encode, batched=True)
     eval_dataset = eval_dataset.map(encode, batched=True)
@@ -54,7 +54,8 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
     
-    model = MegatronBertForSequenceClassification.from_pretrained(directory, num_labels=2)
+    # model = MegatronBertForSequenceClassification.from_pretrained(directory, num_labels=2)
+    model = MegatronBertForSequenceClassification.from_pretrained('nvidia/megatron-bert-cased-345m', num_labels=2)
         
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
