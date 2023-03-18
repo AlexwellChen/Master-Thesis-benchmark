@@ -1,15 +1,15 @@
 clear
 echo "-----------------------Benchmark start------------------------"
-accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix_megatron_2gpu.yaml \
-         ./benchmark/imdb_bert_base_accelerate_megatron_bert.py \
+python ./benchmark/imdb_bert_base_pipe.py \
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_megatron_chunk4_2gpu_huggingface \
+        --log_file_name imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_chunk4_2gpu_huggingface \
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --num_workers 0
+        --num_workers 0 \
+        --chunks 4
 echo "-----------------------2GPU pipeline parallel done------------------------"
 # Plot the results
 # python ./benchmark/plot_loss_accuracy.py IMDB_acc90

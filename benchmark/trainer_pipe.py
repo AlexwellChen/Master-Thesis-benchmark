@@ -4,6 +4,8 @@ from tqdm import tqdm
 import pynvml
 # F.cross_entropy
 from torch.nn import functional as F
+from torch.cuda.amp import autocast as autocast
+from torch.cuda.amp import GradScaler as GradScaler
 
 class PipelineTrainer:
     def __init__(
@@ -46,6 +48,7 @@ class PipelineTrainer:
 
     #@measure_energy()
     def train(self, n_epochs):
+        scaler = GradScaler()
         self.optimizer.zero_grad()
         in_device = self.model.devices[0]
         out_device = self.model.devices[-1]
@@ -67,12 +70,15 @@ class PipelineTrainer:
                 for input, target in self.train_dataloader:
                     input = input.to(in_device)
                     target = target.to(out_device)
-
                     self.model.zero_grad()
-                    outputs = self.model(input)
-                    loss = F.cross_entropy(outputs, target)
-                    loss.backward()
-                    self.optimizer.step()
+                    
+                    with autocast():
+                        outputs = self.model(input)
+                        loss = F.cross_entropy(outputs, target)
+                    scaler.scale(loss).backward()
+                    scaler.step(self.optimizer)
+                    scaler.update()
+
                     self.scheduler.step()
                     self.optimizer.zero_grad()
                     prof.step()
