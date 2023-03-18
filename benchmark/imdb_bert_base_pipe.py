@@ -14,8 +14,6 @@ from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
-from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
-from ls_module.hf_args import ModelArguments
 
 
 def data_process(args):
