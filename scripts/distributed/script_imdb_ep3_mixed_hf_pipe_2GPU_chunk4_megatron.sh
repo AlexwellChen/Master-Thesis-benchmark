@@ -1,7 +1,7 @@
 clear
 echo "-----------------------Benchmark start------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix_megatron_2gpu.yaml \
-         ./benchmark/imdb_bert_base_accelerate_hf.py \
+         ./benchmark/imdb_bert_base_accelerate_megatron_bert.py \
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
