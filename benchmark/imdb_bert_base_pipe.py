@@ -1,22 +1,19 @@
 import torch
 import datasets
-from transformers import get_linear_schedule_with_warmup, MegatronBertForSequenceClassification, BertTokenizer, AutoTokenizer
-from trainer_accelerate import AcceleratorTrainer
-from accelerate import Accelerator
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup
+from trainer_pipe import PipelineTrainer
 import argparse
 from adan import Adan
 import transformers
-import sys
-sys.path.append('../')
-import os
+
+from torchgpipe import GPipe
+from torchgpipe.balance import balance_by_time
+
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
 from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
-from accelerate import DistributedDataParallelKwargs
-
-directory = '/databricks/driver/nvidia/megatron-bert-cased-345m'
 
 def data_process(args):
     # Define the function to encode the data
@@ -31,8 +28,7 @@ def data_process(args):
     train_dataset = split_set['train']
     eval_dataset = split_set['test']
 
-    tokenizer = BertTokenizer.from_pretrained('nvidia/megatron-bert-cased-345m')
-    # tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
     train_dataset = train_dataset.map(encode, batched=True)
     test_dataset = test_dataset.map(encode, batched=True)
     eval_dataset = eval_dataset.map(encode, batched=True)
@@ -44,19 +40,20 @@ def data_process(args):
     test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
     eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
 
-    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=6)
     test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size)
     eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
 
     return train_loader, test_loader, eval_loader
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
-    ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
-    
-    # model = MegatronBertForSequenceClassification.from_pretrained(directory, num_labels=2)
-    model = MegatronBertForSequenceClassification.from_pretrained('nvidia/megatron-bert-cased-345m', num_labels=2)
-        
+    # Load the pre-trained "bert-base-cased" model and add a linear layer on top for classification
+    model = AutoModelForSequenceClassification.from_pretrained('bert-base-cased', num_labels=2)
+    partitions = torch.cuda.device_count()
+    sample = torch.rand(128, 3, 224, 224)
+    balance = balance_by_time(partitions, model, sample)
+    model = GPipe(model, balance=balance, chunks=args.chunks)
+
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
         # betas = (0.9, 0.999) #default
@@ -89,20 +86,15 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
                                                 num_warmup_steps=args.warmup, 
                                                 num_training_steps=len(train_loader) * args.n_epochs
                                             )
-    
-    model, optimizer, train_loader, scheduler = accelerator.prepare(
-            model, optimizer, train_loader, scheduler
-        )
 
     # Instantiate the ProfilingTrainer class and pass in the required parameters
-    trainer = AcceleratorTrainer(
+    trainer = PipelineTrainer(
         model=model,
-        accelerator=accelerator,
         train_dataloader=train_loader,
         val_dataloader=eval_loader,
         test_dataloader=test_loader,
         optimizers=[optimizer, scheduler],
-        device=accelerator.device,
+        device=model.devices,
         n_steps_per_val=args.n_steps_per_val,
         target_val_acc=args.target_val_acc,
         log_file_name=args.log_file_name,
@@ -127,18 +119,19 @@ if __name__ == '__main__':
     parser.add_argument('--target_val_acc', type=str, default=None)
     # Add the name for log file
     parser.add_argument('--log_file_name', type=str, default='profiling')
-    # Whether to use fused optimizer
+    # Wether to use fused optimizer
     parser.add_argument('--fused_optimizer', type=str, default='False')
-    # Whether to use foreach
+    # Wether to use foreach
     parser.add_argument('--foreach', type=str, default='True')
     # Weight decay
     parser.add_argument('--wd', type=float, default=0.01)
     # Warmup steps
     parser.add_argument('--warmup', type=int, default=320)
-    # num_workers
-    parser.add_argument('--num_workers', type=int, default=6)
+    # Seed
     parser.add_argument('--seed', type=int, default=38)
-    parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
+    # Chunks
+    parser.add_argument('--chunks', type=int, default=1)
+
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
@@ -157,11 +150,7 @@ if __name__ == '__main__':
     trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
 
     # Init energy meter, add CPU, RAM and GPU
-    # Get GPU number
-    gpu_num = trainer.accelerator.num_processes
-    domains = []
-    for i in range(gpu_num):
-        domains.append(NvidiaGPUDomain(i))
+    domains = [NvidiaGPUDomain(0)]
     device_to_measure = DeviceFactory.create_devices(domains=domains)
     meter = EnergyMeter(device_to_measure)
 
@@ -177,7 +166,6 @@ if __name__ == '__main__':
     handler.save_data()
 
     test_acc = trainer.test()
-    
     
     # print avg sm occupancy in xx.xx% format
     print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
@@ -197,6 +185,7 @@ if __name__ == '__main__':
         f.write('\n')
         f.write("Test accuracy: ")
         f.write("{:.2f}".format(test_acc))
+
         
 
     # save loss values in ./loss_val/ folder
