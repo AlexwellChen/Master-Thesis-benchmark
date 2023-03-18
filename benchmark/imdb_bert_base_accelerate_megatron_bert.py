@@ -55,9 +55,9 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     
     # configuration = MegatronBertConfig(directory, num_labels=2)
     # The path to the config/checkpoint (see the conversion step above).
-    # directory = os.path.join(os.environ['MYDIR'], 'nvidia/megatron-bert-uncased-345m')
+    directory = os.path.join(os.environ['MYDIR'], 'nvidia/megatron-bert-uncased-345m')
     # Load the model from $MYDIR/nvidia/megatron-bert-uncased-345m.
-    model = MegatronBertModel.from_pretrained("nvidia/megatron-bert-cased-345m", num_labels=2)
+    model = MegatronBertModel.from_pretrained(directory, num_labels=2)
         
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
