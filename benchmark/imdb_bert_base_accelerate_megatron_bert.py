@@ -1,6 +1,6 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup, MegatronBertModel
 from trainer_accelerate import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
@@ -51,7 +51,7 @@ def data_process(args):
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
-    model = AutoModelForSequenceClassification.from_pretrained("nvidia/megatron-bert-cased-345m", num_labels=2)
+    model = MegatronBertModel.from_pretrained("nvidia/megatron-bert-cased-345m", num_labels=2)
         
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
