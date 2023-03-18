@@ -8,7 +8,6 @@ python ./benchmark/imdb_bert_base_pipe.py \
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --num_workers 0 \
         --chunks 4
 echo "-----------------------2GPU pipeline parallel done------------------------"
 # Plot the results
