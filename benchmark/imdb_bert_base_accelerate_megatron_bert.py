@@ -8,7 +8,7 @@ from adan import Adan
 import transformers
 import sys
 sys.path.append('../')
-
+import os
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
@@ -51,7 +51,8 @@ def data_process(args):
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
-    configuration = MegatronBertConfig(num_labels=2)
+    directory = os.path.join(os.environ['MYDIR'], 'nvidia/megatron-bert-cased-345m')
+    configuration = MegatronBertConfig(directory, num_labels=2)
     model = MegatronBertModel.from_pretrained(configuration)
         
     # Define the optimizer and learning rate scheduler
