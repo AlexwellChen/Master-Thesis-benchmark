@@ -1,6 +1,6 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
 from trainer_accelerate import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
@@ -22,6 +22,8 @@ from accelerate import DistributedDataParallelKwargs
 
 def data_process(args):
     # Define the function to encode the data
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+    
     def encode(examples):
         return tokenizer(examples['text'], truncation=True, padding='max_length')
     
@@ -33,7 +35,7 @@ def data_process(args):
     train_dataset = split_set['train']
     eval_dataset = split_set['test']
 
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+    
     train_dataset = train_dataset.map(encode, batched=True)
     test_dataset = test_dataset.map(encode, batched=True)
     eval_dataset = eval_dataset.map(encode, batched=True)
