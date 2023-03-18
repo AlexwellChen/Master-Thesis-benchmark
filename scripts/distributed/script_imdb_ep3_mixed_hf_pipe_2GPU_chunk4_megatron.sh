@@ -1,7 +1,7 @@
 clear
 echo "-----------------------Benchmark start------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix_megatron_2gpu.yaml \
-         ./benchmark/imdb_bert_base_accelerate.py \
+         ./benchmark/imdb_bert_base_accelerate_hf.py \
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
@@ -9,7 +9,6 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix_megat
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 0 \
         --num_workers 12
 echo "-----------------------2GPU pipeline parallel done------------------------"
 # Plot the results
