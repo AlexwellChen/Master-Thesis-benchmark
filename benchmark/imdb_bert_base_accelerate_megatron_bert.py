@@ -1,6 +1,6 @@
 import torch
 import datasets
-from transformers import BertTokenizer, get_linear_schedule_with_warmup, MegatronBertModel
+from transformers import get_linear_schedule_with_warmup, MegatronBertModel, AutoTokenizer
 from trainer_accelerate import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
@@ -16,6 +16,7 @@ from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
 from accelerate import DistributedDataParallelKwargs
 
+directory = '/databricks/driver/nvidia/megatron-bert-cased-345m'
 
 def data_process(args):
     # Define the function to encode the data
@@ -30,7 +31,7 @@ def data_process(args):
     train_dataset = split_set['train']
     eval_dataset = split_set['test']
 
-    tokenizer = BertTokenizer.from_pretrained("nvidia/megatron-bert-cased-345m")
+    tokenizer = AutoTokenizer.from_pretrained(directory)
     train_dataset = train_dataset.map(encode, batched=True)
     test_dataset = test_dataset.map(encode, batched=True)
     eval_dataset = eval_dataset.map(encode, batched=True)
@@ -51,7 +52,7 @@ def data_process(args):
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
-    directory = '/databricks/driver/nvidia/megatron-bert-cased-345m'
+    
     # configuration = MegatronBertConfig(directory, num_labels=2)
     model = MegatronBertModel.from_pretrained(directory, num_labels=2)
         
