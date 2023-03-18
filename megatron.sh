@@ -5,7 +5,7 @@ git clone https://github.com/huggingface/transformers.git $MYDIR/transformers
 mkdir -p $MYDIR/nvidia/megatron-bert-cased-345m
 
 wget --content-disposition https://api.ngc.nvidia.com/v2/models/nvidia/megatron_bert_345m/versions/v0.1_cased/zip 
-mv file.zip $MYDIR/nvidia/megatron-bert-cased-345m/checkpoint.zip
+mv files.zip $MYDIR/nvidia/megatron-bert-cased-345m/checkpoint.zip
 
 mkdir tmp
 cd tmp
