@@ -51,9 +51,9 @@ def data_process(args):
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
-    directory = os.path.join(os.environ['MYDIR'], 'nvidia/megatron-bert-cased-345m')
-    configuration = MegatronBertConfig(directory, num_labels=2)
-    model = MegatronBertModel.from_pretrained(configuration)
+    directory = '/databricks/driver/nvidia/megatron-bert-cased-345m'
+    # configuration = MegatronBertConfig(directory, num_labels=2)
+    model = MegatronBertModel.from_pretrained(directory, num_labels=2)
         
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
