@@ -1,6 +1,6 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, MegatronBertConfig, get_linear_schedule_with_warmup, MegatronBertModel
+from transformers import BertTokenizer, get_linear_schedule_with_warmup, MegatronBertModel
 from trainer_accelerate import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
@@ -30,7 +30,7 @@ def data_process(args):
     train_dataset = split_set['train']
     eval_dataset = split_set['test']
 
-    tokenizer = AutoTokenizer.from_pretrained("nvidia/megatron-bert-cased-345m")
+    tokenizer = BertTokenizer.from_pretrained("nvidia/megatron-bert-cased-345m")
     train_dataset = train_dataset.map(encode, batched=True)
     test_dataset = test_dataset.map(encode, batched=True)
     eval_dataset = eval_dataset.map(encode, batched=True)
