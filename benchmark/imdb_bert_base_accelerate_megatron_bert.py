@@ -1,6 +1,6 @@
 import torch
 import datasets
-from transformers import get_linear_schedule_with_warmup, MegatronBertModel, AutoTokenizer, MegatronBertConfig
+from transformers import get_linear_schedule_with_warmup, MegatronBertForSequenceClassification, AutoTokenizer, MegatronBertConfig
 from trainer_accelerate import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
@@ -53,11 +53,8 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
     
-    # configuration = MegatronBertConfig(directory, num_labels=2)
-    # The path to the config/checkpoint (see the conversion step above).
-    directory = os.path.join(os.environ['MYDIR'], 'nvidia/megatron-bert-uncased-345m')
-    # Load the model from $MYDIR/nvidia/megatron-bert-uncased-345m.
-    model = MegatronBertModel.from_pretrained(directory, num_labels=2)
+    configuration = MegatronBertConfig(directory, num_labels=2)
+    model = MegatronBertForSequenceClassification.from_pretrained(configuration)
         
     # Define the optimizer and learning rate scheduler
     if args.optimizer == 'adam':
