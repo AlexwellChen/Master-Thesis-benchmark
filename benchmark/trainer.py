@@ -2,9 +2,7 @@ import time
 import torch
 from tqdm import tqdm
 import pynvml
-from pyJoules.energy_meter import measure_energy
-from pyJoules.device.rapl_device import RaplPackageDomain
-import torch.cuda.nvtx as nvtx
+import deepspeed
 
 class ProfilingTrainer:
     def __init__(
