@@ -1,0 +1,8 @@
+Name,w1,w2,w3,w4
+balance,0.3,0.3,0.3,0.1
+time_cost,0.5,0.3,0.1,0.1
+time_energy,0.5,0.1,0.3,0.1
+cost_time,0.3,0.5,0.1,0.1
+cost_energy,0.1,0.5,0.3,0.1
+energy_time,0.3,0.1,0.5,0.1
+energy_cost,0.1,0.3,0.5,0.1

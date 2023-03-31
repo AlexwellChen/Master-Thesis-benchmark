@@ -17,33 +17,33 @@ evaluate = Layer('evaluate')
 fake = Layer('fake')
 
 # 4 GPU
-# evaluate.D_communicate = 4.698
-# ls_encoder.D_communicate = 12.2
-# embedding.D_communicate = 27.477
-# fake.D_communicate = 0
+evaluate.D_communicate = 4.698
+ls_encoder.D_communicate = 10.94
+embedding.D_communicate = 27.477
+fake.D_communicate = 0
 
-# evaluate.D_compute = 0.483
-# ls_encoder.D_compute = 6.94
-# embedding.D_compute = 2.22
-# fake.D_compute = 0
-# overhead = 0.09
+evaluate.D_compute = 0.483
+ls_encoder.D_compute = 6.94
+embedding.D_compute = 2.22
+fake.D_compute = 0
+overhead = 0.09
 
 # 2 GPU
 '''
 embedding & 1.8 & 22.45 \\
-ls\_encoder & 7.4 & 9.0 \\
+ls\_encoder & 7.4 & 8.7 \\
 evaluate & 0.513 & 1.773 \\
 '''
-evaluate.D_communicate = 1.773
-ls_encoder.D_communicate = 9.0
-embedding.D_communicate = 22.45
-fake.D_communicate = 0
+# evaluate.D_communicate = 1.773
+# ls_encoder.D_communicate = 8.7
+# embedding.D_communicate = 22.45
+# fake.D_communicate = 0
 
-evaluate.D_compute = 0.513
-ls_encoder.D_compute = 7.4
-embedding.D_compute = 1.8
-fake.D_compute = 0
-overhead = 0.09
+# evaluate.D_compute = 0.513
+# ls_encoder.D_compute = 7.4
+# embedding.D_compute = 1.8
+# fake.D_compute = 0
+# overhead = 0.09
 
 layer_list = []
 # 1 evaluate + 12 * encoder + 1 embedding + 1 fake
