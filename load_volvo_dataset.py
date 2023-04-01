@@ -2,11 +2,8 @@
 import glob
 import pandas as pd
 import numpy as np
-import torch
-from transformers import AutoConfig, AutoModelForSequenceClassification, TrainingArguments, Trainer, logging, AutoTokenizer, pipeline
-
 from datasets import Features, Value, ClassLabel, Dataset
-from sklearn.metrics import classification_report
+
 
 # Mounted our blob
 
@@ -76,9 +73,9 @@ n_labels = len(class_names)
 # Passing these as arguments to AutoConfig allows the classifier to return results using the custom labels.
 label2id = {class_names[i]:i for i in range(len(class_names))}
 id2label = {i:class_names[i] for i in range(len(class_names))}
-config = AutoConfig.from_pretrained("bert-base-cased", label2id=label2id, id2label=id2label)
+# config = AutoConfig.from_pretrained("bert-base-cased", label2id=label2id, id2label=id2label)
 
-model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased",  config=config).to("cuda")
+# model = AutoModelForSequenceClassification.from_pretrained("bert-base-cased",  config=config).to("cuda")
 
 # We will convert the pandas DataFrame to Huggingface Dataset.
 # Define datatypes for the Dataset that we will create. (Here the word features is not used for input variables only)
