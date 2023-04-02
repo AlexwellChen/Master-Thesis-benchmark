@@ -18,11 +18,12 @@ def load_volvo_dataset_config(args):
   )
 
   glob.glob('/dbfs/mnt/customs-nlp/*')
-
-  data = pd.read_csv("/dbfs/mnt/customs-nlp/Classification-Final-Table-2022-06-14.csv",
+  try:
+    data = pd.read_csv("/dbfs/mnt/customs-nlp/Classification-Final-Table-2022-06-14.csv",
                       header=5, dtype={'a':str,'b':str,'c':str},
                       low_memory=False, encoding_errors='backslashreplace')
-
+  except:
+     print("Error reading file")
   # Remove data without valid Part Description2
   data.dropna(axis=0,subset=['Part Description2'],inplace=True)
 
@@ -101,13 +102,15 @@ def load_volvo_dataset_config(args):
   train_dataset = split_set['train']
   eval_dataset = split_set['test']
 
-  
-  train_dataset = train_dataset.map(encode, batched=True)
-  test_dataset = test_dataset.map(encode, batched=True)
-  eval_dataset = eval_dataset.map(encode, batched=True)
-  train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
-  test_dataset = test_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
-  eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+  try:
+    train_dataset = train_dataset.map(encode, batched=True)
+    test_dataset = test_dataset.map(encode, batched=True)
+    eval_dataset = eval_dataset.map(encode, batched=True)
+    train_dataset = train_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    test_dataset = test_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+    eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
+  except:
+     print("endcode error")
   
   train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
   test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
