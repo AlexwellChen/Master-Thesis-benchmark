@@ -10,12 +10,10 @@ import torch
 def load_volvo_dataset_config(args):
   try:
     # read data with used column
-    data_conf = pd.read_csv("../volvo_data.csv",
-                      header=5, dtype={'a':str,'b':str,'c':str},
-                      low_memory=False, encoding_errors='backslashreplace')
+    data_conf = pd.read_csv("../volvo_data.csv")
     print(data_conf.keys())
   except:
-     print("Error reading file")
+    print("Error reading file")
 
   # We will build a model that predicts up to a given hierarchical level 
   trf_level = 10
