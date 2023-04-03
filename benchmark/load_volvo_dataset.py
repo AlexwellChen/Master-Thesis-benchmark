@@ -13,7 +13,7 @@ def load_volvo_dataset_config(args):
     data_conf = pd.read_csv("../volvo_data.csv",
                       header=5, dtype={'a':str,'b':str,'c':str},
                       low_memory=False, encoding_errors='backslashreplace')
-    
+    print(data_conf.head(5))
   except:
      print("Error reading file")
 
