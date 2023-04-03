@@ -27,6 +27,7 @@ class AcceleratorTrainer:
         self.total_energy = 0
         self.sm_occupancy = []
         self.avg_sm_occupancy = 0
+        self.val_time = 0
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
@@ -75,7 +76,10 @@ class AcceleratorTrainer:
                     prof.step()
                     self.get_sm_occupancy()
                     if (step + 1) % self.n_steps_per_val == 0:
+                        val_time_start = time.time()
                         val_acc = self.evaluate()
+                        val_time_end = time.time()
+                        self.val_time += val_time_end - val_time_start
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
                         if self.target_val_acc is not None:
                             print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}, target: {self.target_val_acc:.2f}")
@@ -96,7 +100,7 @@ class AcceleratorTrainer:
                 epoch_end_time = time.time()
                 epoch_time = epoch_end_time - epoch_start_time
                 print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
-        self.train_time = time.time() - train_start_time
+        self.train_time = time.time() - train_start_time - self.val_time # subtract validation time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
         

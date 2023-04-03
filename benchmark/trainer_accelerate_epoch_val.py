@@ -27,6 +27,7 @@ class AcceleratorTrainer:
         self.total_energy = 0
         self.sm_occupancy = []
         self.avg_sm_occupancy = 0
+        self.val_time = 0
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
@@ -76,14 +77,17 @@ class AcceleratorTrainer:
                     self.get_sm_occupancy()
                     self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
                     progress_bar.update(1)
+                val_time_start = time.time()
                 val_acc = self.evaluate()
+                val_time_end = time.time()
+                self.val_time += val_time_end - val_time_start
                 self.model.train()
                 self.val_logs.append({'Epoch': epoch+1, 'accuracy': val_acc})
                 print("Epoch: {}, Validation Accuracy: {}".format(epoch+1, val_acc))
                 epoch_end_time = time.time()
                 epoch_time = epoch_end_time - epoch_start_time
                 print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
-        self.train_time = time.time() - train_start_time
+        self.train_time = time.time() - train_start_time - self.val_time # subtract validation time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
         
