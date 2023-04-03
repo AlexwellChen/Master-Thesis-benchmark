@@ -16,7 +16,6 @@ def load_volvo_dataset_config(args):
     
   except:
      print("Error reading file")
-     
 
   # We will build a model that predicts up to a given hierarchical level 
   trf_level = 10
