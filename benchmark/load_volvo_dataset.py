@@ -8,31 +8,15 @@ import torch
 
 
 def load_volvo_dataset_config(args):
-  # Mounted our blob
-  newContainerName = "customs-nlp"
-
   try:
-    data = pd.read_csv("/volvo_dataset.csv",
+    # read data with used column
+    data_conf = pd.read_csv("/volvo_dataset.csv",
                       header=5, dtype={'a':str,'b':str,'c':str},
                       low_memory=False, encoding_errors='backslashreplace')
+    
   except:
      print("Error reading file")
-  # Remove data without valid Part Description2
-  data.dropna(axis=0,subset=['Part Description2'],inplace=True)
-
-  # Choose classification type to be used. Can be:
-  # 'EXPORT'
-  # 'GENERAL'
-  CT = 'GENERAL'
-
-  # Filter based on classification type
-  data = data.loc[data['Classification Type']==CT]
-
-  # We will use only data with high confidence level for training
-  data_conf = data.loc[data['CFL']==1]
-
-  # Keep only required columns
-  data_conf = data_conf[['Part Number','Part Description2','Tariff Number']]
+     
 
   # We will build a model that predicts up to a given hierarchical level 
   trf_level = 10
