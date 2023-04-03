@@ -77,6 +77,7 @@ class AcceleratorTrainer:
                     self.training_logs.append({'epoch': epoch, 'step': step, 'loss': loss.item()})
                     progress_bar.update(1)
                 val_acc = self.evaluate()
+                self.model.train()
                 self.val_logs.append({'Epoch': epoch+1, 'accuracy': val_acc})
                 print("Epoch: {}, Validation Accuracy: {}".format(epoch+1, val_acc))
                 epoch_end_time = time.time()

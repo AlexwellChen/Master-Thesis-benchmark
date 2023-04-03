@@ -74,7 +74,7 @@ class AcceleratorTrainer:
                     self.optimizer.zero_grad()
                     prof.step()
                     self.get_sm_occupancy()
-                    if self.n_steps_per_val is not None and (step + 1) % self.n_steps_per_val == 0:
+                    if (step + 1) % self.n_steps_per_val == 0:
                         val_acc = self.evaluate()
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
                         if self.target_val_acc is not None:
