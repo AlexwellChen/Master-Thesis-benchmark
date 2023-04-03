@@ -10,7 +10,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --batch_size 16 \
         --seed 38 \
         --module_type 1 \
-        --n_steps_per_val 500
+        --n_steps_per_val 50
 echo "-----------------------LightSeq Adan done------------------------"
 
 # adamw:
