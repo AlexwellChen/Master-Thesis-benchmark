@@ -61,13 +61,13 @@ def load_volvo_dataset_config(args):
 
   # Convert to Dataset and perform train/test split.
   # preserve_index=False is needed to get rid of non-standard index in pandas DF; not using this option leads to errors. 
-  ds = Dataset.from_pandas(data_unique_red, features=features,preserve_index=False, split=['train','test'])
+  train_dataset, test_dataset = Dataset.from_pandas(data_unique_red, features=features,preserve_index=False, split=['train','test'])
   tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
 
   def encode(examples):
       return tokenizer(examples['Part Description2'], truncation=True, padding='max_length')
   # Load the volvo dataset and create data loaders for training, validation and test
-  train_dataset, test_dataset = ds['train'], ds['test']
+  # train_dataset, test_dataset = ds['train'], ds['test']
   # reduce test dataset size to original size*0.2
   # test_dataset = test_dataset.select(range(int(len(test_dataset)*0.2)))
   split_set = train_dataset.train_test_split(test_size=0.1, seed=38)
