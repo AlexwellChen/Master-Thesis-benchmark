@@ -10,7 +10,7 @@ import torch
 def load_volvo_dataset_config(args):
   try:
     # read data with used column
-    data_conf = pd.read_csv("../volvo_data.csv")
+    data_conf = pd.read_csv("./volvo_data.csv")
     print(data_conf.keys())
   except:
     print("Error reading file")
