@@ -9,7 +9,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 \
+        --module_type 1
 echo "-----------------------LightSeq Adan done------------------------"
 
 # adamw:
