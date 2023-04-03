@@ -69,7 +69,7 @@ def load_volvo_dataset_config(args):
   # Load the volvo dataset and create data loaders for training, validation and test
   train_dataset, test_dataset = ds.train_test_split(test_size=0.2, shuffle=True)
   # reduce test dataset size to original size*0.2
-  test_dataset = test_dataset.select(range(int(len(test_dataset)*0.2)))
+  # test_dataset = test_dataset.select(range(int(len(test_dataset)*0.2)))
   split_set = train_dataset.train_test_split(test_size=0.1, seed=38)
   train_dataset = split_set['train']
   eval_dataset = split_set['test']
