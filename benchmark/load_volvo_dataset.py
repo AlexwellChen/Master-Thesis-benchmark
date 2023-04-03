@@ -10,7 +10,7 @@ import torch
 def load_volvo_dataset_config(args):
   try:
     # read data with used column
-    data_conf = pd.read_csv("/volvo_data.csv",
+    data_conf = pd.read_csv("../volvo_data.csv",
                       header=5, dtype={'a':str,'b':str,'c':str},
                       low_memory=False, encoding_errors='backslashreplace')
     
@@ -25,8 +25,6 @@ def load_volvo_dataset_config(args):
   # Minimum number of samples per label to accept for inclusion of label in the model
   n_samples_min=5
   # String used to identify export files
-  export_string=str(trf_level)+"_"+CT+"-unique-"+str(n_samples_min)+"samples"
-
   # Group by 'Part Description2' in order to check if each group corresponds to unique tarrif number up to level trf_level
   grouped_conf = data_conf.groupby(by='Part Description2')
   tmp=grouped_conf.apply(lambda x: x[trf_label].unique().shape[0]==1)
