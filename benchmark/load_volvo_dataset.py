@@ -11,15 +11,8 @@ def load_volvo_dataset_config(args):
   # Mounted our blob
   newContainerName = "customs-nlp"
 
-  dbutils.fs.mount(
-    source = "wasbs://" + newContainerName + "@vgadlscodevsa01.blob.core.windows.net",
-    mount_point = "/mnt/" + newContainerName,
-    extra_configs = {"fs.azure.account.key.vgadlscodevsa01.blob.core.windows.net":"zvmC1ke2o+GmccfWoMi5IBYNuZ80OdE5zUQ7NKo2jxAcqCu/wl0gwRiDYOiT/cA7AF5GgJJ9OtiEy/Bvz3M+hQ=="}
-  )
-
-  glob.glob('/dbfs/mnt/customs-nlp/*')
   try:
-    data = pd.read_csv("/dbfs/mnt/customs-nlp/Classification-Final-Table-2022-06-14.csv",
+    data = pd.read_csv("/volvo_dataset.csv",
                       header=5, dtype={'a':str,'b':str,'c':str},
                       low_memory=False, encoding_errors='backslashreplace')
   except:
