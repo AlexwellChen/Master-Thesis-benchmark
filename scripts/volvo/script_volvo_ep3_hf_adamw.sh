@@ -1,7 +1,7 @@
 clear
 echo "-----------------------Benchmark start------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
-         ./benchmark/volvo_bert_base_accelerate_epoch_val.py \
+         ./benchmark/volvo_bert_base_accelerate.py \
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adamw \
