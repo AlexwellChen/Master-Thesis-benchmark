@@ -21,7 +21,7 @@ class TimeCallback(TrainerCallback):
     def __init__(self):
         self.start_time = None
         self.end_time = None
-        self.training_time = None
+        self.training_time = 0.0
 
     def on_epoch_begin(self, args, state, control, **kwargs):
         self.start_time = time.time()
