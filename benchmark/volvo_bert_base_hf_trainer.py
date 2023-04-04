@@ -17,6 +17,15 @@ from pyJoules.device.nvidia_device import NvidiaGPUDomain
 from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
 from ls_module.hf_args import ModelArguments
 
+from datasets import load_metric
+
+metric = load_metric("accuracy")
+
+def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    predictions = torch.argmax(logits, axis=-1)
+    return metric.compute(predictions=predictions, references=labels)
+
 class TimeCallback(TrainerCallback):
     def __init__(self):
         self.start_time = None
@@ -106,7 +115,8 @@ def model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config):
         train_dataset=train_dataset,
         eval_dataset=eval_dataset,
         optimizers=[optimizer, scheduler],
-        callbacks=[time_callback]
+        callbacks=[time_callback],
+        compute_metrics=compute_metrics,
     )
     return trainer
 
