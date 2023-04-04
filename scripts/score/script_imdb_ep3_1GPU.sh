@@ -1,37 +1,37 @@
 clear
-echo "-----------------------IMDb_ep3_FP32 start------------------------"
-accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
-         ./benchmark/imdb_bert_base_accelerate_epoch_val.py \
-        --n_epochs 3 --warmup 50 \
-        --lr 1e-4 --wd 0.01 \
-        --optimizer adan \
-        --log_file_name IMDb_ep3_FP32 \
-        --fused_optimizer True \
-        --batch_size 16 \
-        --seed 38 \
-        --module_type 0
-echo "-----------------------IMDb_ep3_FP16 start------------------------"
-accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
-         ./benchmark/imdb_bert_base_accelerate_epoch_val.py \
-        --n_epochs 3 --warmup 50 \
-        --lr 1e-4 --wd 0.01 \
-        --optimizer adan \
-        --log_file_name IMDb_ep3_FP16 \
-        --fused_optimizer True \
-        --batch_size 16 \
-        --seed 38 \
-        --module_type 0
-echo "-----------------------IMDb_ls_ep3_FP16 start------------------------"
-accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
-         ./benchmark/imdb_bert_base_accelerate_epoch_val.py \
-        --n_epochs 3 --warmup 50 \
-        --lr 1e-4 --wd 0.01 \
-        --optimizer adan \
-        --log_file_name IMDb_ls_ep3_FP16 \
-        --fused_optimizer True \
-        --batch_size 16 \
-        --seed 38 \
-        --module_type 1 
+# echo "-----------------------IMDb_ep3_FP32 start------------------------"
+# accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
+#          ./benchmark/imdb_bert_base_accelerate_epoch_val.py \
+#         --n_epochs 3 --warmup 50 \
+#         --lr 1e-4 --wd 0.01 \
+#         --optimizer adan \
+#         --log_file_name IMDb_ep3_FP32 \
+#         --fused_optimizer True \
+#         --batch_size 16 \
+#         --seed 38 \
+#         --module_type 0
+# echo "-----------------------IMDb_ep3_FP16 start------------------------"
+# accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
+#          ./benchmark/imdb_bert_base_accelerate_epoch_val.py \
+#         --n_epochs 3 --warmup 50 \
+#         --lr 1e-4 --wd 0.01 \
+#         --optimizer adan \
+#         --log_file_name IMDb_ep3_FP16 \
+#         --fused_optimizer True \
+#         --batch_size 16 \
+#         --seed 38 \
+#         --module_type 0
+# echo "-----------------------IMDb_ls_ep3_FP16 start------------------------"
+# accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
+#          ./benchmark/imdb_bert_base_accelerate_epoch_val.py \
+#         --n_epochs 3 --warmup 50 \
+#         --lr 1e-4 --wd 0.01 \
+#         --optimizer adan \
+#         --log_file_name IMDb_ls_ep3_FP16 \
+#         --fused_optimizer True \
+#         --batch_size 16 \
+#         --seed 38 \
+#         --module_type 1 
 echo "-----------------------adamw start------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/volvo_bert_base_accelerate.py \
