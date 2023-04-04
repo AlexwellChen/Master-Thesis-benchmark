@@ -133,7 +133,10 @@ if __name__ == '__main__':
         args.target_val_acc = float(args.target_val_acc)
         print('target_val_acc: ', args.target_val_acc)
 
-    train_loader, test_loader, eval_loader, config = load_volvo_dataset_config(args)
+    train_dataset, test_dataset, eval_dataset, config = load_volvo_dataset_config(args)
+    train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
+    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size)
+    eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
     trainer = model_and_trainer(train_loader, test_loader, eval_loader, args, config)
 
     # Init energy meter, add CPU, RAM and GPU

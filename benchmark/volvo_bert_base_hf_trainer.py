@@ -32,7 +32,7 @@ class TimeCallback:
         self.training_time += epoch_time
         print(f"Epoch took {epoch_time:.2f} seconds")
 
-def model_and_trainer(train_loader, test_loader, eval_loader, args, config):
+def model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config):
     
     # accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
     train_args = TrainingArguments( output_dir='benchmark/lightseq_output', 
@@ -93,8 +93,8 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args, config):
     trainer = Trainer(
         model=model,
         args=train_args,
-        train_dataset=train_loader,
-        eval_dataset=eval_loader,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
         optimizers=[optimizer, scheduler],
         callbacks=[time_callback]
     )
@@ -143,8 +143,8 @@ if __name__ == '__main__':
         args.target_val_acc = float(args.target_val_acc)
         print('target_val_acc: ', args.target_val_acc)
 
-    train_loader, test_loader, eval_loader, config = load_volvo_dataset_config(args)
-    trainer = model_and_trainer(train_loader, test_loader, eval_loader, args, config)
+    train_dataset, test_dataset, eval_dataset, config = load_volvo_dataset_config(args)
+    trainer = model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config)
 
     # Init energy meter, add CPU, RAM and GPU
     # Get GPU number
@@ -166,7 +166,7 @@ if __name__ == '__main__':
     handler.process(trace)
     handler.save_data()
 
-    test_results = trainer.evaluate(test_loader)
+    test_results = trainer.evaluate(test_dataset)
 
     # print total energy consumption in xx.xx kJ format
     # print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")

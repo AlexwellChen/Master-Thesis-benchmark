@@ -89,8 +89,4 @@ def load_volvo_dataset_config(args):
   test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
   eval_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
 
-  train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
-  test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size)
-  eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
-
-  return train_loader, test_loader, eval_loader, config
+  return train_dataset, test_dataset, eval_dataset, config
