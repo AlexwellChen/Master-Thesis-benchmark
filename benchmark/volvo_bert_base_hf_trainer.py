@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
     # Train the model for n epochs
     meter.start()
-    trainer.train(args.n_epochs)
+    trainer.train()
     meter.stop()
 
     # Save energy trace
