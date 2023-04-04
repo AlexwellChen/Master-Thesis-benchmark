@@ -66,7 +66,8 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args, config):
 
     scheduler = get_linear_schedule_with_warmup(optimizer, 
                                                 num_warmup_steps=args.warmup, 
-                                                num_training_steps=len(train_loader) * args.n_epochs
+                                                # num_training_steps=len(train_loader) * args.n_epochs
+                                                num_training_steps=60000
                                             )
     
     model, optimizer, train_loader, scheduler = accelerator.prepare(
