@@ -93,8 +93,8 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args, config):
     trainer = Trainer(
         model=model,
         args=train_args,
-        train_dataloader=train_loader,
-        eval_dataloader=eval_loader,
+        train_dataset=train_loader,
+        eval_dataset=eval_loader,
         optimizers=[optimizer, scheduler],
         callbacks=[time_callback]
     )
