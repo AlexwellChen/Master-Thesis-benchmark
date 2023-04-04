@@ -27,7 +27,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --n_epochs 3 --warmup 2000 \
         --lr 5e-5 --wd 0.01 \
         --optimizer adamw \
-        --log_file_name volvo_adamw_unfused_lr5e-5_wd1e-2_wm2000_ep3_unmixed_hf \
+        --log_file_name volvo_adamw_unfused_lr5e-5_wd1e-2_wm2000_ep3_unmixed_ls \
         --fused_optimizer False \
         --batch_size 16 \
         --seed 38 \
@@ -49,7 +49,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --n_epochs 3 --warmup 2000 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name volvo_adan_fused_lr1e-4_wd1e-2_wm2000_ep3_unmix_hf \
+        --log_file_name volvo_adan_fused_lr1e-4_wd1e-2_wm2000_ep3_unmix_ls \
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
