@@ -1,6 +1,6 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup, TrainingArguments, Trainer, AutoConfig
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup, TrainingArguments, Trainer, TrainerCallback
 import argparse
 from adan import Adan
 import transformers
@@ -17,7 +17,7 @@ from pyJoules.device.nvidia_device import NvidiaGPUDomain
 from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
 from ls_module.hf_args import ModelArguments
 
-class TimeCallback:
+class TimeCallback(TrainerCallback):
     def __init__(self):
         self.start_time = None
         self.end_time = None
