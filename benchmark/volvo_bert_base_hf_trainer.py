@@ -24,6 +24,7 @@ metric = load_metric("accuracy")
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     predictions = torch.argmax(logits, axis=-1)
+    labels = torch.tensor(labels) # convert labels to a tensor
     return metric.compute(predictions=predictions, references=labels)
 
 class TimeCallback(TrainerCallback):
