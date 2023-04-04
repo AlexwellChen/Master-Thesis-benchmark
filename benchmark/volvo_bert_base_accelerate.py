@@ -44,7 +44,7 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args, config):
         else:
             optimizer = torch.optim.Adam(model.parameters(), lr=args.lr, weight_decay=args.wd, foreach=False, eps=1e-8)
     elif args.optimizer == 'adan':
-        betas = (0.98, 0.92, 0.99)
+        betas = (0.98, 0.92, 0.9)
         if args.fused_optimizer and args.foreach:
             optimizer = Adan(params=model.parameters(), lr=args.lr, weight_decay=args.wd, fused=True, foreach=True, betas=betas, eps=1e-8)
         elif args.fused_optimizer and not args.foreach:
