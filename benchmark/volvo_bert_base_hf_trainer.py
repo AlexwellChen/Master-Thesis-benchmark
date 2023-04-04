@@ -47,7 +47,7 @@ def model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config):
                                     num_train_epochs=args.n_epochs, 
                                     fp16=args.fp16,
                                     per_device_train_batch_size=args.batch_size,
-                                    per_device_eval_batch_size=args.batch_size*4,
+                                    per_device_eval_batch_size=args.batch_size,
                                     metric_for_best_model='accuracy',
                                     evaluation_strategy='steps',
                                     eval_steps=args.n_steps_per_val,
