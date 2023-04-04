@@ -23,10 +23,10 @@ class TimeCallback(TrainerCallback):
         self.end_time = None
         self.training_time = None
 
-    def on_epoch_begin(self, trainer, **kwargs):
+    def on_epoch_begin(self, args, state, control, **kwargs):
         self.start_time = time.time()
 
-    def on_epoch_end(self, trainer, **kwargs):
+    def on_epoch_end(self, args, state, control, **kwargs):
         self.end_time = time.time()
         epoch_time = self.end_time - self.start_time
         self.training_time += epoch_time
