@@ -22,6 +22,7 @@ class TimeCallback(TrainerCallback):
         self.start_time = None
         self.end_time = None
         self.training_time = 0.0
+        self.eval_time = 0.0
 
     def on_epoch_begin(self, args, state, control, **kwargs):
         self.start_time = time.time()
@@ -31,6 +32,13 @@ class TimeCallback(TrainerCallback):
         epoch_time = self.end_time - self.start_time
         self.training_time += epoch_time
         print(f"Epoch took {epoch_time:.2f} seconds")
+    
+    def on_evaluate_begin(self, args, state, control, **kwargs):
+        self.start_time = time.time()
+    
+    def on_evaluate_end(self, args, state, control, **kwargs):
+        self.end_time = time.time()
+        self.eval_time += self.end_time - self.start_time
 
 def model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config):
     
@@ -41,6 +49,8 @@ def model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config):
                                     per_device_train_batch_size=args.batch_size,
                                     per_device_eval_batch_size=args.batch_size*4,
                                     metric_for_best_model='accuracy',
+                                    evaluation_strategy='steps',
+                                    eval_steps=args.n_steps_per_val,
                                    )
 
     model_args = ModelArguments(model_name_or_path='bert-base-cased')
@@ -171,12 +181,12 @@ if __name__ == '__main__':
     # print total energy consumption in xx.xx kJ format
     # print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
     # print total time in xx.xx s format
-    print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
+    print("Total time: ", "{:.2f}".format(trainer.training_time - trainer.eval_time), "s")
     print("Test res: ", test_results)
     # write avg sm occupancy, time in ./benchmark/metrics/log_file_name.txt
     with open('./benchmark/metrics/'+args.log_file_name+'.txt', 'w') as f:
         f.write("Total time: ")
-        f.write("{:.2f}".format(trainer.train_time))
+        f.write("{:.2f}".format(trainer.training_time - trainer.eval_time))
         f.write('\n')
         f.write("Test res: ")
         f.write("{:.2f}".format(test_results))
