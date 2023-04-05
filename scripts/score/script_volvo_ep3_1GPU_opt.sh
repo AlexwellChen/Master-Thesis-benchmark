@@ -2,10 +2,10 @@ clear
 echo "-----------------------LightSeq Adan FP16 start------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
          ./benchmark/volvo_bert_base_accelerate_epoch_val.py \
-        --n_epochs 3 --warmup 3000 \
-        --lr 1e-4 --wd 0.01 \
+        --n_epochs 3 --warmup 2000 \
+        --lr 7e-5 --wd 0.01 \
         --optimizer adan \
-        --log_file_name volvo_adan_fused_lr1e-4_wd1e-2_wm2000_ep3_FP16_ls \
+        --log_file_name volvo_adan_fused_lr7e-5_wd1e-2_wm2000_ep3_FP16_ls \
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
