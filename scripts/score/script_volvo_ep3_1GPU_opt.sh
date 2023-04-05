@@ -1,5 +1,5 @@
 clear
-echo "-----------------------LightSeq Adan FP32 start------------------------"
+echo "-----------------------LightSeq Adan FP16 start------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
          ./benchmark/volvo_bert_base_accelerate.py \
         --n_epochs 3 --warmup 500 \
