@@ -1,14 +1,13 @@
 import torch
 import datasets
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
-from trainer_accelerate import AcceleratorTrainer
-from accelerate import Accelerator
+from transformers import AutoTokenizer, get_linear_schedule_with_warmup, TrainingArguments, Trainer, TrainerCallback
 import argparse
 from adan import Adan
 import transformers
 from load_volvo_dataset import load_volvo_dataset_config
 import sys
 sys.path.append('../')
+import time
 
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
@@ -18,14 +17,19 @@ from pyJoules.device.nvidia_device import NvidiaGPUDomain
 from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
 from ls_module.hf_args import ModelArguments
 
-from accelerate import DistributedDataParallelKwargs
+def model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config):
+    
+    # accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
+    train_args = TrainingArguments( output_dir='benchmark/lightseq_output', 
+                                    num_train_epochs=args.n_epochs, 
+                                    fp16=args.fp16,
+                                    per_device_train_batch_size=args.batch_size,
+                                    per_device_eval_batch_size=args.batch_size,
+                                    metric_for_best_model='accuracy',
+                                    evaluation_strategy='steps',
+                                    eval_steps=args.n_steps_per_val,
+                                   )
 
-def model_and_trainer(train_loader, test_loader, eval_loader, args, config):
-    ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
-    train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
-    train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
-    train_args.local_rank = accelerator.process_index
     model_args = ModelArguments(model_name_or_path='bert-base-cased')
     model_args.module_type = args.module_type
     # print(config)
@@ -66,30 +70,10 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args, config):
 
     scheduler = get_linear_schedule_with_warmup(optimizer, 
                                                 num_warmup_steps=args.warmup, 
-                                                # num_training_steps=len(train_loader) * args.n_epochs
-                                                num_training_steps=60000
+                                                num_training_steps=len(train_dataset) * args.n_epochs
                                             )
+    return model, optimizer, scheduler
     
-    model, optimizer, train_loader, scheduler = accelerator.prepare(
-            model, optimizer, train_loader, scheduler
-        )
-
-    # Instantiate the ProfilingTrainer class and pass in the required parameters
-    trainer = AcceleratorTrainer(
-        model=model,
-        accelerator=accelerator,
-        train_dataloader=train_loader,
-        val_dataloader=eval_loader,
-        test_dataloader=test_loader,
-        optimizers=[optimizer, scheduler],
-        device=accelerator.device,
-        n_steps_per_val=args.n_steps_per_val,
-        target_val_acc=args.target_val_acc,
-        log_file_name=args.log_file_name,
-        seed=args.seed
-    )
-
-    return trainer
 
 if __name__ == '__main__':
     # Parse the command line arguments
@@ -119,6 +103,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', type=int, default=6)
     parser.add_argument('--seed', type=int, default=38)
     parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
+    parser.add_argument('--fp16', type=bool, default=False)
+    parser.add_argument('--test_stpes', type=int, default=100)
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
@@ -135,66 +121,45 @@ if __name__ == '__main__':
 
     train_dataset, test_dataset, eval_dataset, config = load_volvo_dataset_config(args)
     train_loader = torch.utils.data.DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers)
-    test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=args.batch_size)
-    eval_loader = torch.utils.data.DataLoader(eval_dataset, batch_size=args.batch_size)
-    trainer = model_and_trainer(train_loader, test_loader, eval_loader, args, config)
-
-    # Init energy meter, add CPU, RAM and GPU
-    # Get GPU number
-    gpu_num = trainer.accelerator.num_processes
-    domains = []
-    for i in range(gpu_num):
-        domains.append(NvidiaGPUDomain(i))
-    device_to_measure = DeviceFactory.create_devices(domains=domains)
-    meter = EnergyMeter(device_to_measure)
-
-    # Train the model for n epochs
-    meter.start()
-    trainer.train(args.n_epochs)
-    meter.stop()
-
-    # Save energy trace
-    trace = meter.get_trace()
-    handler = CSVHandler("./benchmark/energy/"+args.log_file_name + '_Energy_Results.csv')
-    handler.process(trace)
-    handler.save_data()
-
-    test_acc = trainer.test()
     
+    args.module_type = 0 # huging face
+    loss_hf = []
+    model, optimizer, scheduler = model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config)
+    model.to("cuda")
+    optimizer.zero_grad()
+    model.train()
+    for step, batch in enumerate(train_loader):
+        batch = {k: v.to("cuda") for k, v in batch.items()}
+        model.zero_grad()
+        outputs = model(**batch)
+        loss = outputs.loss
+        loss_hf.append(loss.item())
+        loss.backward()
+        optimizer.step()
+        scheduler.step()
+        optimizer.zero_grad()
+        if step == args.test_stpes:
+            break
     
-    # print avg sm occupancy in xx.xx% format
-    print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
-    # print total energy consumption in xx.xx kJ format
-    # print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
-    # print total time in xx.xx s format
-    print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
-    print("Test accuracy: ", "{:.2f}".format(test_acc), "%")
-    # write avg sm occupancy, time in ./benchmark/metrics/log_file_name.txt
-    with open('./benchmark/metrics/'+args.log_file_name+'.txt', 'w') as f:
-        f.write("Avg SM occupancy: ")
-        f.write("{:.2f}".format(trainer.avg_sm_occupancy))
-        f.write("%")
-        f.write('\n')
-        f.write("Total time: ")
-        f.write("{:.2f}".format(trainer.train_time))
-        f.write('\n')
-        f.write("Test accuracy: ")
-        f.write("{:.2f}".format(test_acc))
+    args.module_type = 1 # huging face
+    loss_ls = []
+    model, optimizer, scheduler = model_and_trainer(train_dataset, test_dataset, eval_dataset, args, config)
+    model.to("cuda")
+    optimizer.zero_grad()
+    model.train()
+    for step, batch in enumerate(train_loader):
+        batch = {k: v.to("cuda") for k, v in batch.items()}
+        model.zero_grad()
+        outputs = model(**batch)
+        loss = outputs.loss
+        loss_ls.append(loss.item())
+        loss.backward()
+        optimizer.step()
+        scheduler.step()
+        optimizer.zero_grad()
+        if step == args.test_stpes:
+            break
+    
         
 
-    # save loss values in ./loss_val/ folder
-    loss = [item['loss'] for item in trainer.training_logs]
-    # save original loss values in ./loss_val/ folder
-    with open('./benchmark/loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
-        for item in loss:
-            f.write(str(item))
-            f.write('\n')
-
-    # save accuracy values in ./acc_val/ folder
-    accuracy = [item['accuracy'] for item in trainer.val_logs]
-    # save original accuracy values in ./acc_val/ folder
-    with open('./benchmark/acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
-        for item in accuracy:
-            f.write(str(item))
-            f.write('\n')
     
