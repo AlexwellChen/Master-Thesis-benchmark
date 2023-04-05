@@ -10,7 +10,23 @@ import torch
 def load_volvo_dataset_config(args):
   try:
     # read data with used column
-    data_conf = pd.read_csv("../volvo_data.csv")
+    data = pd.read_csv("/dbfs/mnt/customs-nlp/Classification-Final-Table-2022-06-14.csv",
+                    header=5, dtype={'a':str,'b':str,'c':str},
+                    low_memory=False, encoding_errors='backslashreplace')
+    data.dropna(axis=0,subset=['Part Description2'],inplace=True)
+    # Choose classification type to be used. Can be:
+    # 'EXPORT'
+    # 'GENERAL'
+    CT = 'GENERAL'
+
+    # Filter based on classification type
+    data = data.loc[data['Classification Type']==CT]
+
+    # We will use only data with high confidence level for training
+    data_conf = data.loc[data['CFL']==1]
+
+    # Keep only required columns
+    data_conf = data_conf[['Part Number','Part Description2','Tariff Number']]
     print(data_conf.keys())
   except:
     print("Error reading file")
