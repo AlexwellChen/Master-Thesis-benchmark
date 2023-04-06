@@ -32,7 +32,7 @@ def load_volvo_dataset_config(args):
     print("Error reading file")
 
   # We will build a model that predicts up to a given hierarchical level 
-  trf_level = 10
+  trf_level = args.trf_level # 2, 4, 6, 8, 10
   # Store shorter labels in new columns. This is not needed if trf_level=10, but we do it for uniformity
   trf_label = 'Tariff Number '+str(trf_level)
   data_conf[trf_label] = data_conf['Tariff Number']//(np.power(10,10-trf_level))

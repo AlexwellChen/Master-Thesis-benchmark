@@ -119,6 +119,8 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', type=int, default=6)
     parser.add_argument('--seed', type=int, default=38)
     parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
+    # trf_level
+    parser.add_argument('--trf_level', type=int, default=10) # 10, 8, 6, 4, 2
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
