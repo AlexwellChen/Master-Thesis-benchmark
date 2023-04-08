@@ -2,7 +2,7 @@ clear
 echo "-----------------------lightseq------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
          ./benchmark/volvo_bert_base_accelerate_epoch_val.py \
-        --n_epochs 3 --warmup 2000 \
+        --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
         --log_file_name trf_2_ls \
@@ -14,8 +14,8 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
 echo "-----------------------huggingface------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
          ./benchmark/volvo_bert_base_accelerate_epoch_val.py \
-        --n_epochs 3 --warmup 2000 \
-        --lr 7e-5 --wd 0.01 \
+        --n_epochs 3 --warmup 50 \
+        --lr 1e-4 --wd 0.01 \
         --optimizer adan \
         --log_file_name trf_2_hf \
         --fused_optimizer True \

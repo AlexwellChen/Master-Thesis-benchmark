@@ -60,7 +60,7 @@ def load_volvo_dataset_config(args):
   class_names = data_unique[trf_label].unique().tolist()
   # Number of classes
   n_labels = len(class_names)
-
+  print("Number of classes in Volvo datasets: ",n_labels)
   # Define forward and inverse mapping of user supplied labels (string format, classification code) to integer id used internally for classification.
   # Passing these as arguments to AutoConfig allows the classifier to return results using the custom labels.
   label2id = {class_names[i]:i for i in range(len(class_names))}
