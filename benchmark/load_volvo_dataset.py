@@ -1,10 +1,8 @@
 # Import libraries
-import glob
 import pandas as pd
 import numpy as np
 from datasets import Features, Value, ClassLabel, Dataset
 from transformers import AutoTokenizer, AutoConfig
-import torch
 
 
 def load_volvo_dataset_config(args):
@@ -18,7 +16,7 @@ def load_volvo_dataset_config(args):
     # 'EXPORT'
     # 'GENERAL'
     CT = 'GENERAL'
-
+    
     # Filter based on classification type
     data = data.loc[data['Classification Type']==CT]
 
@@ -99,7 +97,7 @@ def load_volvo_dataset_config(args):
     test_dataset = test_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
     eval_dataset = eval_dataset.map(lambda examples: {'labels': examples['label']}, batched=True)
   except:
-     print("endcode error")
+     print("encode error")
   
   train_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
   test_dataset.set_format(type='torch', columns=['input_ids', 'token_type_ids', 'attention_mask', 'labels'])
