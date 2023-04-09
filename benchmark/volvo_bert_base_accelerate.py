@@ -17,7 +17,6 @@ from pyJoules.device.nvidia_device import NvidiaGPUDomain
 
 from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
 from ls_module.hf_args import ModelArguments
-
 from accelerate import DistributedDataParallelKwargs
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args, config):
