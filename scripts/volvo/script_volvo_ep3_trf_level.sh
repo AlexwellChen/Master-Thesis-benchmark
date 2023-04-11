@@ -4,7 +4,7 @@ trf_level_val=2
 
 echo "-----------------------lightseq------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
-         ./benchmark/volvo_bert_base_accelerate_epoch_val.py \
+         ./benchmark/volvo_bert_base_accelerate.py \
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
@@ -16,7 +16,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --trf_level $(trf_level_val)
 echo "-----------------------huggingface------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
-         ./benchmark/volvo_bert_base_accelerate_epoch_val.py \
+         ./benchmark/volvo_bert_base_accelerate.py \
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
