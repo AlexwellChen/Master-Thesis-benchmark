@@ -8,7 +8,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name trf_2_ls \
+        --log_file_name trf_10_ls \
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
@@ -20,7 +20,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name trf_2_hf \
+        --log_file_name trf_10_hf \
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
