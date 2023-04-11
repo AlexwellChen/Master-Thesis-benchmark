@@ -13,7 +13,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --batch_size 16 \
         --seed 38 \
         --module_type 1 \
-        --trf_level $(trf_level_val)
+        --trf_level 2
 echo "-----------------------huggingface------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
          ./benchmark/volvo_bert_base_accelerate.py \
@@ -25,7 +25,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --batch_size 16 \
         --seed 38 \
         --module_type 0 \
-        --trf_level $(trf_level_val)
+        --trf_level 2
 
 # adamw:
 #     lr=1e-5, wd=0.01, warmup=160
