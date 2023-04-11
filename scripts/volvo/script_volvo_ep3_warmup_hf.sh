@@ -1,5 +1,4 @@
 clear
-
 echo "-----------------------huggingface 500------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
          ./benchmark/volvo_bert_base_accelerate_epoch_val.py \
@@ -7,6 +6,18 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
         --log_file_name warmup_500_hf \
+        --fused_optimizer True \
+        --batch_size 16 \
+        --seed 38 \
+        --module_type 1 \
+        --trf_level 10
+echo "-----------------------huggingface 1000------------------------"
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
+         ./benchmark/volvo_bert_base_accelerate_epoch_val.py \
+        --n_epochs 3 --warmup 1000 \
+        --lr 1e-4 --wd 0.01 \
+        --optimizer adan \
+        --log_file_name warmup_1000_hf \
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
