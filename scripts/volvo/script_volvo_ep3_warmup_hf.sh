@@ -9,7 +9,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 \
+        --module_type 0 \
         --trf_level 10
 echo "-----------------------huggingface 1000------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
@@ -21,7 +21,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 \
+        --module_type 0 \
         --trf_level 10
 echo "-----------------------huggingface 1500------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
@@ -33,7 +33,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 \
+        --module_type 0 \
         --trf_level 10
 echo "-----------------------huggingface 2000------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
@@ -45,7 +45,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 \
+        --module_type 0 \
         --trf_level 10
 echo "-----------------------huggingface 2500------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
