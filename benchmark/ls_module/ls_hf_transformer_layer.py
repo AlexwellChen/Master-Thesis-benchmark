@@ -202,7 +202,7 @@ class LSBertPreTrainedModel(BertPreTrainedModel):
     @classmethod
     def from_pretrained(self, *args, training_args, model_args, **kwargs):
         self.config = kwargs["config"]
-        model = super().from_pretrained(*args, **kwargs)
+        model = super().from_pretrained(*args, **kwargs, mirror='https://mirrors.tuna.tsinghua.edu.cn/hugging-face-models')
         if model_args.module_type == 1 or model_args.module_type == 2:
             inject_ls_layer(model, training_args, model_args, self.config)
         return model

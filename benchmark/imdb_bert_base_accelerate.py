@@ -22,7 +22,7 @@ from accelerate import DistributedDataParallelKwargs
 
 def data_process(args):
     # Define the function to encode the data
-    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased')
+    tokenizer = AutoTokenizer.from_pretrained('bert-base-cased', mirror='https://mirrors.tuna.tsinghua.edu.cn/hugging-face-models')
     
     def encode(examples):
         return tokenizer(examples['text'], truncation=True, padding='max_length')
@@ -59,7 +59,7 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
-    config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2)
+    config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2, mirror='https://mirrors.tuna.tsinghua.edu.cn/hugging-face-models')
     model_args = ModelArguments(model_name_or_path='bert-base-cased')
     model_args.module_type = args.module_type
     print(config)
