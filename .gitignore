@@ -134,3 +134,21 @@ log/imdb_adamw_lr1e-5_wd1e-2_wm160_ep2_acc90/.DS_Store
 log/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep2_acc90/.DS_Store
 log/imdb_adan_lr1e-4_wd1e-2_wm50_ep2_acc90/.DS_Store
 fp32_hf_log.zip
+fp32_hf_log.zip
+log/lightseq/hf_ls/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_huggingface/0306-103306-2xokxorw-10-139-64-5_6074.1678785412832.pt.trace.json
+log/lightseq/hf_ls/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_huggingface/0306-103306-2xokxorw-10-139-64-5_6074.1678785417996.pt.trace.json
+log/lightseq/hf_ls/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_lightseq/0306-103306-2xokxorw-10-139-64-5_5653.1678784190744.pt.trace.json
+log/lightseq/hf_ls/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_lightseq/0306-103306-2xokxorw-10-139-64-5_5653.1678784192523.pt.trace.json
+log/lightseq/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_huggingface/0306-103306-2xokxorw-10-139-64-5_6074.1678785412832.pt.trace.json
+log/lightseq/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_huggingface/0306-103306-2xokxorw-10-139-64-5_6074.1678785417996.pt.trace.json
+log/lightseq/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_lightseq/0306-103306-2xokxorw-10-139-64-5_5653.1678784190744.pt.trace.json
+log/lightseq/imdb_adan_fused_lr1e-4_wd1e-2_wm50_ep3_mixed_lightseq/0306-103306-2xokxorw-10-139-64-5_5653.1678784192523.pt.trace.json
+log/volvo/volvo_adan_fused_lr1e-4_wd1e-2_wm2000_ep3_FP16_ls/0312-103804-h12ot6xd-10-139-64-4_10099.1680684855470.pt.trace.json
+log/volvo/volvo_adan_fused_lr1e-4_wd1e-2_wm2000_ep3_FP16_ls/0312-103804-h12ot6xd-10-139-64-4_10099.1680684857051.pt.trace.json
+log/volvo/volvo_adan_fused_lr7e-5_wd1e-2_wm2000_ep3_FP16_ls/0312-103804-h12ot6xd-10-139-64-4_10540.1680685683134.pt.trace.json
+log/volvo/volvo_adan_fused_lr7e-5_wd1e-2_wm2000_ep3_FP16_ls/0312-103804-h12ot6xd-10-139-64-4_10540.1680685684757.pt.trace.json
+log/volvo_adan_fused_lr1e-4_wd1e-2_wm2000_ep3_FP16_ls/0312-103804-h12ot6xd-10-139-64-4_10099.1680684855470.pt.trace.json
+log/volvo_adan_fused_lr1e-4_wd1e-2_wm2000_ep3_FP16_ls/0312-103804-h12ot6xd-10-139-64-4_10099.1680684857051.pt.trace.json
+log/volvo_adan_fused_lr7e-5_wd1e-2_wm2000_ep3_FP16_ls/0312-103804-h12ot6xd-10-139-64-4_10540.1680685683134.pt.trace.json
+log/volvo_adan_fused_lr7e-5_wd1e-2_wm2000_ep3_FP16_ls/0312-103804-h12ot6xd-10-139-64-4_10540.1680685684757.pt.trace.json
+nsys_log 2/imdb_adan_single_fused_lr1e-4_wd1e-2_wm50_ep3_unmix_huggingface_nvtx.qdrep
