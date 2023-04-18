@@ -7,7 +7,7 @@ import sys
 
 def get_loss_val():
     loss_dict = {}
-    for file_path in glob.glob("./benchmark/loss_val/distributed/*"):
+    for file_path in glob.glob("./benchmark/loss_val/fused_unfused_3ep/*"):
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
@@ -26,7 +26,7 @@ def get_loss_val():
 
 def get_acc_val():
     acc_dict = {}
-    for file_path in glob.glob("./benchmark/acc_val/distributed/*"):
+    for file_path in glob.glob("./benchmark/acc_val/fused_unfused_3ep/*"):
         file_name = os.path.basename(file_path)
         # Skip markdown files
         if file_name.endswith(".md"):
