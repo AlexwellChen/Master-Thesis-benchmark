@@ -5,7 +5,7 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name imdb_adan_unfused_single_lr1e-4_wd1e-2_wm50_ep3_FP32_hf \
+        --log_file_name imdb_adan_unfused_single_lr1e-4_wd1e-2_wm50_ep3_FP32_hf_epoch_val \
         --fused_optimizer False \
         --foreach False \
         --module_type 0 
