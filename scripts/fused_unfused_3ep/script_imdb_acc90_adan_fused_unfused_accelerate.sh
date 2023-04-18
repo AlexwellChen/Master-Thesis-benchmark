@@ -1,15 +1,15 @@
 clear
 echo "-----------------------Benchmark start------------------------"
-accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
-         ./benchmark/imdb_bert_base_accelerate.py \
-        --n_epochs 3 --warmup 50 \
-        --lr 1e-4 --wd 0.01 \
-        --optimizer adan \
-        --log_file_name imdb_adan_fused_multi_lr1e-4_wd1e-2_wm50_ep3_FP32_hf \
-        --fused_optimizer True \
-        --foreach True \
-        --module_type 0 
-echo "-----------------------fused adan done------------------------"
+# accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
+#          ./benchmark/imdb_bert_base_accelerate.py \
+#         --n_epochs 3 --warmup 50 \
+#         --lr 1e-4 --wd 0.01 \
+#         --optimizer adan \
+#         --log_file_name imdb_adan_fused_multi_lr1e-4_wd1e-2_wm50_ep3_FP32_hf \
+#         --fused_optimizer True \
+#         --foreach True \
+#         --module_type 0 
+# echo "-----------------------fused adan done------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base_accelerate.py \
         --n_epochs 3 --warmup 50 \
