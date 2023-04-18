@@ -100,7 +100,8 @@ class AcceleratorTrainer:
                 epoch_end_time = time.time()
                 epoch_time = epoch_end_time - epoch_start_time
                 print(f"Epoch {epoch+1} took {epoch_time:.2f} seconds.")
-        self.train_time = time.time() - train_start_time - self.val_time # subtract validation time
+        # self.train_time = time.time() - train_start_time - self.val_time # subtract validation time
+        self.train_time = time.time() - train_start_time
         # average sm occupancy
         self.avg_sm_occupancy = sum(self.sm_occupancy) / len(self.sm_occupancy)
         
