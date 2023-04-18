@@ -8,10 +8,10 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
         --optimizer adan \
-        --log_file_name trf_10_ls_FP16_seed_42 \
+        --log_file_name trf_10_ls_FP16_seed_59 \
         --fused_optimizer True \
         --batch_size 16 \
-        --seed 42 \
+        --seed 59 \
         --module_type 1 \
         --trf_level 10
 # echo "-----------------------lightseq 8------------------------"
