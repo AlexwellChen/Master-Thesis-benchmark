@@ -1,3 +1,6 @@
 conda create -n benchmark python=3.9 pytorch==1.12.1 torchvision==0.13.1 torchaudio==0.12.1 cudatoolkit=11.0 -c pytorch
 conda activate benchmark
 python -m pip install git+https://github.com/sail-sg/Adan.git
+
+git clone https://ghproxy.com/https://github.com/AlexwellChen/Master-Thesis-benchmark.git
+
