@@ -9,6 +9,9 @@ import transformers
 import sys
 sys.path.append('../')
 
+import os
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
 from pyJoules.energy_meter import EnergyMeter
 from pyJoules.handler.csv_handler import CSVHandler
 from pyJoules.device.device_factory import DeviceFactory
