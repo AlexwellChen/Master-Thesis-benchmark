@@ -1,7 +1,7 @@
 import torch
 import datasets
 from transformers import AutoTokenizer, get_linear_schedule_with_warmup, TrainingArguments, AutoConfig
-from trainer_accelerate_epoch_val import AcceleratorTrainer
+from trainer_accelerate_epoch_val_no_profile import AcceleratorTrainer
 from accelerate import Accelerator
 import argparse
 from adan import Adan
@@ -18,6 +18,8 @@ from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
 from ls_module.hf_args import ModelArguments
 
 from accelerate import DistributedDataParallelKwargs
+
+import pandas as pd
 
 
 def data_process(args):
@@ -55,14 +57,13 @@ def data_process(args):
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
+    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs], fp16=args.fp16)
     train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
     config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2)
     model_args = ModelArguments(model_name_or_path='bert-base-cased')
     model_args.module_type = args.module_type
-    print(config)
     model = LSBertForSequenceClassification.from_pretrained(
         model_args.model_name_or_path,
         training_args=train_args,
@@ -127,9 +128,9 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
 if __name__ == '__main__':
     # Parse the command line arguments
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n_epochs', type=int, default=5)
+    parser.add_argument('--n_epochs', type=int, default=3)
     # Add the argument for optimizer
-    parser.add_argument('--optimizer', type=str, default='adam')
+    parser.add_argument('--optimizer', type=str, default='adamw')
     # Add the argument for learning rate
     parser.add_argument('--lr', type=float, default=5e-5)
     # Add the argument for batch size
@@ -152,6 +153,9 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', type=int, default=6)
     parser.add_argument('--seed', type=int, default=38)
     parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
+    parser.add_argument('--fp16', type=str, default='fp16')
+    # Add the argument for device
+    parser.add_argument('--device', type=str, default='v100')
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
@@ -160,92 +164,69 @@ if __name__ == '__main__':
     torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)
 
-    if args.target_val_acc is None:
-        print('No target_val_acc specified')
-    else:
-        args.target_val_acc = float(args.target_val_acc)
-        print('target_val_acc: ', args.target_val_acc)
-
-    train_loader, test_loader, eval_loader = data_process(args)
-    trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
-
-    # Init energy meter, add CPU, RAM and GPU
-    # Get GPU number
-    gpu_num = trainer.accelerator.num_processes
-    domains = []
-    for i in range(gpu_num):
-        domains.append(NvidiaGPUDomain(i))
-    device_to_measure = DeviceFactory.create_devices(domains=domains)
-    meter = EnergyMeter(device_to_measure)
-
-    # Train the model for n epochs
-    meter.start()
-    trainer.train(args.n_epochs)
-    meter.stop()
-
-    # Save energy trace
-    trace = meter.get_trace()
-    energy = trace.samples[0]['nvidia_gpu_0']
-    handler = CSVHandler("./benchmark/energy/"+args.log_file_name + '_Energy_Results.csv')
-    handler.process(trace)
-    handler.save_data()
-
-    test_acc = trainer.test()
     
-    
-    # print avg sm occupancy in xx.xx% format
-    print("Avg SM occupancy: ", "{:.2f}".format(trainer.avg_sm_occupancy), "%")
-    # print total energy consumption in xx.xx kJ format
-    # print("Total energy consumption: ", "{:.2f}".format(trainer.total_energy), "kJ")
-    # print total time in xx.xx s format
-    print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
-    print("Test accuracy: ", "{:.2f}".format(test_acc), "%")
-    print("Energy: ", "{:.2f}".format(energy), "mJ")
-    # write avg sm occupancy, time in ./benchmark/metrics/log_file_name.txt
-    with open('./benchmark/metrics/'+args.log_file_name+'.txt', 'w') as f:
-        f.write("Avg SM occupancy: ")
-        f.write("{:.2f}".format(trainer.avg_sm_occupancy))
-        f.write("%")
-        f.write('\n')
-        f.write("Total time: ")
-        f.write("{:.2f}".format(trainer.train_time))
-        f.write('\n')
-        f.write("Test accuracy: ")
-        f.write("{:.2f}".format(test_acc))
+    optimizer_setup = ['adamw', 'adan']
+    mixed_precision_setup = ['fp32', 'fp16']
+    lightseq_setup = ['lightseq', 'huggingface']
+    batch_size_setup = [8, 16, 32]
+    idx = 0
+
+    df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'lightseq', 'batch_size', 'time', 'energy', 'test accuracy'])
+
+    for optimizer in optimizer_setup:
+        for mixed_precision in mixed_precision_setup:
+            for lightseq in lightseq_setup:
+                for batch_size in batch_size_setup:
+                    args.optimizer = optimizer
+                    if optimizer == 'adamw':
+                        args.lr = 5e-5
+                        args.fused_optimizer = False
+                    else:
+                        args.lr = 1e-4
+                        args.fused_optimizer = True
+                    if mixed_precision == 'fp16':
+                        args.fp16 = True
+                    else:
+                        args.fp16 = False
+                    args.module_type = 1 if lightseq == 'lightseq' else 0
+                    args.batch_size = batch_size
+                    name = optimizer + '_' + mixed_precision + '_' + lightseq + '_' + str(batch_size)
+                    
+                    # Get data
+                    train_loader, test_loader, eval_loader = data_process(args)
+                    trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
+                    # Init energy meter, add CPU, RAM and GPU
+                    # Get GPU number
+                    gpu_num = trainer.accelerator.num_processes
+                    domains = []
+                    for i in range(gpu_num):
+                        domains.append(NvidiaGPUDomain(i))
+                    device_to_measure = DeviceFactory.create_devices(domains=domains)
+                    meter = EnergyMeter(device_to_measure)
+
+                    # Train the model for n epochs
+                    meter.start()
+                    trainer.train(args.n_epochs)
+                    meter.stop()
+
+                    # Save energy trace
+                    trace = meter.get_trace()
+                    energy = trace.samples[0]['nvidia_gpu_0']
+
+
+                    test_acc = trainer.test()
+                    
+                    print("=========================================")
+                    print("Name: ", name)
+                    print("Energy: ", "{:.2f}".format(energy), "mJ")
+                    print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
+                    print("Test accuracy: ", "{:.2f}".format(test_acc), "%")
+
+                    df.loc[idx] = [optimizer, mixed_precision, lightseq, batch_size, trainer.train_time, energy, test_acc]
+                    idx += 1
+    df.to_csv('./profiling_'+args.device+'.csv', index=False)
         
 
-    # save loss values in ./loss_val/ folder
-    loss = [item['loss'] for item in trainer.training_logs]
-    # save original loss values in ./loss_val/ folder
-    with open('./benchmark/loss_val/'+args.log_file_name+'_loss.txt', 'w') as f:
-        for item in loss:
-            f.write(str(item))
-            f.write('\n')
-
-    # save accuracy values in ./acc_val/ folder
-    accuracy = [item['accuracy'] for item in trainer.val_logs]
-    # save original accuracy values in ./acc_val/ folder
-    with open('./benchmark/acc_val/'+args.log_file_name+'_acc.txt', 'w') as f:
-        for item in accuracy:
-            f.write(str(item))
-            f.write('\n')
     
-    # plot loss values and accuracy values
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import pandas as pd
-
-    fig, axes = plt.subplots(1, 2, figsize=(20, 10))
-
-    loss_df = pd.DataFrame(loss, columns=['loss'])
-    acc_df = pd.DataFrame(accuracy, columns=['accuracy'])
-
-    sns.lineplot(data=loss_df, ax=axes[0])
-    sns.lineplot(data=acc_df, ax=axes[1])
-
-    axes[0].set_title("Loss Curve")
-    axes[1].set_title("Accuracy Curve")
-
-    plt.savefig("./benchmark/figure/"+args.log_file_name+".png")
 
     
