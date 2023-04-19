@@ -1,1 +1,2 @@
 optimizer,mixed_precision,module,batch_size,time,energy,accuracy
+adamw,fp16,lightseq,32,160.54,36469984,0.93
