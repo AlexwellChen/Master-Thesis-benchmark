@@ -25,7 +25,7 @@ for optimizer in ${optimizer_setup[@]}
                                         --batch_size $batch_size \
                                         --optimizer $optimizer \
                                         --fp16 $mixed_precision \
-                                        --lightseq $lightseq \
+                                        --lightseq $lightseq
                                 done
                         done
                 done
