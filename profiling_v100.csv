@@ -1,1 +1,3 @@
-optimizer, mixed_precision, module, batch_size, time, energy, test accuracy
+optimizer, mixed_precision, module, batch_size, time, energy, test accuracy,batch_size,energy,mixed_precision,module,test_acc,train_time
+adamw,,,,,,,32.0,36393379.0,fp16,lightseq,0.935,160.5591435432434
+adan,,,,,,,32.0,36409805.0,fp16,lightseq,0.9366,158.52096104621887
