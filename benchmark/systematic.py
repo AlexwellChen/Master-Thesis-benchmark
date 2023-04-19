@@ -203,9 +203,8 @@ if __name__ == '__main__':
     test_acc = trainer.test()
     
     # append to csv
-    # optimizer, mixed_precision, module, batch_size, time, energy, test accuracy
-    df = df.append({'optimizer': args.optimizer, 'mixed_precision': args.fp16, 'module': args.lightseq, 'batch_size': args.batch_size, 'time': "{:.2f}".format(trainer.train_time), 'energy': energy, 'test_acc': test_acc}, ignore_index=True)
-
+    # column name: optimizer, mixed_precision, module, batch_size, time, energy, test accuracy
+    df = df.append({'optimizer': args.optimizer, 'mixed_precision': args.fp16, 'module': args.lightseq, 'batch_size': args.batch_size, 'time': "{:.2f}".format(trainer.train_time), 'energy': energy, 'accuracy': "{:.2f}".format(test_acc)}, ignore_index=True)
     print("Name: ", name)
     print("Energy: ", energy, "mJ")
     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")

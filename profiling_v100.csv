@@ -1,2 +1,1 @@
-optimizer, mixed_precision, module, batch_size, time, energy, test accuracy,batch_size,energy,mixed_precision,module,test_acc,time
-adamw,,,,,,,32.0,36442150.0,fp16,lightseq,0.939,160.61
+optimizer,mixed_precision,module,batch_size,time,energy,accuracy
