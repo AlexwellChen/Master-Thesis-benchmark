@@ -165,7 +165,7 @@ if __name__ == '__main__':
     transformers.set_seed(args.seed)
 
     
-    optimizer_setup = ['adamw', 'adan']
+    optimizer_setup = ['adamw', 'fused adan']
     mixed_precision_setup = ['fp32', 'fp16']
     lightseq_setup = ['lightseq', 'huggingface']
     batch_size_setup = [8, 16, 32]

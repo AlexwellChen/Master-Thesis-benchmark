@@ -9,4 +9,4 @@ nvtx
 accelerate
 lightseq
 scikit-learn
-huggingface_hub
+pandas
