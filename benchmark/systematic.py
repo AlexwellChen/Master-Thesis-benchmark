@@ -181,7 +181,7 @@ if __name__ == '__main__':
         args.lr = 1e-4
         args.fused_optimizer = True
     args.module_type = 1 if args.lightseq == 'lightseq' else 0
-    name = args.optimizer + '_' + args.mixed_precision + '_' + args.lightseq + '_' + str(args.batch_size)
+    name = args.optimizer + '_' + args.fp16 + '_' + args.lightseq + '_' + str(args.batch_size)
     
     # Get data
     train_loader, test_loader, eval_loader = data_process(args)
