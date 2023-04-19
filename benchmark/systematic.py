@@ -221,6 +221,11 @@ if __name__ == '__main__':
                     print("Energy: ", energy, "mJ")
                     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
                     print("Test accuracy: ", "{:.2f}".format(test_acc))
+                    print("Left cuda memory before clean: ", torch.cuda.memory_allocated())
+                    for i in range(5):
+                        torch.cuda.empty_cache()
+                    # print left cuda memory
+                    print("Left cuda memory: ", torch.cuda.memory_allocated())
                     print("=========================================")
 
                     df.loc[idx] = [optimizer, mixed_precision, lightseq, batch_size, trainer.train_time, energy, test_acc]
