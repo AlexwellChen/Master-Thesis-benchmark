@@ -159,6 +159,7 @@ if __name__ == '__main__':
     parser.add_argument('--fp16', type=str, default='fp16')
     # Add the argument for device
     parser.add_argument('--device', type=str, default='v100')
+    parser.add_argument('--lightseq', type=str, default='lightseq')
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
@@ -169,67 +170,55 @@ if __name__ == '__main__':
     transformers.set_seed(args.seed)
 
     
-    optimizer_setup = ['adamw', 'fused adan']
-    mixed_precision_setup = ['fp16', 'fp32']
-    lightseq_setup = ['lightseq', 'huggingface']
-    # batch_size_setup = [8, 16, 32]
-    batch_size_setup = [32]
-    idx = 0
+    
 
-    df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'lightseq', 'batch_size', 'time', 'energy', 'test accuracy'])
+    df = pd.read_csv('profiling_'+args.device+'.csv')
     print("Left cuda memory: ", torch.cuda.memory_allocated())
-    for optimizer in optimizer_setup:
-        for mixed_precision in mixed_precision_setup:
-            for lightseq in lightseq_setup:
-                for batch_size in batch_size_setup:
-                    args.optimizer = optimizer
-                    if optimizer == 'adamw':
-                        args.lr = 5e-5
-                        args.fused_optimizer = False
-                    else:
-                        args.lr = 1e-4
-                        args.fused_optimizer = True
-                    args.module_type = 1 if lightseq == 'lightseq' else 0
-                    args.batch_size = batch_size
-                    name = optimizer + '_' + mixed_precision + '_' + lightseq + '_' + str(batch_size)
-                    
-                    # Get data
-                    train_loader, test_loader, eval_loader = data_process(args)
-                    trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
-                    # Init energy meter, add CPU, RAM and GPU
-                    # Get GPU number
-                    gpu_num = trainer.accelerator.num_processes
-                    domains = []
-                    for i in range(gpu_num):
-                        domains.append(NvidiaGPUDomain(i))
-                    device_to_measure = DeviceFactory.create_devices(domains=domains)
-                    meter = EnergyMeter(device_to_measure)
+    
+    if args.optimizer == 'adamw':
+        args.lr = 5e-5
+        args.fused_optimizer = False
+    else:
+        args.lr = 1e-4
+        args.fused_optimizer = True
+    args.module_type = 1 if args.lightseq == 'lightseq' else 0
+    name = args.optimizer + '_' + args.mixed_precision + '_' + args.lightseq + '_' + str(args.batch_size)
+    
+    # Get data
+    train_loader, test_loader, eval_loader = data_process(args)
+    trainer = model_and_trainer(train_loader, test_loader, eval_loader, args)
+    # Init energy meter, add CPU, RAM and GPU
+    # Get GPU number
+    gpu_num = trainer.accelerator.num_processes
+    domains = []
+    for i in range(gpu_num):
+        domains.append(NvidiaGPUDomain(i))
+    device_to_measure = DeviceFactory.create_devices(domains=domains)
+    meter = EnergyMeter(device_to_measure)
 
-                    # Train the model for n epochs
-                    meter.start()
-                    trainer.train(args.n_epochs)
-                    meter.stop()
+    # Train the model for n epochs
+    meter.start()
+    trainer.train(args.n_epochs)
+    meter.stop()
 
-                    # Save energy trace
-                    trace = meter.get_trace()
-                    energy = trace._samples[0].energy['nvidia_gpu_0']
-                
-                    test_acc = trainer.test()
-                    
-                    df.loc[idx] = [optimizer, mixed_precision, lightseq, batch_size, trainer.train_time, energy, test_acc]
-                    idx += 1
-                    
-                    print("Name: ", name)
-                    print("Energy: ", energy, "mJ")
-                    print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
-                    print("Test accuracy: ", "{:.2f}".format(test_acc))
-                    print("Left cuda memory before clean: ", torch.cuda.memory_allocated())
-                    del trainer, train_loader, test_loader, eval_loader
-                    for i in range(5):
-                        torch.cuda.empty_cache()
-                    # print left cuda memory
-                    print("Left cuda memory: ", torch.cuda.memory_allocated())
-                    print("=========================================")
+    # Save energy trace
+    trace = meter.get_trace()
+    energy = trace._samples[0].energy['nvidia_gpu_0']
+
+    test_acc = trainer.test()
+    
+    # append to csv
+    df = df.append({'optimizer': args.optimizer, 'mixed_precision': args.mixed_precision, 'lightseq': args.lightseq, 'batch_size': args.batch_size, 'train_time': trainer.train_time, 'energy': energy, 'test_acc': test_acc}, ignore_index=True)
+    idx += 1
+
+    print("Name: ", name)
+    print("Energy: ", energy, "mJ")
+    print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
+    print("Test accuracy: ", "{:.2f}".format(test_acc))
+    print("Left cuda memory before clean: ", torch.cuda.memory_allocated())
+    # print left cuda memory
+    print("Left cuda memory: ", torch.cuda.memory_allocated())
+    print("=========================================")
 
                     
 
