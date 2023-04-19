@@ -191,6 +191,13 @@ if __name__ == '__main__':
             f.write(str(item))
             f.write('\n')
 
+    val_loss = trainer.val_loss_list
+    # save original val_loss values in ./loss_val/ folder
+    with open('./benchmark/loss_val/'+args.log_file_name+'_val_loss.txt', 'w') as f:
+        for item in val_loss:
+            f.write(str(item))
+            f.write('\n')
+
     # save accuracy values in ./acc_val/ folder
     accuracy = [item['accuracy'] for item in trainer.val_logs]
     # save original accuracy values in ./acc_val/ folder

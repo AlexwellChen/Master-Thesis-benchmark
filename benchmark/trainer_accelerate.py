@@ -19,6 +19,7 @@ class AcceleratorTrainer:
         self.device = device
         self.n_steps_per_val = n_steps_per_val
         self.target_val_acc = target_val_acc
+        self.val_loss_list = []
         self.training_logs = []
         self.val_logs = []
         self.train_time = 0
@@ -77,14 +78,15 @@ class AcceleratorTrainer:
                     self.get_sm_occupancy()
                     if (step + 1) % self.n_steps_per_val == 0:
                         val_time_start = time.time()
-                        val_acc = self.evaluate()
+                        val_acc, val_loss = self.evaluate()
+                        self.val_loss_list.append(val_loss)
                         val_time_end = time.time()
                         self.val_time += val_time_end - val_time_start
                         self.val_logs.append({'step': step, 'accuracy': val_acc})
                         if self.target_val_acc is not None:
-                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}, target: {self.target_val_acc:.2f}")
+                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, validation loss: {val_loss:.4f}, target: {self.target_val_acc:.2f}")
                         else:
-                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, loss: {loss.item():.4f}")
+                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, validation loss: {val_loss:.4f}")
                         if self.target_val_acc is not None and val_acc >= self.target_val_acc:
                             if acc_achieved == 2: 
                                 print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
@@ -110,17 +112,20 @@ class AcceleratorTrainer:
         self.model.eval()
         correct = 0
         total = 0
+        eval_loss = 0
         with torch.no_grad():
             for batch in self.val_dataloader:
                 batch = {k: v.to(self.device) for k, v in batch.items()}
                 outputs = self.model(**batch)
+                eval_loss += outputs.loss
                 logits = outputs.logits
                 predictions = torch.argmax(logits, dim=-1)
                 ground_truth = batch['labels']
                 correct += (predictions == ground_truth).sum().item()
                 total += len(ground_truth)
         self.model.train()
-        return correct / total
+        eval_loss = eval_loss / len(self.val_dataloader)
+        return correct / total, eval_loss
 
     def test(self):
         if self.test_dataloader is None:
