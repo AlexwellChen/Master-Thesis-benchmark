@@ -212,8 +212,8 @@ if __name__ == '__main__':
     print("=========================================")
 
                     
-
-    df.to_csv('./profiling_'+args.device+'.csv', index=False)
+    # overwrite csv
+    df.to_csv('profiling_'+args.device+'.csv', index=False)
         
 
     
