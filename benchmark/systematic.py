@@ -211,7 +211,7 @@ if __name__ == '__main__':
 
                     # Save energy trace
                     trace = meter.get_trace()
-                    energy = trace._samples[0].energy
+                    energy = trace._samples[0].energy['nvidia_gpu_0']
                 
                     test_acc = trainer.test()
                     

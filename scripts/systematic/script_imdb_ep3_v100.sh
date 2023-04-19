@@ -2,8 +2,7 @@ clear
 echo "-----------------------Benchmark start------------------------"
 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/systematic.py \
-        --n_epochs 1 --warmup 50 \
-        --lr 1e-4 --wd 0.01 \
+        --n_epochs 1 \
         --device v100
 echo "-----------------------Benchmark end------------------------"
 # adamw:
