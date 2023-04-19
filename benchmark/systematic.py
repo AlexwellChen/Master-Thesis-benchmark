@@ -148,7 +148,7 @@ if __name__ == '__main__':
     # Weight decay
     parser.add_argument('--wd', type=float, default=0.01)
     # Warmup steps
-    parser.add_argument('--warmup', type=int, default=320)
+    parser.add_argument('--warmup', type=int, default=50)
     # num_workers
     parser.add_argument('--num_workers', type=int, default=6)
     parser.add_argument('--seed', type=int, default=38)
@@ -224,6 +224,10 @@ if __name__ == '__main__':
 
                     df.loc[idx] = [optimizer, mixed_precision, lightseq, batch_size, trainer.train_time, energy, test_acc]
                     idx += 1
+                    break # for debug
+                break # for debug
+            break # for debug
+        break # for debug
     df.to_csv('./profiling_'+args.device+'.csv', index=False)
         
 
