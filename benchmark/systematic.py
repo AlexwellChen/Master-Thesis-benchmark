@@ -211,10 +211,8 @@ if __name__ == '__main__':
 
                     # Save energy trace
                     trace = meter.get_trace()
-                    print(trace._samples)
-                    energy = trace._samples.energy
-
-
+                    energy = trace._samples[0].energy
+                
                     test_acc = trainer.test()
                     
                     
