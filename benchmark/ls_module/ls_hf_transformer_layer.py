@@ -69,7 +69,7 @@ def gen_bert_emb_config(training_args, config):
     bert_emb_config = BertEmbeddingLayer.get_config(
         vocab_size=config.vocab_size,
         embedding_dim=config.hidden_size,
-        max_batch_tokens=8192,
+        max_batch_tokens=16384,
         max_seq_len=config.max_position_embeddings,
         padding_idx=config.pad_token_id,
         dropout=config.hidden_dropout_prob,
