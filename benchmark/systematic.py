@@ -185,10 +185,6 @@ if __name__ == '__main__':
                     else:
                         args.lr = 1e-4
                         args.fused_optimizer = True
-                    if mixed_precision == 'fp16':
-                        args.fp16 = True
-                    else:
-                        args.fp16 = False
                     args.module_type = 1 if lightseq == 'lightseq' else 0
                     args.batch_size = batch_size
                     name = optimizer + '_' + mixed_precision + '_' + lightseq + '_' + str(batch_size)
