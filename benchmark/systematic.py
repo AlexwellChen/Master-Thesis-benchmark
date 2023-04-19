@@ -166,7 +166,7 @@ if __name__ == '__main__':
 
     
     optimizer_setup = ['adamw', 'fused adan']
-    mixed_precision_setup = ['fp32', 'fp16']
+    mixed_precision_setup = ['fp16', 'fp32']
     lightseq_setup = ['lightseq', 'huggingface']
     batch_size_setup = [8, 16, 32]
     idx = 0
