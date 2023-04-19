@@ -212,16 +212,17 @@ if __name__ == '__main__':
                     # Save energy trace
                     trace = meter.get_trace()
                     print(trace._samples)
-                    energy = trace._samples[0]['nvidia_gpu_0']
+                    energy = trace._samples.energy
 
 
                     test_acc = trainer.test()
                     
-                    print("=========================================")
+                    
                     print("Name: ", name)
-                    print("Energy: ", "{:.2f}".format(energy), "mJ")
+                    print("Energy: ", energy, "mJ")
                     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
-                    print("Test accuracy: ", "{:.2f}".format(test_acc), "%")
+                    print("Test accuracy: ", "{:.2f}".format(test_acc))
+                    print("=========================================")
 
                     df.loc[idx] = [optimizer, mixed_precision, lightseq, batch_size, trainer.train_time, energy, test_acc]
                     idx += 1
