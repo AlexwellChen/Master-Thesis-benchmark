@@ -86,7 +86,7 @@ class AcceleratorTrainer:
                         if self.target_val_acc is not None:
                             print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, validation loss: {val_loss:.4f}, target: {self.target_val_acc:.2f}")
                         else:
-                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, validation loss: {val_loss:.4f}")
+                            print(f"Validation accuracy at step {step+1}: {val_acc:.4f}, validation loss: {val_loss:.4f}, train loss: {loss.item():.4f}")
                         if self.target_val_acc is not None and val_acc >= self.target_val_acc:
                             if acc_achieved == 2: 
                                 print(f"Stopping training at epoch {epoch+1}, step {step+1} as target validation accuracy reached")
