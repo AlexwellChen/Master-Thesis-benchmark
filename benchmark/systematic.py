@@ -168,11 +168,7 @@ if __name__ == '__main__':
     torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)
 
-    
-    
-
     df = pd.read_csv('profiling_'+args.device+'.csv')
-    print("Left cuda memory: ", torch.cuda.memory_allocated())
     
     if args.optimizer == 'adamw':
         args.lr = 5e-5
@@ -207,7 +203,7 @@ if __name__ == '__main__':
     test_acc = trainer.test()
     
     # append to csv
-    df = df.append({'optimizer': args.optimizer, 'mixed_precision': args.mixed_precision, 'lightseq': args.lightseq, 'batch_size': args.batch_size, 'train_time': trainer.train_time, 'energy': energy, 'test_acc': test_acc}, ignore_index=True)
+    df = df.append({'optimizer': args.optimizer, 'mixed_precision': args.fp16, 'module': args.lightseq, 'batch_size': args.batch_size, 'train_time': trainer.train_time, 'energy': energy, 'test_acc': test_acc}, ignore_index=True)
 
     print("Name: ", name)
     print("Energy: ", energy, "mJ")

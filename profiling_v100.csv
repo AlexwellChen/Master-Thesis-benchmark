@@ -1,1 +1,1 @@
-optimizer, mixed_precision, lightseq, batch_size, time, energy, test accuracy
+optimizer, mixed_precision, module, batch_size, time, energy, test accuracy
