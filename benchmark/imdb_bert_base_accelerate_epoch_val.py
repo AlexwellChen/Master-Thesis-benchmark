@@ -55,7 +55,7 @@ def data_process(args):
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs], fp16=args.fp16)
+    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs], mixed_precision=args.fp16)
     train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
@@ -157,7 +157,7 @@ if __name__ == '__main__':
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
-    args.fp16 = True if args.fp16 == 'fp16' else False
+    args.fp16 = 'fp16' if args.fp16 == 'fp16' else 'no'
 
     torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)
