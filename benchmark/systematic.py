@@ -164,7 +164,6 @@ if __name__ == '__main__':
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
-    args.fp16 = 'fp16' if args.fp16 == 'fp16' else 'no'
 
     torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)
@@ -209,7 +208,6 @@ if __name__ == '__main__':
     
     # append to csv
     df = df.append({'optimizer': args.optimizer, 'mixed_precision': args.mixed_precision, 'lightseq': args.lightseq, 'batch_size': args.batch_size, 'train_time': trainer.train_time, 'energy': energy, 'test_acc': test_acc}, ignore_index=True)
-    idx += 1
 
     print("Name: ", name)
     print("Energy: ", energy, "mJ")
