@@ -55,7 +55,7 @@ def data_process(args):
 
 def model_and_trainer(train_loader, test_loader, eval_loader, args):
     ddp_kwargs = DistributedDataParallelKwargs(find_unused_parameters=True)
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs])
+    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs], fp16=args.fp16)
     train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
@@ -152,10 +152,12 @@ if __name__ == '__main__':
     parser.add_argument('--num_workers', type=int, default=6)
     parser.add_argument('--seed', type=int, default=38)
     parser.add_argument('--module_type', type=int, default=0) # 0 for hugging face, 1 for lightseq
+    parser.add_argument('--fp16', type=str, default='fp16')
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
+    args.fp16 = True if args.fp16 == 'fp16' else False
 
     torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)

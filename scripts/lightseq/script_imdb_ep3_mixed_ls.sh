@@ -1,6 +1,6 @@
 clear
 echo "-----------------------Benchmark start------------------------"
-accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
+accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
          ./benchmark/imdb_bert_base_accelerate_epoch_val.py \
         --n_epochs 3 --warmup 50 \
         --lr 1e-4 --wd 0.01 \
@@ -9,7 +9,8 @@ accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml 
         --fused_optimizer True \
         --batch_size 16 \
         --seed 38 \
-        --module_type 1 
+        --module_type 1 \
+        --fp16 fp16
 echo "-----------------------lightseq done------------------------"
 # accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc_mix.yaml \
 #          ./benchmark/imdb_bert_base_accelerate.py \
