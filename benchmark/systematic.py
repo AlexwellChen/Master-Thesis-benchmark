@@ -177,7 +177,7 @@ if __name__ == '__main__':
     idx = 0
 
     df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'lightseq', 'batch_size', 'time', 'energy', 'test accuracy'])
-
+    print("Left cuda memory: ", torch.cuda.memory_allocated())
     for optimizer in optimizer_setup:
         for mixed_precision in mixed_precision_setup:
             for lightseq in lightseq_setup:
