@@ -172,8 +172,8 @@ if __name__ == '__main__':
     optimizer_setup = ['adamw', 'fused adan']
     mixed_precision_setup = ['fp16', 'fp32']
     lightseq_setup = ['lightseq', 'huggingface']
-    # batch_size_setup = [8, 16]
-    batch_size_setup = [32]
+    # batch_size_setup = [8, 16, 32]
+    batch_size_setup = [64]
     idx = 0
 
     df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'lightseq', 'batch_size', 'time', 'energy', 'test accuracy'])
