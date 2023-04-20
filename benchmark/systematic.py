@@ -64,7 +64,7 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     train_args = TrainingArguments(output_dir='benchmark/lightseq_output')
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
-    config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2)
+    config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2, ls_max_batch_tokens=args.max_batch_tokens)
     model_args = ModelArguments(model_name_or_path='bert-base-cased')
     model_args.module_type = args.module_type
     model = LSBertForSequenceClassification.from_pretrained(
@@ -160,17 +160,18 @@ if __name__ == '__main__':
     # Add the argument for device
     parser.add_argument('--device', type=str, default='v100')
     parser.add_argument('--lightseq', type=str, default='lightseq')
+
     args = parser.parse_args()
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
-    
+
     if args.batch_size == 8:
-        os.environ["LS_MAX_BATCH_TOKENS"] = 4096
+        args.max_batch_tokens = 4096
     elif args.batch_size == 16:
-        os.environ["LS_MAX_BATCH_TOKENS"] = 8192
+        args.max_batch_tokens = 8192
     elif args.batch_size == 32:
-        os.environ["LS_MAX_BATCH_TOKENS"] = 16384
+        args.max_batch_tokens = 16384
 
     torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)
