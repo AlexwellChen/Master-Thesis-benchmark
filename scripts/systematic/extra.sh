@@ -16,7 +16,7 @@ for combaination in ${combaination_list[@]}
         echo "optimizer: ${combaination[0]}, mixed_precision: ${combaination[1]}, lightseq: ${combaination[2]}, batch_size: ${combaination[3]}, device: ${combaination[4]}"
         accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
                 ./benchmark/systematic.py \
-                --n_epochs 1 \
+                --n_epochs 3 \
                 --device ${combaination[4]} \
                 --batch_size ${combaination[3]} \
                 --optimizer ${combaination[0]} \

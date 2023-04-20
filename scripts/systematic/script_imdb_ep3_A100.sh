@@ -17,7 +17,7 @@ for optimizer in ${optimizer_setup[@]}
                                 accelerate launch --config_file ./accelerate_config/imdb_bert_base_acc.yaml \
                                         ./benchmark/systematic.py \
                                         --n_epochs 3 \
-                                        --device v100 \
+                                        --device A100 \
                                         --batch_size $batch_size \
                                         --optimizer $optimizer \
                                         --fp16 $mixed_precision \
