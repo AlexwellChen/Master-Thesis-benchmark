@@ -81,6 +81,9 @@ def training_function(train_dataloader, test_dataloader, eval_dataloader):
 
     num_epochs = hyperparameters["num_epochs"]
     # Now we train the model
+    import tqdm as tqdm
+    progess_bar = tqdm.tqdm(range(num_epochs*len(train_dataloader)), desc="Training")
+
     for epoch in range(num_epochs):
         model.train()
         for step, batch in enumerate(train_dataloader):
@@ -90,6 +93,7 @@ def training_function(train_dataloader, test_dataloader, eval_dataloader):
 
             optimizer.step()
             optimizer.zero_grad()
+            progess_bar.update(1)
 
             if step % 100 == 0:
                 print(f"Epoch {epoch} - Step {step} - Loss {loss}")
