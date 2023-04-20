@@ -164,6 +164,13 @@ if __name__ == '__main__':
 
     args.fused_optimizer = True if args.fused_optimizer == 'True' else False
     args.foreach = True if args.foreach == 'True' else False
+    
+    if args.batch_size == 8:
+        os.environ["LS_MAX_BATCH_TOKENS"] = 4096
+    elif args.batch_size == 16:
+        os.environ["LS_MAX_BATCH_TOKENS"] = 8192
+    elif args.batch_size == 32:
+        os.environ["LS_MAX_BATCH_TOKENS"] = 16384
 
     torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)

@@ -22,6 +22,10 @@ from transformers import (
     BertForQuestionAnswering,
 )
 
+import os
+
+ls_max_batch_tokens = os.environ["LS_MAX_BATCH_TOKENS"]
+
 
 def get_hf_bert_enc_layer_params(layer):
     init_ws = []
@@ -69,7 +73,7 @@ def gen_bert_emb_config(training_args, config):
     bert_emb_config = BertEmbeddingLayer.get_config(
         vocab_size=config.vocab_size,
         embedding_dim=config.hidden_size,
-        max_batch_tokens=16384,
+        max_batch_tokens=ls_max_batch_tokens,
         max_seq_len=config.max_position_embeddings,
         padding_idx=config.pad_token_id,
         dropout=config.hidden_dropout_prob,
@@ -114,7 +118,7 @@ def inject_ls_layer(model, training_args, model_args, config):
 
     def gen_bert_enc_config(training_args, config):
         bert_enc_config = TransformerEncoderLayer.get_config(
-            max_batch_tokens=16384,
+            max_batch_tokens=ls_max_batch_tokens,
             max_seq_len=config.max_position_embeddings,
             hidden_size=config.hidden_size,
             intermediate_size=config.intermediate_size,
