@@ -8,6 +8,7 @@ optimizer_setup=['adamw', 'adan']
 mixed_precision_setup=['fp16', 'no']
 lightseq_setup=['lightseq', 'huggingface']
 batch_size_setup=[8, 16, 32]
+device_setup=['v100', 'a100', 'T4']
 
 # create a dataframe
 df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'module', 'batch_size', 'device', 'time', 'energy', 'accuracy'])
@@ -17,10 +18,11 @@ for optimizer in optimizer_setup:
     for mixed_precision in mixed_precision_setup:
         for lightseq in lightseq_setup:
             for batch_size in batch_size_setup:
-                # create a new row
-                new_row = {'optimizer': optimizer, 'mixed_precision': mixed_precision, 'module': lightseq, 'batch_size': batch_size, 'device': 'v100', 'time': 0, 'energy': 0, 'accuracy': 0}
-                # append the row to the dataframe
-                df = df.append(new_row, ignore_index=True)
+                for device in device_setup:
+                    # create a new row
+                    new_row = {'optimizer': optimizer, 'mixed_precision': mixed_precision, 'module': lightseq, 'batch_size': batch_size, 'device': device, 'time': 0, 'energy': 0, 'accuracy': 0}
+                    # append the row to the dataframe
+                    df = df.append(new_row, ignore_index=True)
 
 # iterate over the dataframe
 for index, row in df.iterrows():
