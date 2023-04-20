@@ -1,0 +1,11 @@
+optimizer: adamw, mixed_precision: fp16, lightseq: huggingface, batch_size: 32, device: v100
+ninja: no work to do.
+Time to load lightseq_layers_new op: 2.847595691680908 seconds
+ninja: no work to do.
+Time to load lightseq_layers op: 0.3573026657104492 seconds
+Time to load lightseq_layers op: 0.05287504196166992 seconds
+Time to load lightseq_layers op: 0.05313873291015625 seconds
+Time to load lightseq_layers op: 0.053572654724121094 seconds
+ninja: no work to do.
+Time to load lightseq_kernels op: 0.37022876739501953 seconds
+Initial Context, status_type: Training

@@ -13,3 +13,7 @@ adan,fp16,huggingface,8,v100,319.01,55533222,0.93
 adan,fp16,huggingface,16,v100,271.76,50888535,0.95
 adan,no,huggingface,8,v100,723.8,152631202,0.88
 adan,no,huggingface,16,v100,677.63,148878129,0.94
+adamw,no,lightseq,8,v100,658.56,142035582,0.93
+adamw,no,lightseq,16,v100,624.03,144331919,0.94
+adan,no,lightseq,8,v100,650.19,141069199,0.94
+adan,no,lightseq,16,v100,619.95,143253945,0.94
