@@ -1,3 +1,4 @@
+clear
 combaination_list[0]="adamw,fp16,huggingface,32,v100"
 combaination_list[1]="adamw,no,lightseq,8,v100"
 combaination_list[2]="adamw,no,lightseq,16,v100"
