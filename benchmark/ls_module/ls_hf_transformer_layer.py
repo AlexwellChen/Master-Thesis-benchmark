@@ -69,11 +69,11 @@ def get_hf_bert_emb_layer_params(layer):
     return init_ws
 
 
-def gen_bert_emb_config(training_args, config):
+def gen_bert_emb_config(training_args, config, ls_max_batch_tokens):
     bert_emb_config = BertEmbeddingLayer.get_config(
         vocab_size=config.vocab_size,
         embedding_dim=config.hidden_size,
-        max_batch_tokens=config.ls_max_batch_tokens,
+        max_batch_tokens=ls_max_batch_tokens,
         max_seq_len=config.max_position_embeddings,
         padding_idx=config.pad_token_id,
         dropout=config.hidden_dropout_prob,
@@ -85,7 +85,7 @@ def gen_bert_emb_config(training_args, config):
     return bert_emb_config
 
 
-def inject_ls_layer(model, training_args, model_args, config):
+def inject_ls_layer(model, training_args, model_args, config, ls_max_batch_tokens):
     if model_args.module_type == 2:
         from lightseq.training.ops.pytorch.torch_transformer_layers import (
             TransformerEncoderLayer,
@@ -98,7 +98,7 @@ def inject_ls_layer(model, training_args, model_args, config):
         raise NotImplementedError
 
     if model_args.module_type == 1 or model_args.module_type == 2:
-        bert_emb_config = gen_bert_emb_config(training_args, config)
+        bert_emb_config = gen_bert_emb_config(training_args, config, ls_max_batch_tokens)
         init_ws = get_hf_bert_emb_layer_params(model.bert.embeddings)
         model.bert.embeddings = BertEmbeddingLayer(bert_emb_config, init_ws)
         if model_args.enable_quant:
@@ -116,9 +116,9 @@ def inject_ls_layer(model, training_args, model_args, config):
             output = super().forward(hidden_states, ls_encoder_padding_mask)
             return (output, None, None, None)
 
-    def gen_bert_enc_config(training_args, config):
+    def gen_bert_enc_config(training_args, config, ls_max_batch_tokens):
         bert_enc_config = TransformerEncoderLayer.get_config(
-            max_batch_tokens=config.ls_max_batch_tokens,
+            max_batch_tokens=ls_max_batch_tokens,
             max_seq_len=config.max_position_embeddings,
             hidden_size=config.hidden_size,
             intermediate_size=config.intermediate_size,
@@ -134,7 +134,7 @@ def inject_ls_layer(model, training_args, model_args, config):
         return bert_enc_config
 
     for i in range(config.num_hidden_layers):
-        bert_enc_config = gen_bert_enc_config(training_args, config)
+        bert_enc_config = gen_bert_enc_config(training_args, config, ls_max_batch_tokens)
         init_ws, init_bs = get_hf_bert_enc_layer_params(model.bert.encoder.layer[i])
         model.bert.encoder.layer[i] = LSHFTransformerEncoderLayer(
             bert_enc_config, init_ws, init_bs
@@ -204,11 +204,11 @@ def hf_state_dict(model):
 
 class LSBertPreTrainedModel(BertPreTrainedModel):
     @classmethod
-    def from_pretrained(self, *args, training_args, model_args, **kwargs):
+    def from_pretrained(self, *args, training_args, model_args,ls_max_batch_tokens, **kwargs):
         self.config = kwargs["config"]
         model = super().from_pretrained(*args, **kwargs)
         if model_args.module_type == 1 or model_args.module_type == 2:
-            inject_ls_layer(model, training_args, model_args, self.config)
+            inject_ls_layer(model, training_args, model_args, self.config, ls_max_batch_tokens)
         return model
 
     # def save_pretrained(self, *args, **kwargs):
