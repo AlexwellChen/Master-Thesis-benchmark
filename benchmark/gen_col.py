@@ -8,7 +8,7 @@ optimizer_setup=['adamw', 'adan']
 mixed_precision_setup=['fp16', 'no']
 lightseq_setup=['lightseq', 'huggingface']
 batch_size_setup=[8, 16, 32]
-device_setup=['v100', 'a100', 'T4']
+device_setup=['V100', 'A100', 'T4', 'A10']
 
 # create a dataframe
 df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'module', 'batch_size', 'device', 'time', 'energy', 'accuracy'])
