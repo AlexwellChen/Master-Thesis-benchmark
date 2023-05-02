@@ -12,7 +12,7 @@ device_setup=['V100', 'A100', 'T4', 'A10']
 
 # create a dataframe
 df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'module', 'batch_size', 'device', 'time', 'energy', 'accuracy'])
-act_df = pd.read_csv('profiling_v100.csv')
+act_df = pd.read_csv('profiling_A10.csv')
 # rewrite the for loop in benchmark/systematic.py
 for optimizer in optimizer_setup:
     for mixed_precision in mixed_precision_setup:
