@@ -65,7 +65,7 @@ def model_and_trainer(train_loader, test_loader, eval_loader, args):
     train_args.fp16 = True if accelerator.mixed_precision == 'fp16' else False
     train_args.local_rank = accelerator.process_index
     config = AutoConfig.from_pretrained('bert-base-cased', num_labels=2)
-    model_args = ModelArguments(model_name_or_path='bert-base-cased')
+    model_args = ModelArguments(model_name_or_path='/root/.cache/huggingface/transformers')
     model_args.module_type = args.module_type
     model = LSBertForSequenceClassification.from_pretrained(
         model_args.model_name_or_path,
@@ -213,11 +213,13 @@ if __name__ == '__main__':
     
     # append to csv
     # column name: optimizer, mixed_precision, module, batch_size, time, energy, test accuracy
-    df = df.append({'optimizer': args.optimizer, 'mixed_precision': args.fp16, 'module': args.lightseq, 'batch_size': args.batch_size, 'device': args.device, 'time': "{:.2f}".format(trainer.train_time), 'energy': energy, 'accuracy': "{:.2f}".format(test_acc)}, ignore_index=True)
+    new_row = {'optimizer': args.optimizer, 'mixed_precision': args.fp16, 'module': args.lightseq, 'batch_size': args.batch_size, 'device': args.device, 'time': "{:.2f}".format(trainer.train_time), 'energy': energy, 'accuracy': test_acc}
+    df.loc[len(df)] = new_row
+    
     print("Name: ", name)
     print("Energy: ", energy, "mJ")
     print("Total time: ", "{:.2f}".format(trainer.train_time), "s")
-    print("Test accuracy: ", "{:.2f}".format(test_acc))
+    print("Test accuracy: ", test_acc)
     print("=========================================")
 
                     
