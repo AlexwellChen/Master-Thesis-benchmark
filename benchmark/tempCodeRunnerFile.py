@@ -1,6 +1,4 @@
-for index, row in df.iterrows():
-#     # covert ndarray to float
-#     # print((df.loc[index, 'time'] * cost_factor[df.loc[index, 'device']]))
-#     if df.loc[index, 'device'] == 'A10':
-#         df.loc[index, 'cost'] = df.loc[index, 'time'] * cost_factor[df.loc[index, 'device']] / 3600 * 0.8
-#     # df.loc[index, 'cost'] = df.loc[index, 'time'] * cost_factor[df.loc[index, 'device']] / 3600
+# 2nd boxplot, y is accuracy, group by device
+# ax[1].set(xlabel='Device', ylabel='Accuracy')
+# ax[1].set_title('Test Accuracy')
+# sns.boxplot(data=df, x='device', y='accuracy', palette=decive_color, ax=ax[1])

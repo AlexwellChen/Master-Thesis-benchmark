@@ -7,7 +7,7 @@ import numpy as np
 df = pd.read_csv('profiling.csv')
 # optimizer,mixed_precision,module,batch_size,device,time,energy,accuracy
 # delete the row which device is T4, V100, A100
-df = df[(df['device'] == 'A10')]
+# df = df[(df['device'] == 'A10')]
 # x axis is the time, y axis is the energy for all graphs
 markers = {'V100': 's', 'A100': 'o', 'A10': 'X'}
 optimizer = {'adamw': 'red', 'fused adan': 'blue'}
@@ -19,23 +19,28 @@ accuracy_color = {0.92: 'red', 0.93: 'blue', 0.94: 'green'}
 decive_color = {'V100': 'red', 'A100': 'blue', 'A10': 'green', 'T4': 'orange'}
 
 # (2, 2) subplots
-figs, ax = plt.subplots(1, 2, figsize=(16, 8))
+figs, ax = plt.subplots(2, 2, figsize=(20, 20))
 
 # 1st subplot, hue is optimizer
-ax[0].set(xlabel='Time (second)', ylabel='Energy (mJ)')
+ax[0, 1].set(xlabel='Time (second)', ylabel='Energy (mJ)')
 # subplot title
-ax[0].set_title('Training Time and Energy')
-sns.scatterplot(data=df, x='time', y='energy', hue='device', ax=ax[0])
+ax[0, 1].set_title('Training Time and Energy')
+sns.scatterplot(data=df, x='time', y='energy', hue='device', ax=ax[0, 1])
 
 # 2nd boxplot, y is accuracy, group by device
-ax[1].set(xlabel='Device', ylabel='Accuracy')
-ax[1].set_title('Test Accuracy')
-sns.boxplot(data=df, x='device', y='accuracy', palette=decive_color, ax=ax[1])
+ax[1, 1].set(xlabel='Device', ylabel='Accuracy')
+ax[1, 1].set_title('Test Accuracy')
+sns.boxplot(data=df, x='device', y='accuracy', palette=decive_color, ax=ax[1, 1])
 
-# # 2nd subplot, x is cost, y is accuracy
-# ax[1].set(xlabel='Cost ($)', ylabel='Accuracy')
-# ax[1].set_title('Accuracy and Cost')
-# sns.scatterplot(data=df, x='cost', y='accuracy', hue='device', ax=ax[1])
+# 3nd subplot, x is cost, y is time
+ax[1, 0].set(ylabel='Cost', xlabel='Time (second)')
+ax[1, 0].set_title('Cost Time graph')
+sns.scatterplot(data=df, y='cost', x='time', hue='device', ax=ax[1, 0])
+
+# 4th subplot, x is cost, y is energy
+ax[0, 0].set(ylabel='Cost', xlabel='Energy (mJ)')
+ax[0, 0].set_title('Cost Energy graph')
+sns.scatterplot(data=df, y='cost', x='energy', hue='device', ax=ax[0, 0])
 
 
 # ax[1].set(xlabel='Device', ylabel='Accuracy')
