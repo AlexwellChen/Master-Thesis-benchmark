@@ -3,7 +3,7 @@ clear
 optimizer_setup=(adan adamw)
 mixed_precision_setup=(no fp16)
 lightseq_setup=(huggingface lightseq)
-batch_size_setup=(8 16 32 64)
+batch_size_setup=(8 16 32)
 
 
 for optimizer in ${optimizer_setup[@]}

@@ -3,7 +3,7 @@ clear
 optimizer_setup=(adamw adan)
 mixed_precision_setup=(fp16 no)
 lightseq_setup=(lightseq huggingface)
-batch_size_setup=(8 16 32 64)
+batch_size_setup=(8 16 32)
 
 
 
