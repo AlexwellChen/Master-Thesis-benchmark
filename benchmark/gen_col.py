@@ -51,11 +51,11 @@ for index, row in df.iterrows():
 # add a random noise to the accuracy column, from -0.0099 to 0.0099, except for the A10
 import random
 for index, row in df.iterrows():
-    if df.loc[index, 'device'] != 'A10' and df.loc[index, 'accuracy'].size > 0:
-        accuracy = df.loc[index, 'accuracy'] + random.uniform(-0.0099, 0.0099)
-        # keep 4 digits
-        accuracy = round(accuracy.item(), 4)
-        df.loc[index, 'accuracy'] = accuracy
+    if df.loc[index, 'accuracy'].size > 0:
+        accuracy = df.loc[index, 'accuracy']
+        # # keep 4 digits
+        # accuracy = round(accuracy.item(), 4)
+        df.loc[index, 'accuracy'] = accuracy.item()
 
 
 # save the dataframe to a csv file
