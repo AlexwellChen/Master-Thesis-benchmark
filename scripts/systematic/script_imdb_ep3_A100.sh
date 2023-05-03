@@ -1,6 +1,6 @@
 clear
 # creat bash array
-optimizer_setup=(adamw adan)
+optimizer_setup=(adan adamw)
 mixed_precision_setup=(no fp16)
 lightseq_setup=(huggingface lightseq)
 batch_size_setup=(8 16 32)
