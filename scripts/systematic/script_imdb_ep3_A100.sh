@@ -1,13 +1,10 @@
 clear
 # creat bash array
-# optimizer_setup=(adan adamw)
-# mixed_precision_setup=(no fp16)
-# lightseq_setup=(huggingface lightseq)
-# batch_size_setup=(8 16 32)
-optimizer_setup=(adan)
-mixed_precision_setup=(fp16)
-lightseq_setup=(lightseq)
-batch_size_setup=(32)
+optimizer_setup=(adan adamw)
+mixed_precision_setup=(no fp16)
+lightseq_setup=(huggingface lightseq)
+batch_size_setup=(8 16 32 64)
+
 
 for optimizer in ${optimizer_setup[@]}
         do
