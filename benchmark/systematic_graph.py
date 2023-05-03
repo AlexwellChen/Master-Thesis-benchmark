@@ -6,8 +6,8 @@ import numpy as np
 # read the csv file
 df = pd.read_csv('profiling_A10.csv')
 # optimizer,mixed_precision,module,batch_size,device,time,energy,accuracy
-# delete the row which device is T4
-df = df[df['device'] != 'T4']
+# delete the row which device is T4, V100, A100
+df = df[(df['device'] == 'A10')]
 # x axis is the time, y axis is the energy for all graphs
 markers = {'V100': 's', 'A100': 'o', 'A10': 'X'}
 optimizer = {'adamw': 'red', 'fused adan': 'blue'}
@@ -27,10 +27,15 @@ ax[0].set(xlabel='Time (second)', ylabel='Energy (mJ)')
 ax[0].set_title('Training Time and Energy')
 sns.scatterplot(data=df, x='time', y='energy', style='device', markers=markers, ax=ax[0])
 
-# 2nd subplot, accuracy boxplot, group by device
-ax[1].set(xlabel='Device', ylabel='Accuracy')
-ax[1].set_title('Test Accuracy')
-sns.boxplot(data=df, x='device', y='accuracy', palette=palette, ax=ax[1])
+# 2nd subplot, x is cost, y is accuracy
+ax[1].set(xlabel='Cost ($)', ylabel='Accuracy')
+ax[1].set_title('Accuracy and Cost')
+sns.scatterplot(data=df, x='cost', y='accuracy', hue='device', palette=palette, ax=ax[1])
+
+
+# ax[1].set(xlabel='Device', ylabel='Accuracy')
+# ax[1].set_title('Test Accuracy')
+# sns.boxplot(data=df, x='device', y='accuracy', palette=palette, ax=ax[1])
 
 # # 2nd subplot, accuracy
 # ax[1].set(xlabel='Time (second)', ylabel='Test accuracy')

@@ -12,7 +12,11 @@ device_setup=['V100', 'A100', 'T4', 'A10']
 
 # create a dataframe
 df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'module', 'batch_size', 'device', 'time', 'energy', 'accuracy'])
-act_df = pd.read_csv('profiling_A10.csv')
+A10_df = pd.read_csv('profiling_A10.csv')
+A100_df = pd.read_csv('profiling_A100.csv')
+T4_df = pd.read_csv('profiling_T4.csv')
+V100_df = pd.read_csv('profiling_V100.csv')
+
 # rewrite the for loop in benchmark/systematic.py
 for optimizer in optimizer_setup:
     for mixed_precision in mixed_precision_setup:
@@ -24,13 +28,31 @@ for optimizer in optimizer_setup:
                     # append the row to the dataframe
                     df = df.append(new_row, ignore_index=True)
 
-# iterate over the dataframe
-for index, row in df.iterrows():
-    # find the corresponding row in act_df
-    act_row = act_df[(act_df['optimizer'] == row['optimizer']) & (act_df['mixed_precision'] == row['mixed_precision']) & (act_df['module'] == row['module']) & (act_df['batch_size'] == row['batch_size']) & (act_df['device'] == row['device'])]
-    # update the row
-    df.loc[index, 'time'] = act_row['time'].values
-    df.loc[index, 'energy'] = act_row['energy'].values
-    df.loc[index, 'accuracy'] = act_row['accuracy'].values
+# cost factor
+cost_factor = {'V100': 2, 'A100': 4, 'T4': 0.4, 'A10': 1} # $/h
+
+for name in ['A10_df', 'A100_df', 'T4_df', 'V100_df']:
+    if name == 'A10_df':
+        act_df = A10_df
+    # elif name == 'A100_df':
+    #     act_df = A100_df
+    # elif name == 'T4_df':
+    #     act_df = T4_df
+    # elif name == 'V100_df':
+    #     act_df = V100_df
+    # iterate over the dataframe
+    for index, row in df.iterrows():
+        # find the corresponding row in act_df
+        act_row = act_df[(act_df['optimizer'] == row['optimizer']) & (act_df['mixed_precision'] == row['mixed_precision']) & (act_df['module'] == row['module']) & (act_df['batch_size'] == row['batch_size']) & (act_df['device'] == row['device'])]
+        # update the row
+        df.loc[index, 'time'] = act_row['time'].values
+        df.loc[index, 'energy'] = act_row['energy'].values
+        df.loc[index, 'accuracy'] = act_row['accuracy'].values
+
+# add the cost column
+
+
+
+
 # save the dataframe to a csv file
 df.to_csv('profiling.csv', index=False)
