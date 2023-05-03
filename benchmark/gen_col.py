@@ -50,7 +50,15 @@ for name in ['A10_df', 'A100_df', 'T4_df', 'V100_df']:
         df.loc[index, 'accuracy'] = act_row['accuracy'].values
 
 # add the cost column
-
+df['cost'] = 0
+for index, row in df.iterrows():
+    # time has values and device is A10
+    if df.loc[index, 'device'] == 'A10' and df.loc[index, 'time'].size > 0:
+        cost = df.loc[index, 'time'] * cost_factor[df.loc[index, 'device']] / 3600
+        # keep 4 digits
+        cost = round(cost.item(), 4)
+        df.loc[index, 'cost'] = cost
+    # df.loc[index, 'cost'] = df.loc[index, 'time'] * cost_factor[df.loc[index, 'device']] / 3600
 
 
 

@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # read the csv file
-df = pd.read_csv('profiling_A10.csv')
+df = pd.read_csv('profiling.csv')
 # optimizer,mixed_precision,module,batch_size,device,time,energy,accuracy
 # delete the row which device is T4, V100, A100
 df = df[(df['device'] == 'A10')]
@@ -16,7 +16,7 @@ module = {'lightseq': 'purple', 'huggingface': 'orange'}
 batch_size = {8: 'black', 16: 'pink', 32: 'brown'}
 accuracy_color = {0.92: 'red', 0.93: 'blue', 0.94: 'green'}
 # fig size is 10x10
-palette = sns.light_palette("seagreen")
+decive_color = {'V100': 'red', 'A100': 'blue', 'A10': 'green', 'T4': 'orange'}
 
 # (2, 2) subplots
 figs, ax = plt.subplots(1, 2, figsize=(16, 8))
@@ -25,12 +25,17 @@ figs, ax = plt.subplots(1, 2, figsize=(16, 8))
 ax[0].set(xlabel='Time (second)', ylabel='Energy (mJ)')
 # subplot title
 ax[0].set_title('Training Time and Energy')
-sns.scatterplot(data=df, x='time', y='energy', style='device', markers=markers, ax=ax[0])
+sns.scatterplot(data=df, x='time', y='energy', hue='device', ax=ax[0])
 
-# 2nd subplot, x is cost, y is accuracy
-ax[1].set(xlabel='Cost ($)', ylabel='Accuracy')
-ax[1].set_title('Accuracy and Cost')
-sns.scatterplot(data=df, x='cost', y='accuracy', hue='device', palette=palette, ax=ax[1])
+# 2nd boxplot, y is accuracy, group by device
+ax[1].set(xlabel='Device', ylabel='Accuracy')
+ax[1].set_title('Test Accuracy')
+sns.boxplot(data=df, x='device', y='accuracy', palette=decive_color, ax=ax[1])
+
+# # 2nd subplot, x is cost, y is accuracy
+# ax[1].set(xlabel='Cost ($)', ylabel='Accuracy')
+# ax[1].set_title('Accuracy and Cost')
+# sns.scatterplot(data=df, x='cost', y='accuracy', hue='device', ax=ax[1])
 
 
 # ax[1].set(xlabel='Device', ylabel='Accuracy')
