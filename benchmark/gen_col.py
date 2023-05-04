@@ -20,6 +20,24 @@ for optimizer in optimizer_setup:
         for lightseq in lightseq_setup:
             for batch_size in batch_size_setup:
                 for device in device_setup:
+                    # skip TPUv2 with fp16
+                    if device == 'TPUv2' and mixed_precision == 'fp16':
+                        continue
+                    # skip GPU with bf16
+                    if device != 'TPUv2' and mixed_precision == 'bf16':
+                        continue
+                    # skip GPU with batch size >= 64
+                    if device != 'TPUv2' and batch_size >= 64:
+                        continue
+                    # skip TPU with lightseq
+                    if device == 'TPUv2' and lightseq == 'lightseq':
+                        continue
+                    # skip TPU with batch size <= 64
+                    if device == 'TPUv2' and batch_size <= 64:
+                        continue
+                    # skip TPU with adan
+                    if device == 'TPUv2' and optimizer == 'adan':
+                        continue
                     # create a new row
                     new_row = {'optimizer': optimizer, 'mixed_precision': mixed_precision, 'module': lightseq, 'batch_size': batch_size, 'device': device, 'time': 0, 'energy': 0, 'accuracy': 0}
                     # append the row to the dataframe

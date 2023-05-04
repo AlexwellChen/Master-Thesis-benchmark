@@ -74,10 +74,13 @@ adan,fp16,lightseq,8,T4,1850.11,133718571,0.9334
 adan,fp16,lightseq,16,T4,1613.21,116956240,0.9254
 adan,fp16,huggingface,8,T4,2667.27,192003442,0.9308
 adan,fp16,huggingface,16,T4,2412.63,174149751,0.9342
-adan,fp32,lightseq,8,T4,6002.02,435691052,0.9296
-adan,fp32,lightseq,16,T4,5755.92,418115949,0.9298
+adan,no,lightseq,8,T4,6002.02,435691052,0.9296
+adan,no,lightseq,16,T4,5755.92,418115949,0.9298
+adan,no,huggingface,8,T4,6393.38,463659153,0.932
+adan,no,huggingface,16,T4,6173.80,448178720,0.9268
 adamw,fp32,huggingface,128,TPUv2,746,,0.938
 adamw,fp32,huggingface,64,TPUv2,834.83,,0.926
 adamw,bf16,huggingface,128,TPUv2,675,,0.93
 adamw,bf16,huggingface,256,TPUv2,629,,0.935
 adamw,bf16,huggingface,512,TPUv2,603,,0.933
+adamw,bf16,huggingface,64,TPUv2,763.13,,0.946

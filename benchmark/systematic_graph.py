@@ -18,7 +18,7 @@ batch_size = {8: 'black', 16: 'pink', 32: 'brown'}
 device_color = "tab10"
 
 # (2, 2) subplots
-figs, ax = plt.subplots(2, 2, figsize=(20, 20))
+figs, ax = plt.subplots(2, 2, figsize=(10, 10))
 
 # 1st subplot, hue is optimizer
 ax[0, 1].set(xlabel='Time (second)', ylabel='Energy (mJ)')
@@ -44,11 +44,34 @@ sns.scatterplot(data=df[df['device']!='TPUv2'], y='cost', x='energy', hue='devic
 plt.savefig('test_graph.png')
 
 # new figure for {v100 lightseq fused adan, batch size=16, 32}, {A100 huggingface fused adan, batch size=16 32}
+fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+ax.set(xlabel='Time (second)', ylabel='Energy (mJ)')
+ax.set_title('Software Optimization Energy and Time')
+df_1 = df[(df['device']=='V100') & (df['module']=='lightseq') & (df['optimizer']=='adan') & (df['batch_size']==16)]
+df_2 = df[(df['device']=='V100') & (df['module']=='lightseq') & (df['optimizer']=='adan') & (df['batch_size']==32)]
+df_3 = df[(df['device']=='A100') & (df['module']=='huggingface') & (df['optimizer']=='adan') & (df['batch_size']==16)]
+df_4 = df[(df['device']=='A100') & (df['module']=='huggingface') & (df['optimizer']=='adan') & (df['batch_size']==32)]
+# concat the dataframes
+df_new = pd.concat([df_1, df_2, df_3, df_4])
+# drop fp32
+df_new = df_new[df_new['mixed_precision']!='fp32']
+sns.scatterplot(data=df_new, x='time', y='energy', hue='device', palette=device_color, ax=ax)
+plt.savefig('Software_Optimization.png')
 
 # new figure for mixed precision
-
-# new figure for fused adan and adamw on V100 and A100
+fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+ax.set(xlabel='Time (second)', ylabel='Energy (mJ)')
+ax.set_title('Mixed Precision Energy and Time')
+sns.scatterplot(data=df[df['device']!='TPUv2'], x='time', y='energy', hue='device', palette=device_color, ax=ax, style='mixed_precision')
+plt.savefig('Mixed_Precision.png')
 
 # new figure for different hardware on their best training time and cost
+fig, ax = plt.subplots(1, 1, figsize=(6, 6))
+ax.set(xlabel='Time (second)', ylabel='Cost ($)')
+ax.set_title('Best training time and cost for each device')
+# get rows of the best time for each device
+df_best_time = df.loc[df.groupby(['device'])['time'].idxmin()]
+sns.scatterplot(data=df_best_time, x='time', y='cost', hue='device', palette=device_color, ax=ax)
+plt.savefig('Best_Time_Cost.png')
 
 

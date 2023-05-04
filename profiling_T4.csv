@@ -14,8 +14,5 @@ adan,fp16,huggingface,8,T4,2667.27,192003442,0.9308
 adan,fp16,huggingface,16,T4,2412.63,174149751,0.9342
 adan,no,lightseq,8,T4,6002.02,435691052,0.9296
 adan,no,lightseq,16,T4,5755.92,418115949,0.9298
-<<<<<<< HEAD
 adan,no,huggingface,8,T4,6393.38,463659153,0.932
 adan,no,huggingface,16,T4,6173.80,448178720,0.9268
-=======
->>>>>>> 00f9c261f0c45b743780f624202bf39e75c75f54
