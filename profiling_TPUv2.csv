@@ -1,0 +1,7 @@
+optimizer,mixed_precision,module,batch_size,device,time,energy,accuracy
+adamw,fp32,huggingface,128,TPUv2,746,,0.938
+adamw,fp32,huggingface,64,TPUv2,,,
+adamw,bf16,huggingface,128,TPUv2,675,,0.93
+adamw,bf16,huggingface,256,TPUv2,629,,0.935
+adamw,bf16,huggingface,512,TPUv2,603,,0.933
+adamw,fp32,huggingface,64,TPUv2,834.83,,0.926
