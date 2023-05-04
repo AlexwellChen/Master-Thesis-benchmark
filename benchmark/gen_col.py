@@ -8,7 +8,7 @@ optimizer_setup=['adamw', 'adan']
 mixed_precision_setup=['fp16', 'no']
 lightseq_setup=['lightseq', 'huggingface']
 batch_size_setup=[8, 16, 32]
-device_setup=['V100', 'A100', 'A10']
+device_setup=['V100', 'A100', 'A10', 'T4']
 
 # create a dataframe
 df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'module', 'batch_size', 'device', 'time', 'energy', 'accuracy'])
@@ -26,7 +26,7 @@ for optimizer in optimizer_setup:
                     df = df.append(new_row, ignore_index=True)
 
 # cost factor
-cost_factor = {'V100': 2, 'A100': 4, 'T4': 0.4, 'A10': 1} # $/h
+cost_factor = {'V100': 2, 'A100': 4, 'T4': 0.4, 'A10': 1.1} # $/h
 
 # A10
 for index, row in df.iterrows():

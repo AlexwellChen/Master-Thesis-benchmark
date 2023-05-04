@@ -6,8 +6,6 @@ import numpy as np
 # read the csv file
 df = pd.read_csv('profiling.csv')
 # optimizer,mixed_precision,module,batch_size,device,time,energy,accuracy
-# delete the row which device is T4, V100, A100
-# df = df[(df['device'] == 'A10')]
 # x axis is the time, y axis is the energy for all graphs
 markers = {'V100': 's', 'A100': 'o', 'A10': 'X'}
 optimizer = {'adamw': 'red', 'fused adan': 'blue'}
@@ -34,12 +32,12 @@ sns.boxplot(data=df, x='device', y='accuracy', palette=decive_color, ax=ax[1, 1]
 
 # 3nd subplot, x is cost, y is time
 ax[1, 0].set(ylabel='Cost', xlabel='Time (second)')
-ax[1, 0].set_title('Cost Time graph')
+ax[1, 0].set_title('Training Cost and Time')
 sns.scatterplot(data=df, y='cost', x='time', hue='device', ax=ax[1, 0])
 
 # 4th subplot, x is cost, y is energy
 ax[0, 0].set(ylabel='Cost', xlabel='Energy (mJ)')
-ax[0, 0].set_title('Cost Energy graph')
+ax[0, 0].set_title('Training Cost Energy')
 sns.scatterplot(data=df, y='cost', x='energy', hue='device', ax=ax[0, 0])
 
 
