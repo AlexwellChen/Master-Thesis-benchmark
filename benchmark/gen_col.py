@@ -5,10 +5,10 @@
 import pandas as pd
 
 optimizer_setup=['adamw', 'adan']
-mixed_precision_setup=['fp16', 'no']
+mixed_precision_setup=['fp16', 'fp32', 'bf16']
 lightseq_setup=['lightseq', 'huggingface']
-batch_size_setup=[8, 16, 32]
-device_setup=['V100', 'A100', 'A10', 'T4']
+batch_size_setup=[8, 16, 32, 64, 128, 256, 512]
+device_setup=['V100', 'A100', 'A10', 'T4', 'TPUv2']
 
 # create a dataframe
 df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'module', 'batch_size', 'device', 'time', 'energy', 'accuracy'])
@@ -26,7 +26,7 @@ for optimizer in optimizer_setup:
                     df = df.append(new_row, ignore_index=True)
 
 # cost factor
-cost_factor = {'V100': 2, 'A100': 4, 'T4': 0.4, 'A10': 1.1} # $/h
+cost_factor = {'V100': 2, 'A100': 4, 'T4': 0.4, 'A10': 1.1, 'TPUv2':1.24} # $/h
 
 # A10
 for index, row in df.iterrows():
@@ -48,14 +48,9 @@ for index, row in df.iterrows():
         df.loc[index, 'cost'] = cost
     # df.loc[index, 'cost'] = df.loc[index, 'time'] * cost_factor[df.loc[index, 'device']] / 3600
 
-# add a random noise to the accuracy column, from -0.0099 to 0.0099, except for the A10
-import random
-for index, row in df.iterrows():
-    if df.loc[index, 'accuracy'].size > 0:
-        accuracy = df.loc[index, 'accuracy']
-        # # keep 4 digits
-        # accuracy = round(accuracy.item(), 4)
-        df.loc[index, 'accuracy'] = accuracy.item()
+
+# change no to fp32 in mixed precision column
+pass
 
 
 # save the dataframe to a csv file
