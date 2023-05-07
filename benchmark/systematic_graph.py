@@ -32,16 +32,16 @@ ax[1, 1].set_title('Test Accuracy')
 sns.boxplot(data=df, x='device', y='accuracy', palette=device_color, ax=ax[1, 1])
 
 # 3nd subplot, x is cost, y is time
-ax[1, 0].set(ylabel='Cost', xlabel='Time (second)')
+ax[1, 0].set(ylabel='Cost ($)', xlabel='Time (second)')
 ax[1, 0].set_title('Training Cost and Time')
 sns.scatterplot(data=df, y='cost', x='time', hue='device', palette=device_color, ax=ax[1, 0])
 
 # 4th subplot, x is cost, y is energy
-ax[0, 0].set(ylabel='Cost', xlabel='Energy (mJ)')
+ax[0, 0].set(ylabel='Cost ($)', xlabel='Energy (mJ)')
 ax[0, 0].set_title('Training Cost and Energy')
 sns.scatterplot(data=df[df['device']!='TPUv2'], y='cost', x='energy', hue='device', palette=device_color, ax=ax[0, 0])
 
-plt.savefig('test_graph.png')
+plt.savefig('overall_results.png')
 
 # new figure for {v100 lightseq fused adan, batch size=16, 32}, {A100 huggingface fused adan, batch size=16 32}
 fig, ax = plt.subplots(1, 1, figsize=(6, 6))
