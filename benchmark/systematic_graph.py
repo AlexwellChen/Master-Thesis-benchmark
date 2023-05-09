@@ -9,7 +9,7 @@ df = pd.read_csv('profiling.csv')
 # x axis is the time, y axis is the energy for all graphs
 markers = {'V100': 's', 'A100': 'o', 'A10': 'X'}
 optimizer = {'adamw': 'red', 'fused adan': 'blue'}
-mixed_precision = {'fp16': 'green', 'no': 'chocolate'}
+mixed_precision = {'fp16': 'green', 'fp32': 'chocolate', 'bf16': 'purple'}
 module = {'lightseq': 'purple', 'huggingface': 'orange'}
 batch_size = {8: 'black', 16: 'pink', 32: 'brown'}
 
@@ -18,7 +18,7 @@ batch_size = {8: 'black', 16: 'pink', 32: 'brown'}
 device_color = "tab10"
 
 # (2, 2) subplots
-figs, ax = plt.subplots(2, 2, figsize=(10, 10))
+figs, ax = plt.subplots(2, 2, figsize=(12, 12))
 
 # 1st subplot, hue is optimizer
 ax[0, 1].set(xlabel='Time (second)', ylabel='Energy (mJ)')
@@ -26,10 +26,10 @@ ax[0, 1].set(xlabel='Time (second)', ylabel='Energy (mJ)')
 ax[0, 1].set_title('Training Energy and Time')
 sns.scatterplot(data=df[df['device']!='TPUv2'], x='time', y='energy', hue='device', palette=device_color, ax=ax[0, 1])
 
-# 2nd boxplot, y is accuracy, group by device
-ax[1, 1].set(xlabel='Device', ylabel='Accuracy')
-ax[1, 1].set_title('Test Accuracy')
-sns.boxplot(data=df, x='device', y='accuracy', palette=device_color, ax=ax[1, 1])
+# 2nd boxplot, y is accuracy, x is time, hue is mixed_precision
+ax[1, 1].set(xlabel='Time (second)', ylabel='Accuracy (%)')
+ax[1, 1].set_title('Training Accuracy and Time')
+sns.scatterplot(data=df, x='time', y='accuracy', hue='mixed_precision', palette=mixed_precision, ax=ax[1, 1])
 
 # 3nd subplot, x is cost, y is time
 ax[1, 0].set(ylabel='Cost ($)', xlabel='Time (second)')

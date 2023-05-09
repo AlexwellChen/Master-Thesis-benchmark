@@ -101,3 +101,9 @@ adan,fp32,huggingface,32,V100,,,,0.0
 adan,fp32,huggingface,32,A100,1429.52,4.35017003e+08,0.9268,1.5884
 adan,fp32,huggingface,32,A10,,,,0.0
 adan,fp32,huggingface,32,T4,,,,0.0
+adamw,fp32,huggingface,128,TPUv2,746,,0.938
+adamw,fp32,huggingface,64,TPUv2,,,
+adamw,bf16,huggingface,128,TPUv2,675,,0.93
+adamw,bf16,huggingface,256,TPUv2,629,,0.935
+adamw,bf16,huggingface,512,TPUv2,603,,0.933
+adamw,fp32,huggingface,64,TPUv2,834.83,,0.926
