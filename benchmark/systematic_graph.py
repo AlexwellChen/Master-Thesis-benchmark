@@ -28,7 +28,7 @@ sns.scatterplot(data=df[df['device']!='TPUv2'], x='time', y='energy', hue='devic
 
 # 2nd boxplot, y is accuracy, x is time, hue is mixed_precision
 ax[1, 1].set(xlabel='Time (second)', ylabel='Accuracy (%)')
-ax[1, 1].set_title('Training Accuracy and Time')
+ax[1, 1].set_title('Test Accuracy and Time')
 sns.scatterplot(data=df, x='time', y='accuracy', hue='mixed_precision', palette=mixed_precision, ax=ax[1, 1])
 
 # 3nd subplot, x is cost, y is time
