@@ -173,6 +173,8 @@ if __name__ == '__main__':
         args.max_batch_tokens = 8192
     elif args.batch_size == 32:
         args.max_batch_tokens = 16384
+    elif args.batch_size == 64:
+        args.max_batch_tokens = 32768
 
     torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)
