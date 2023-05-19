@@ -24,6 +24,12 @@ from accelerate import DistributedDataParallelKwargs
 
 import pandas as pd
 
+def seed_torch(seed):
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+
 
 def data_process(args):
     # Define the function to encode the data
@@ -176,8 +182,8 @@ if __name__ == '__main__':
     elif args.batch_size == 64:
         args.max_batch_tokens = 32768
 
-    torch.manual_seed(args.seed)
     transformers.set_seed(args.seed)
+    seed_torch(args.seed)
 
     # create df
     df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'module', 'batch_size', 'device', 'time', 'energy', 'accuracy'])
