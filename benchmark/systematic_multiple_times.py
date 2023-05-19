@@ -21,15 +21,20 @@ from ls_module.ls_hf_transformer_layer import LSBertForSequenceClassification
 from ls_module.hf_args import ModelArguments
 
 from accelerate import DistributedDataParallelKwargs
-
+import random
+import numpy as np
 import pandas as pd
 
 def seed_torch(seed):
+    random.seed(seed)
     os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.enabled = True
 
 
 def data_process(args):
