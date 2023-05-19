@@ -191,9 +191,9 @@ if __name__ == '__main__':
     transformers.set_seed(args.seed)
     seed_torch(args.seed)
 
-    # create df
-    df = pd.DataFrame(columns=['optimizer', 'mixed_precision', 'module', 'batch_size', 'device', 'time', 'energy', 'accuracy'])
-    
+    # read csv
+    df = pd.read_csv('profiling_'+args.device+"_multiple_times"+'.csv')
+
     if args.optimizer == 'adamw':
         args.lr = 5e-5
         args.fused_optimizer = False
