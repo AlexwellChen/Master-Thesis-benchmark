@@ -3,6 +3,12 @@ import torch
 from tqdm import tqdm
 import pynvml
 
+def seed_torch(seed):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
 
 class AcceleratorTrainer:
     def __init__(
@@ -31,7 +37,7 @@ class AcceleratorTrainer:
 
         pynvml.nvmlInit()
         self.device_count = pynvml.nvmlDeviceGetCount()
-        torch.manual_seed(seed)
+        seed_torch(seed)
 
     def get_sm_occupancy(self):
         for i in range(self.device_count):

@@ -234,7 +234,7 @@ if __name__ == '__main__':
 
                     
     # overwrite csv
-    df.to_csv('profiling_'+args.device+'.csv', index=False)
+    df.to_csv('profiling_'+args.device+"_multiple_times"+'.csv', index=False)
         
 
     
