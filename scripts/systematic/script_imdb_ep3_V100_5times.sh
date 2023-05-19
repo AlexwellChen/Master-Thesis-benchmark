@@ -2,8 +2,8 @@ clear
 # creat bash array
 optimizer_setup=(adan)
 mixed_precision_setup=(fp16)
-lightseq_setup=(lightseq)
-batch_size_setup=(32)
+lightseq_setup=(lightseq huggingface)
+batch_size_setup=(16)
 running_times=5
 
 for ((i=1; i<=running_times; i++))
