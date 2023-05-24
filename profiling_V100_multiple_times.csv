@@ -1,2 +1,11 @@
 optimizer,mixed_precision,module,batch_size,device,time,energy,accuracy
-
+adan,fp16,lightseq,16,V100,541.37,126526556,0.9226
+adan,fp16,huggingface,16,V100,822.62,178056570,0.9298
+adan,fp16,lightseq,16,V100,541.45,126676899,0.9296
+adan,fp16,huggingface,16,V100,822.24,178298177,0.9298
+adan,fp16,lightseq,16,V100,541.25,126590365,0.9386
+adan,fp16,huggingface,16,V100,822.81,178405501,0.9298
+adan,fp16,lightseq,16,V100,541.07,126658865,0.9294
+adan,fp16,huggingface,16,V100,823.06,178418216,0.9298
+adan,fp16,lightseq,16,V100,540.86,126505887,0.9228
+adan,fp16,huggingface,16,V100,822.56,178255035,0.9298
