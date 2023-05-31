@@ -5,6 +5,8 @@ import numpy as np
 
 # read the csv file
 df = pd.read_csv('profiling copy.csv')
+# convert energy from mJ to kW·h
+df['energy'] = df['energy'] / 3600000000
 # optimizer,mixed_precision,module,batch_size,device,time,energy,accuracy
 # x axis is the time, y axis is the energy for all graphs
 markers = {'V100': 's', 'A100': 'o', 'A10': 'X'}
@@ -21,7 +23,7 @@ device_color = "tab10"
 figs, ax = plt.subplots(2, 2, figsize=(12, 12))
 
 # 1st subplot, hue is optimizer
-ax[0, 1].set(xlabel='Time (second)', ylabel='Energy (mJ)')
+ax[0, 1].set(xlabel='Time (second)', ylabel='Energy (kW·h)')
 # subplot title
 ax[0, 1].set_title('(B) Training Energy and Time')
 # df without TPUv2 and TPUv3
@@ -39,7 +41,7 @@ ax[1, 0].set_title('(C) Training Cost and Time')
 sns.scatterplot(data=df, y='cost', x='time', hue='device', palette=device_color, ax=ax[1, 0])
 
 # 4th subplot, x is cost, y is energy
-ax[0, 0].set(ylabel='Cost ($)', xlabel='Energy (mJ)')
+ax[0, 0].set(ylabel='Cost ($)', xlabel='Energy (kW·h)')
 ax[0, 0].set_title('(A) Training Cost and Energy')
 sns.scatterplot(data=df[(df['device']!='TPUv2') & (df['device']!='TPUv3')], y='cost', x='energy', hue='device', palette=device_color, ax=ax[0, 0])
 
@@ -47,7 +49,7 @@ plt.savefig('overall_results_v3.png')
 
 # new figure for {v100 lightseq fused adan, batch size=16, 32}, {A100 huggingface fused adan, batch size=16 32}, {V100 huggingface fused adan, batch size=16 32}
 fig, ax = plt.subplots(1, 1, figsize=(6, 6))
-ax.set(xlabel='Time (second)', ylabel='Energy (mJ)')
+ax.set(xlabel='Time (second)', ylabel='Energy (kW·h)')
 ax.set_title('Software Optimization Energy and Time')
 df_1 = df[(df['device']=='V100') & (df['module']=='lightseq') & (df['optimizer']=='adan') & (df['batch_size']==16)]
 df_2 = df[(df['device']=='V100') & (df['module']=='lightseq') & (df['optimizer']=='adan') & (df['batch_size']==32)]
@@ -63,7 +65,7 @@ plt.savefig('Software_Optimization_v3.png')
 
 # new figure for mixed precision
 fig, ax = plt.subplots(1, 1, figsize=(6, 6))
-ax.set(xlabel='Time (second)', ylabel='Energy (mJ)')
+ax.set(xlabel='Time (second)', ylabel='Energy (kW·h)')
 ax.set_title('Mixed Precision Energy and Time')
 sns.scatterplot(data=df[(df['device']!='TPUv2') & (df['device']!='TPUv3')], x='time', y='energy', hue='device', palette=device_color, ax=ax, style='mixed_precision')
 plt.savefig('Mixed_Precision_v3.png')
